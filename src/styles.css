@@ -1,0 +1,51 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --color-bg: #f3f0e8;
+  --color-surface: #fffcf8;
+  --color-ink: #1c2430;
+  --color-muted: #5d6976;
+  --color-line: #e2dbd0;
+  --color-accent: #b8612f;
+  --color-accent-fg: #fffaf6;
+  --color-on-ink: #f6f3ec;
+  --color-on-ink-muted: #c5cdc6;
+  --color-danger: #8d2f2f;
+  --radius-md: 0.5rem;
+}
+
+@utility catalog-dialog {
+  max-height: calc(100dvh - 2rem);
+}
+
+@layer base {
+  html {
+    background: var(--color-bg);
+    color: var(--color-ink);
+  }
+
+  body {
+    min-height: 100vh;
+    background: var(--color-bg);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
