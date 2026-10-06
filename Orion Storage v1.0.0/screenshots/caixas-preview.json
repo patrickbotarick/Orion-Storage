@@ -1,0 +1,38 @@
+{
+  "url": "http://127.0.0.1:8080/caixas",
+  "viewports": {
+    "desktop": {
+      "width": 1280,
+      "height": 800,
+      "status": 200,
+      "title": "ORION STORAGE",
+      "hasCanvas": false,
+      "bodyTextLen": 1046,
+      "bodyTextHash": "e97007238d365cb923bf707bd2f227bb85720c15761dedc21354ffa6e5b5fd9c",
+      "bodyTextPrefix": "ORION STORAGE Estoque físico Produtos Caixas RASTREABILIDADE Cai",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/caixas-preview.png"
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "status": 200,
+      "title": "ORION STORAGE",
+      "hasCanvas": false,
+      "bodyTextLen": 1046,
+      "bodyTextHash": "b43663a172d728509a0d71c65165dff2804e2f0154f12e51303e69159a1d159a",
+      "bodyTextPrefix": "ORION STORAGE Estoque físico Produtos Caixas RASTREABILIDADE Cai",
+      "horizontalOverflow": false,
+      "consoleErrors": [],
+      "pageErrors": [],
+      "screenshot": "/workspace/screenshots/caixas-preview-mobile.png"
+    }
+  },
+  "brandWarnings": [
+    "BRAND NOTE: no custom public/og.jpg — the platform will serve the og.grok.me placeholder. Custom cards are the default for games of every kind (DOM board/word games included), whimsical apps, creative tools, and brand-forward pages — only plain utilities (converters, CRUD trackers, admin dashboards) keep the placeholder. If this app is not a plain utility, finish the brand-asset pass per /workspace/.grok/skills/og/SKILL.md."
+  ],
+  "authWarnings": [],
+  "verdictFile": "/workspace/screenshots/caixas-preview.json"
+}
