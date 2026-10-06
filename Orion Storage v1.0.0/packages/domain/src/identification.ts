@@ -1,4 +1,8 @@
-import { IdentificationNotFoundError, IdentificationPayloadError } from "./errors";
+import {
+  AmbiguousIdentificationError,
+  IdentificationNotFoundError,
+  IdentificationPayloadError,
+} from "./errors";
 import { canonicalBoxCode, parseBoxCode } from "./box-code";
 import { toCodeToken } from "./normalize";
 
@@ -58,7 +62,7 @@ export function parseQrPayload(payload: string): QrIdentity {
     throw new IdentificationPayloadError("O QR não pode depender de um endereço de servidor.");
   }
   if (!SCHEME.test(value)) {
-    throw new IdentificationPayloadError("O QR não é um identificador do Orion Storage.");
+    throw new IdentificationPayloadError("QR Code não pertence ao Orion Storage.");
   }
   const rest = value.replace(SCHEME, "");
   if (/[?#\s]/.test(rest)) {
@@ -73,7 +77,7 @@ export function parseQrPayload(payload: string): QrIdentity {
     throw new IdentificationPayloadError("O identificador tem um formato inválido.");
   }
   if (versionRaw.toLowerCase() !== QR_VERSION) {
-    throw new IdentificationPayloadError(`Versão de identificador não suportada: ${versionRaw}.`);
+    throw new IdentificationPayloadError("Versão do QR não suportada.");
   }
   const type = typeRaw.toLowerCase();
   if (type !== "box" && type !== "location") {
@@ -117,6 +121,33 @@ export function resolveIdentification(
   );
   if (!location) throw new IdentificationNotFoundError("location", identity.code);
   return { type: "location", entityId: location.id, code: canonicalLocationCode(location.code) };
+}
+
+/**
+ * Manual entry accepts a bare operational code or a full QR payload.
+ * A code that matches both a box and a location is rejected.
+ */
+export function resolveManualEntry(raw: string, catalog: IdentificationCatalog): IdentificationHit {
+  const value = raw.trim();
+  if (!value) throw new IdentificationPayloadError("O identificador está vazio.");
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) return resolveIdentification(value, catalog);
+
+  const boxCode = canonicalBoxCode(value);
+  const locationCode = canonicalLocationCode(value);
+  const box = parseBoxCode(boxCode)
+    ? catalog.boxes.find((item) => canonicalBoxCode(item.code) === boxCode)
+    : undefined;
+  const location = isLocationCode(locationCode)
+    ? catalog.locations.find((item) => canonicalLocationCode(item.code) === locationCode)
+    : undefined;
+  if (box && location) throw new AmbiguousIdentificationError(value);
+  if (box) return { type: "box", entityId: box.id, code: canonicalBoxCode(box.code) };
+  if (location) {
+    return { type: "location", entityId: location.id, code: canonicalLocationCode(location.code) };
+  }
+  if (parseBoxCode(boxCode)) throw new IdentificationNotFoundError("box", boxCode);
+  if (isLocationCode(locationCode)) throw new IdentificationNotFoundError("location", locationCode);
+  throw new IdentificationPayloadError("QR Code não pertence ao Orion Storage.");
 }
 
 function payload(type: QrType, code: string): string {

@@ -217,13 +217,44 @@ export class IdentificationNotFoundError extends Error {
   readonly code: string;
 
   constructor(kind: "box" | "location", code: string) {
-    super(
-      kind === "box"
-        ? `Não foi encontrada uma caixa com o código ${code}.`
-        : `Não foi encontrado um endereço com o código ${code}.`,
-    );
+    super(kind === "box" ? "Caixa não encontrada." : "Localização não encontrada.");
     this.name = "IdentificationNotFoundError";
     this.kind = kind;
     this.code = code;
   }
 }
+
+export class AmbiguousIdentificationError extends Error {
+  readonly code: string;
+
+  constructor(code: string) {
+    super(`O código ${code} corresponde a mais de um registro. Use o QR completo.`);
+    this.name = "AmbiguousIdentificationError";
+    this.code = code;
+  }
+}
+
+export class SameLocationMovementError extends Error {
+  constructor() {
+    super("Esta caixa já está nesta localização.");
+    this.name = "SameLocationMovementError";
+  }
+}
+
+export class MovementNotNeededError extends Error {
+  constructor() {
+    super("Esta caixa já está sem localização.");
+    this.name = "MovementNotNeededError";
+  }
+}
+
+export class DuplicateMovementError extends Error {
+  readonly id: string;
+
+  constructor(id: string) {
+    super(`A movimentação ${id} já foi registrada.`);
+    this.name = "DuplicateMovementError";
+    this.id = id;
+  }
+}
+

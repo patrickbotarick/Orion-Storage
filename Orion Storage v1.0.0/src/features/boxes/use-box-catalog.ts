@@ -9,12 +9,13 @@ import {
   type BoxStatus,
   type BoxUpdateInput,
   type Location,
+  type Movement,
   type Product,
 } from "@orion/domain";
 
-import { getBrowserBoxLocationService } from "@/application/locations/box-location-service";
 import { getBrowserBoxService } from "@/application/boxes/box-service";
 import { getBrowserLocationService } from "@/application/locations/location-service";
+import { getBrowserMovementService } from "@/application/movements/movement-service";
 import { getBrowserProductService } from "@/application/products/product-service";
 
 const INITIAL_QUERY: BoxQuery = {
@@ -30,18 +31,21 @@ export function useBoxCatalog() {
   const [boxes, setBoxes] = useState<Box[] | null>(null);
   const [products, setProducts] = useState<Product[] | null>(null);
   const [locations, setLocations] = useState<Location[] | null>(null);
+  const [movements, setMovements] = useState<Movement[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState<BoxQuery>(INITIAL_QUERY);
 
   const reload = useCallback(async () => {
-    const [nextBoxes, nextProducts, nextLocations] = await Promise.all([
+    const [nextBoxes, nextProducts, nextLocations, nextMovements] = await Promise.all([
       getBrowserBoxService().list(),
       getBrowserProductService().list(),
       getBrowserLocationService().listLocations(),
+      getBrowserMovementService().list(),
     ]);
     setBoxes(nextBoxes);
     setProducts(nextProducts);
     setLocations(nextLocations);
+    setMovements(nextMovements);
     setError(null);
   }, []);
 
@@ -51,12 +55,14 @@ export function useBoxCatalog() {
       getBrowserBoxService().list(),
       getBrowserProductService().list(),
       getBrowserLocationService().listLocations(),
+      getBrowserMovementService().list(),
     ])
-      .then(([nextBoxes, nextProducts, nextLocations]) => {
+      .then(([nextBoxes, nextProducts, nextLocations, nextMovements]) => {
         if (cancelled) return;
         setBoxes(nextBoxes);
         setProducts(nextProducts);
         setLocations(nextLocations);
+        setMovements(nextMovements);
       })
       .catch((caught: unknown) => {
         if (!cancelled) setError(errorMessage(caught));
@@ -101,16 +107,18 @@ export function useBoxCatalog() {
   }
 
   async function setLocation(id: string, locationId: string | null) {
-    const updated = locationId
-      ? await getBrowserBoxLocationService().assign(id, locationId)
-      : await getBrowserBoxLocationService().clear(id);
+    if (locationId) await getBrowserMovementService().place(id, locationId, "MANUAL");
+    else await getBrowserMovementService().remove(id, "MANUAL");
     await reload();
+    const updated = await getBrowserBoxService().getById(id);
+    if (!updated) throw new Error("Caixa não encontrada.");
     return updated;
   }
 
   return {
     products,
     locations: locations ?? [],
+    movements,
     activeProducts,
     brands,
     visible,

@@ -18,6 +18,9 @@ export interface BoxRepository {
       nextLocationId?: string;
       previousCode?: string;
       nextCode?: string;
+      movementId?: string;
     },
   ): Promise<Box>;
+  /** Restores an exact snapshot. Used only to undo a movement write that did not finish. */
+  replace(box: Box): Promise<Box>;
 }

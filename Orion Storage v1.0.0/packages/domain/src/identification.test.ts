@@ -1,12 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import { demoBoxState } from "./box-seeds";
-import { IdentificationNotFoundError, IdentificationPayloadError } from "./errors";
+import {
+  IdentificationNotFoundError,
+  IdentificationPayloadError,
+  AmbiguousIdentificationError,
+} from "./errors";
 import {
   createBoxQrPayload,
   createLocationQrPayload,
   parseQrPayload,
   resolveIdentification,
+  resolveManualEntry,
   validateQrPayload,
 } from "./identification";
 import { demoLocations } from "./location-seeds";
@@ -68,5 +73,24 @@ describe("identificação por QR", () => {
     expect(() =>
       resolveIdentification("orion://v1/location/SUP-Z-09-09-09", { boxes, locations }),
     ).toThrow(IdentificationNotFoundError);
+  });
+
+  it("resolve código simples de caixa e de endereço", () => {
+    const boxes = demoBoxState().boxes;
+    const locations = demoLocations();
+    const box = resolveManualEntry(boxes[0]!.code, { boxes, locations });
+    expect(box).toEqual({ type: "box", entityId: boxes[0]!.id, code: boxes[0]!.code });
+    const location = resolveManualEntry("sup-a-01-01-01", { boxes, locations });
+    expect(location.type).toBe("location");
+    expect(location.code).toBe("SUP-A-01-01-01");
+    expect(resolveManualEntry(createBoxQrPayload(boxes[0]!.code), { boxes, locations }).type).toBe(
+      "box",
+    );
+    expect(() =>
+      resolveManualEntry("CX-20261006-000001", {
+        boxes: [{ id: "box-same", code: "CX-20261006-000001" }],
+        locations: [{ id: "loc-same", code: "CX-20261006-000001" }],
+      }),
+    ).toThrow(AmbiguousIdentificationError);
   });
 });

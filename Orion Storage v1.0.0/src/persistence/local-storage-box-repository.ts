@@ -160,7 +160,12 @@ export class LocalStorageBoxRepository implements BoxRepository {
 
   async setCurrentLocation(
     id: string,
-    change: { nextLocationId?: string; previousCode?: string; nextCode?: string },
+    change: {
+      nextLocationId?: string;
+      previousCode?: string;
+      nextCode?: string;
+      movementId?: string;
+    },
   ): Promise<Box> {
     const state = this.readState();
     const index = state.boxes.findIndex((box) => box.id === id);
@@ -175,6 +180,7 @@ export class LocalStorageBoxRepository implements BoxRepository {
       previousCode: change.previousCode,
       nextId: nextLocationId,
       nextCode: change.nextCode,
+      movementId: change.movementId,
     });
     if (!entry) return cloneBox(current);
     const updated = cloneBox(current);
@@ -185,6 +191,15 @@ export class LocalStorageBoxRepository implements BoxRepository {
     state.boxes[index] = updated;
     this.writeState(state);
     return cloneBox(updated);
+  }
+
+  async replace(box: Box): Promise<Box> {
+    const state = this.readState();
+    const index = state.boxes.findIndex((item) => item.id === box.id);
+    if (index < 0) throw new BoxNotFoundError(box.id);
+    state.boxes[index] = cloneBox(box);
+    this.writeState(state);
+    return cloneBox(box);
   }
 
   private readState(): BoxPersistenceState {

@@ -3,9 +3,12 @@ import {
   BOX_STATUSES,
   BOX_STATUS_LABEL,
   createBoxQrPayload,
+  MOVEMENT_SOURCE_LABEL,
+  MOVEMENT_TYPE_LABEL,
   type Box,
   type BoxStatus,
   type Location,
+  type Movement,
   type Product,
 } from "@orion/domain";
 import {
@@ -27,6 +30,7 @@ type BoxDetailProps = {
   product: Product | null;
   locations: Location[];
   locationCode?: string;
+  movements: Movement[];
   submitting: boolean;
   onEdit: () => void;
   onStatus: (status: BoxStatus) => Promise<void>;
@@ -41,6 +45,7 @@ export function BoxDetail({
   product,
   locations,
   locationCode,
+  movements,
   submitting,
   onEdit,
   onStatus,
@@ -175,6 +180,30 @@ export function BoxDetail({
             </div>
           </div>
         </div>
+      </section>
+
+      <section>
+        <h3 className="text-sm font-semibold tracking-wide text-muted uppercase">Movimentações</h3>
+        {movements.length === 0 ? (
+          <p className="mt-2 text-sm text-muted">
+            Nenhuma movimentação registrada. Uma localização anterior a esta fase não gera histórico retroativo.
+          </p>
+        ) : (
+          <ol className="mt-3 flex flex-col gap-3">
+            {movements.map((movement) => (
+              <li key={movement.id} className="border-l-2 border-line pl-3">
+                <p className="text-xs text-muted">
+                  {formatDateTimePt(movement.createdAt)} · {MOVEMENT_TYPE_LABEL[movement.type]} ·{" "}
+                  {MOVEMENT_SOURCE_LABEL[movement.source]}
+                </p>
+                <p className="text-sm text-ink">
+                  {movement.metadata?.fromLocationCode ?? "Sem localização"} →{" "}
+                  {movement.metadata?.toLocationCode ?? "Sem localização"}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
 
       <section>

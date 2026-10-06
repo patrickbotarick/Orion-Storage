@@ -2,11 +2,11 @@
 
 Sistema independente de controle de estoque físico.
 
-A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física. A Fase 2B entrega o endereço. A Fase 3A entrega o QR e a etiqueta básica da caixa e do endereço. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
+A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física. A Fase 2B entrega o endereço. A Fase 3A entrega o QR e a etiqueta básica. A Fase 3B entrega o scanner e a movimentação operacional. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
 
 ## Objetivo
 
-Separar o cadastro do produto da unidade física que está no estoque. Cada caixa tem código próprio, mesmo quando várias carregam o mesmo produto. O QR identifica a caixa ou o endereço sem depender do endereço do servidor. Scanner e movimentação ficam para as fases seguintes.
+Separar o cadastro do produto da unidade física que está no estoque. Cada caixa tem código próprio, mesmo quando várias carregam o mesmo produto. O QR identifica a caixa ou o endereço sem depender do endereço do servidor. A movimentação só acontece depois de uma confirmação explícita.
 
 ## Stack
 
@@ -40,7 +40,7 @@ npm install
 | `npm run dev`       | Sobe o aplicativo na porta 8080. Outra porta: `npm run dev -- --port 8091` |
 | `npm run typecheck` | TypeScript sem emitir arquivos                                                            |
 | `npm run lint`      | ESLint                                                                                    |
-| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A, 2B e 3A)     |
+| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A, 2B, 3A e 3B) |
 | `npm run build`     | Build de produção                                                                         |
 | `npm run format`    | Prettier                                                                                  |
 
@@ -51,11 +51,11 @@ Não há banco, autenticação nem serviços externos. Os dados ficam no `localS
 ## Estrutura
 
 ```text
-packages/domain/     produtos, caixas, áreas, endereços, QR, etiquetas, histórico, validação
+packages/domain/     produtos, caixas, áreas, endereços, QR, etiquetas, movimentação, histórico
 packages/shared/     formatação e rótulos
-src/application/     ProductService, BoxService e serviços de endereçamento
+src/application/     ProductService, BoxService, endereçamento e MovementService
 src/persistence/     repositórios em localStorage
-src/features/        telas de produtos, caixas e endereçamento
+src/features/        telas de produtos, caixas, endereçamento, scanner e movimentações
 src/routes/          entrada da aplicação web
 docs/                documentação das fases
 ```
@@ -69,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos**, **Caixas** e **Endereçamento**. Os três lados já abrem com dados de demonstração.
+Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos**, **Caixas**, **Endereçamento**, **Scanner** e **Movimentações**. Os cadastros já abrem com dados de demonstração. A chave de movimentações começa vazia: localização antiga não vira movimento retroativo.
 
 ### Início rápido no Windows
 
@@ -90,7 +90,7 @@ Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegaçã
 npm test
 ```
 
-Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B e, na Fase 3A, o payload do QR, a resolução e a composição das etiquetas.
+Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B, o QR e as etiquetas da Fase 3A e, na Fase 3B, a movimentação, a sessão do scanner e a entrada manual. Não há teste da câmera física.
 
 ## Status atual
 
@@ -98,7 +98,8 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B 
 - Fase 2A concluída: caixas físicas e rastreabilidade básica.
 - Fase 2B concluída: endereçamento físico.
 - Fase 3A concluída: QR Code e etiquetas básicas.
-- Scanner, mapa gráfico e movimentação completa não foram iniciados.
+- Fase 3B concluída: scanner e movimentação operacional.
+- Mapa gráfico, inventário, recebimento em lote, expedição, usuários e banco remoto não foram iniciados.
 
 ## Funcionalidades da Fase 1
 
@@ -125,7 +126,17 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B 
 
 ## Próximos passos
 
-Ainda não há scanner, mapa gráfico ou entidade de movimentação. O próximo passo natural é a leitura do QR (Fase 3B), reutilizando `resolveIdentification`, sem transformar o endereço em um mapa visual.
+Ainda não há mapa gráfico, inventário, recebimento em lote nem expedição. O próximo passo natural é um mapa de ocupação somente leitura, reutilizando a localização atual e o registro de movimentação, sem arrastar caixas na tela.
+
+## Funcionalidades da Fase 3B
+
+- Scanner em `/scanner`, com câmera traseira quando o navegador permitir e campo para digitar ou colar o código
+- Leitura de caixa e depois de endereço, com confirmação explícita
+- Remoção da localização sem QR de destino vazio
+- Movement append-only: `STORED`, `MOVED` e `REMOVED`, com origem `SCAN` ou `MANUAL`
+- A tela da caixa e o detalhe do endereço mostram as movimentações
+- A lista em `/movimentacoes` busca por caixa, produto, origem e destino e filtra tipo, origem, data e caixa
+- Chave `orion-storage.movements.v1`, vazia quando ainda não existe
 
 ## Funcionalidades da Fase 3A
 

@@ -1,5 +1,6 @@
 export { buildDuplicateInput } from "./duplicate";
 export {
+  AmbiguousIdentificationError,
   BoxCodeCapacityError,
   BoxNotFoundError,
   BoxProductImmutableError,
@@ -7,6 +8,7 @@ export {
   DuplicateBoxCodeError,
   DuplicateInternalCodeError,
   DuplicateLocationError,
+  DuplicateMovementError,
   DuplicateStorageAreaCodeError,
   IdentificationNotFoundError,
   IdentificationPayloadError,
@@ -18,8 +20,10 @@ export {
   LocationNotFoundError,
   LocationStructureLockedError,
   LocationValidationError,
+  MovementNotNeededError,
   ProductNotFoundError,
   ProductValidationError,
+  SameLocationMovementError,
   StorageAreaNotFoundError,
   StorageAreaValidationError,
 } from "./errors";
@@ -180,6 +184,7 @@ export {
   createLocationQrPayload,
   parseQrPayload,
   resolveIdentification,
+  resolveManualEntry,
   validateQrPayload,
 } from "./identification";
 export type {
@@ -195,3 +200,32 @@ export {
   composeLocationLabel,
 } from "./label";
 export type { BoxLabelModel, LocationLabelModel } from "./label";
+export {
+  MOVEMENT_SOURCES,
+  MOVEMENT_SOURCE_LABEL,
+  MOVEMENT_TYPES,
+  MOVEMENT_TYPE_LABEL,
+  assertAppendOnly,
+  planMovement,
+} from "./movement";
+export type { Movement, MovementPlan, MovementSource, MovementType } from "./movement";
+export type { MovementRepository } from "./movement-repository";
+export { filterMovements } from "./movement-filter";
+export type {
+  MovementListItem,
+  MovementQuery,
+  MovementSourceFilter,
+  MovementTypeFilter,
+} from "./movement-filter";
+export {
+  SCAN_PHASES,
+  SCAN_REPEAT_WINDOW_MS,
+  applyScan,
+  completeScan,
+  createScanSession,
+  requestRemoval,
+  resetScanSession,
+  shouldIgnoreRepeatedScan,
+} from "./scan-session";
+export type { ScanApplication, ScanIntent, ScanPhase, ScanSession } from "./scan-session";
+

@@ -239,6 +239,7 @@ export function BoxesPage() {
                     ?.code
                 }
                 submitting={submitting}
+                movements={catalog.movements.filter((movement) => movement.boxId === editor.box.id)}
                 onEdit={() => setEditor({ mode: "edit", box: editor.box })}
                 onStatus={handleStatus}
                 onAssign={(locationId) => handleLocation(locationId)}

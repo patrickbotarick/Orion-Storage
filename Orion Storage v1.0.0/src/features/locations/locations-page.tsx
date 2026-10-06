@@ -10,6 +10,8 @@ import {
   emptyLocationForm,
   filterLocations,
   groupLocations,
+  MOVEMENT_SOURCE_LABEL,
+  MOVEMENT_TYPE_LABEL,
   normalizeForComparison,
   validateAreaCreateForm,
   validateAreaUpdateForm,
@@ -18,14 +20,17 @@ import {
   type LocationFormValues,
   type LocationQuery,
   type LocationStatus,
+  type Movement,
   type StorageArea,
   type StorageAreaFormValues,
   type StorageAreaStatus,
 } from "@orion/domain";
+import { formatDateTimePt } from "@orion/shared";
 import { X } from "lucide-react";
 
 import { getBrowserBoxService } from "@/application/boxes/box-service";
 import { getBrowserLocationService } from "@/application/locations/location-service";
+import { getBrowserMovementService } from "@/application/movements/movement-service";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Field, controlClass } from "@/components/ui/field";
@@ -46,6 +51,7 @@ export function LocationsPage() {
   const [areas, setAreas] = useState<StorageArea[] | null>(null);
   const [locations, setLocations] = useState<Location[] | null>(null);
   const [counts, setCounts] = useState<Record<string, number>>({});
+  const [movements, setMovements] = useState<Movement[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState<LocationQuery>(INITIAL_QUERY);
   const [areaText, setAreaText] = useState("");
@@ -57,10 +63,11 @@ export function LocationsPage() {
 
   const reload = useCallback(async () => {
     const service = getBrowserLocationService();
-    const [nextAreas, nextLocations, boxes] = await Promise.all([
+    const [nextAreas, nextLocations, boxes, nextMovements] = await Promise.all([
       service.listAreas(),
       service.listLocations(),
       getBrowserBoxService().list(),
+      getBrowserMovementService().list(),
     ]);
     const nextCounts: Record<string, number> = {};
     for (const box of boxes) {
@@ -70,6 +77,7 @@ export function LocationsPage() {
     setAreas(nextAreas);
     setLocations(nextLocations);
     setCounts(nextCounts);
+    setMovements(nextMovements);
     setError(null);
   }, []);
 
@@ -396,6 +404,13 @@ export function LocationsPage() {
                 area={areas?.find((area) => area.id === editor.location.areaId) ?? null}
                 onPreview={() => setSignage({ location: editor.location, autoPrint: false })}
                 onPrint={() => setSignage({ location: editor.location, autoPrint: true })}
+                movements={movements
+                  .filter(
+                    (movement) =>
+                      movement.fromLocationId === editor.location.id ||
+                      movement.toLocationId === editor.location.id,
+                  )
+                  .slice(0, 8)}
               />
             ) : null}
           </Dialog.Content>
@@ -881,11 +896,13 @@ function Part({
 function LocationSignage({
   location,
   area,
+  movements,
   onPreview,
   onPrint,
 }: {
   location: Location;
   area: StorageArea | null;
+  movements: Movement[];
   onPreview: () => void;
   onPrint: () => void;
 }) {
@@ -911,6 +928,32 @@ function LocationSignage({
           Imprimir
         </Button>
       </div>
+      <section>
+        <h3 className="text-sm font-semibold tracking-wide text-muted uppercase">
+          Movimentações recentes
+        </h3>
+        {movements.length === 0 ? (
+          <p className="mt-2 text-sm text-muted">
+            Nenhuma movimentação neste endereço. A ocupação anterior a esta fase não gera histórico retroativo.
+          </p>
+        ) : (
+          <ol className="mt-3 flex flex-col gap-3">
+            {movements.map((movement) => (
+              <li key={movement.id} className="border-l-2 border-line pl-3">
+                <p className="text-xs text-muted">
+                  {formatDateTimePt(movement.createdAt)} · {MOVEMENT_TYPE_LABEL[movement.type]} ·{" "}
+                  {MOVEMENT_SOURCE_LABEL[movement.source]}
+                </p>
+                <p className="font-mono text-sm text-ink">
+                  {movement.metadata?.boxCode ?? "Caixa"} ·{" "}
+                  {movement.metadata?.fromLocationCode ?? "Sem localização"} →{" "}
+                  {movement.metadata?.toLocationCode ?? "Sem localização"}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </div>
   );
 }

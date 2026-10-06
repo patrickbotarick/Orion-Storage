@@ -90,6 +90,7 @@ export function buildLocationHistory(input: {
   previousCode?: string;
   nextId?: string;
   nextCode?: string;
+  movementId?: string;
 }): BoxHistoryEntry | null {
   const previousId = input.previousId?.trim() || undefined;
   const nextId = input.nextId?.trim() || undefined;
@@ -101,6 +102,7 @@ export function buildLocationHistory(input: {
   if (input.previousCode) metadata.previousLocationCode = input.previousCode;
   if (nextId) metadata.nextLocationId = nextId;
   if (input.nextCode) metadata.nextLocationCode = input.nextCode;
+  if (input.movementId) metadata.movementId = input.movementId;
 
   if (!previousId && nextId) {
     return {

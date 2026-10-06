@@ -7,9 +7,9 @@
       "status": 200,
       "title": "ORION STORAGE",
       "hasCanvas": false,
-      "bodyTextLen": 664,
-      "bodyTextHash": "cfd5c7ab466d208c10b61336e9344c5cf5fb6b0782d1d22694465fa35141854b",
-      "bodyTextPrefix": "ORION STORAGE Estoque físico Produtos Caixas CATÁLOGO Produtos C",
+      "bodyTextLen": 700,
+      "bodyTextHash": "278c88ccb56c86c7f8ed3ff1fee24f474df4853afc3aea43a3f71248ab7965e1",
+      "bodyTextPrefix": "ORION STORAGE Estoque físico Produtos Caixas Endereçamento Scann",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -21,9 +21,9 @@
       "status": 200,
       "title": "ORION STORAGE",
       "hasCanvas": false,
-      "bodyTextLen": 702,
-      "bodyTextHash": "11c3e3ec2535e10ef72d4b4b40f9fedb673f77f42183879523144ce60ce32d54",
-      "bodyTextPrefix": "ORION STORAGE Estoque físico Produtos Caixas CATÁLOGO Produtos C",
+      "bodyTextLen": 738,
+      "bodyTextHash": "59f9c385e62e439877d0785fe46bab0606ed2e306788617831f7b360371b3b4f",
+      "bodyTextPrefix": "ORION STORAGE Estoque físico Produtos Caixas Endereçamento Scann",
       "horizontalOverflow": false,
       "consoleErrors": [],
       "pageErrors": [],
@@ -35,6 +35,9 @@
   ],
   "authWarnings": [],
   "verdictFile": "/workspace/screenshots/app-builder-built.json",
-  "divergesFromBaseline": false,
-  "baselineReasons": []
+  "divergesFromBaseline": true,
+  "baselineReasons": [
+    "desktop: body text changed (329 -> 700 chars, hash mismatch)",
+    "mobile: body text changed (329 -> 738 chars, hash mismatch)"
+  ]
 }

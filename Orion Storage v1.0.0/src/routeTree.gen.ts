@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaixasRouteImport } from './routes/caixas'
 import { Route as EnderecamentoRouteImport } from './routes/enderecamento'
+import { Route as MovimentacoesRouteImport } from './routes/movimentacoes'
+import { Route as ScannerRouteImport } from './routes/scanner'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +30,59 @@ const EnderecamentoRoute = EnderecamentoRouteImport.update({
   path: '/enderecamento',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MovimentacoesRoute = MovimentacoesRouteImport.update({
+  id: '/movimentacoes',
+  path: '/movimentacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScannerRoute = ScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/movimentacoes': typeof MovimentacoesRoute
+  '/scanner': typeof ScannerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/movimentacoes': typeof MovimentacoesRoute
+  '/scanner': typeof ScannerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/movimentacoes': typeof MovimentacoesRoute
+  '/scanner': typeof ScannerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/caixas' | '/enderecamento'
+  fullPaths: '/' | '/caixas' | '/enderecamento' | '/movimentacoes' | '/scanner'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/caixas' | '/enderecamento'
-  id: '__root__' | '/' | '/caixas' | '/enderecamento'
+  to: '/' | '/caixas' | '/enderecamento' | '/movimentacoes' | '/scanner'
+  id:
+    | '__root__'
+    | '/'
+    | '/caixas'
+    | '/enderecamento'
+    | '/movimentacoes'
+    | '/scanner'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CaixasRoute: typeof CaixasRoute
   EnderecamentoRoute: typeof EnderecamentoRoute
+  MovimentacoesRoute: typeof MovimentacoesRoute
+  ScannerRoute: typeof ScannerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +108,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnderecamentoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/movimentacoes': {
+      id: '/movimentacoes'
+      path: '/movimentacoes'
+      fullPath: '/movimentacoes'
+      preLoaderRoute: typeof MovimentacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scanner': {
+      id: '/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof ScannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +129,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaixasRoute: CaixasRoute,
   EnderecamentoRoute: EnderecamentoRoute,
+  MovimentacoesRoute: MovimentacoesRoute,
+  ScannerRoute: ScannerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

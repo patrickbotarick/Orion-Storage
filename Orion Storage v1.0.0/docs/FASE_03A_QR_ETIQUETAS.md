@@ -30,7 +30,7 @@ Ficam no domínio, fora da interface:
 - `validateQrPayload`
 - `resolveIdentification`
 
-`resolveIdentification` recebe o payload e o catálogo atual de caixas e endereços. Devolve o tipo e o `entityId`. Se o código for válido e o registro não existir, a busca falha com mensagem clara. A Fase 3B pode chamar a mesma função depois de ler um QR. Esta fase não abre câmera.
+`resolveIdentification` recebe o payload e o catálogo atual de caixas e endereços. Devolve o tipo e o `entityId`. Se o código for válido e o registro não existir, a busca falha com mensagem clara. A Fase 3B reutiliza esta função no scanner. A entrada digitada usa `resolveManualEntry`, no mesmo módulo, sem um segundo protocolo.
 
 O desenho do QR é feito na tela, a partir do payload, com `qrcode.react`. Nada é salvo no `localStorage`.
 
@@ -44,4 +44,4 @@ A impressão é a do navegador (`window.print`). O CSS `@media print` esconde o 
 
 ## Limitações
 
-Não há leitura por câmera, scanner, permissão de câmera, entidade de movimentação, transferência, mapa, recebimento em lote, impressão em lote, inventário, expedição, usuários ou banco remoto. O tamanho não está preso a uma impressora térmica específica.
+A leitura por câmera, a movimentação e a tela de movimentações estão na Fase 3B. Esta fase continua responsável só pela geração do QR e pela etiqueta. Não há mapa, recebimento em lote, impressão em lote, inventário, expedição, usuários ou banco remoto. O tamanho não está preso a uma impressora térmica específica.
