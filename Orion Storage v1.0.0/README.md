@@ -2,7 +2,7 @@
 
 Sistema independente de controle de estoque físico.
 
-A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física. A Fase 2B entrega o endereço. A Fase 3A entrega o QR e a etiqueta básica. A Fase 3B entrega o scanner e a movimentação operacional. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
+A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física. A Fase 2B entrega o endereço. A Fase 3A entrega o QR e a etiqueta básica. A Fase 3B entrega o scanner e a movimentação. A Fase 3C entrega o recebimento em lote e a impressão de várias etiquetas. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
 
 ## Objetivo
 
@@ -40,7 +40,7 @@ npm install
 | `npm run dev`       | Sobe o aplicativo na porta 8080. Outra porta: `npm run dev -- --port 8091` |
 | `npm run typecheck` | TypeScript sem emitir arquivos                                                            |
 | `npm run lint`      | ESLint                                                                                    |
-| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A, 2B, 3A e 3B) |
+| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A, 2B, 3A, 3B e 3C) |
 | `npm run build`     | Build de produção                                                                         |
 | `npm run format`    | Prettier                                                                                  |
 
@@ -51,11 +51,11 @@ Não há banco, autenticação nem serviços externos. Os dados ficam no `localS
 ## Estrutura
 
 ```text
-packages/domain/     produtos, caixas, áreas, endereços, QR, etiquetas, movimentação, histórico
+packages/domain/     produtos, caixas, áreas, endereços, QR, etiquetas, movimentação, recebimento
 packages/shared/     formatação e rótulos
-src/application/     ProductService, BoxService, endereçamento e MovementService
+src/application/     ProductService, BoxService, endereçamento, MovementService e ReceiptService
 src/persistence/     repositórios em localStorage
-src/features/        telas de produtos, caixas, endereçamento, scanner e movimentações
+src/features/        telas de produtos, caixas, endereçamento, scanner, movimentações e recebimentos
 src/routes/          entrada da aplicação web
 docs/                documentação das fases
 ```
@@ -69,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos**, **Caixas**, **Endereçamento**, **Scanner** e **Movimentações**. Os cadastros já abrem com dados de demonstração. A chave de movimentações começa vazia: localização antiga não vira movimento retroativo.
+Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos**, **Caixas**, **Endereçamento**, **Scanner**, **Movimentações** e **Recebimentos**. Os cadastros já abrem com dados de demonstração. A chave de movimentações começa vazia: localização antiga não vira movimento retroativo. A chave de recebimentos também começa vazia: caixa antiga não ganha `receiptId`.
 
 ### Início rápido no Windows
 
@@ -90,7 +90,7 @@ Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegaçã
 npm test
 ```
 
-Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B, o QR e as etiquetas da Fase 3A e, na Fase 3B, a movimentação, a sessão do scanner e a entrada manual. Não há teste da câmera física.
+Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B, o QR e as etiquetas da Fase 3A, a movimentação e a sessão do scanner da Fase 3B e, na Fase 3C, o recebimento em lote. Não há teste da câmera física.
 
 ## Status atual
 
@@ -99,7 +99,8 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B,
 - Fase 2B concluída: endereçamento físico.
 - Fase 3A concluída: QR Code e etiquetas básicas.
 - Fase 3B concluída: scanner e movimentação operacional.
-- Mapa gráfico, inventário, recebimento em lote, expedição, usuários e banco remoto não foram iniciados.
+- Fase 3C concluída: recebimento em lote e impressão múltipla de etiquetas.
+- Mapa gráfico, inventário, expedição, usuários e banco remoto não foram iniciados.
 
 ## Funcionalidades da Fase 1
 
@@ -126,7 +127,18 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B,
 
 ## Próximos passos
 
-Ainda não há mapa gráfico, inventário, recebimento em lote nem expedição. O próximo passo natural é um mapa de ocupação somente leitura, reutilizando a localização atual e o registro de movimentação, sem arrastar caixas na tela.
+Ainda não há mapa gráfico, inventário nem expedição. O próximo passo natural continua sendo um mapa de ocupação somente leitura, reutilizando a localização atual e o registro de movimentação, sem arrastar caixas na tela.
+
+## Funcionalidades da Fase 3C
+
+- Recebimento com um ou mais produtos, confirmado de uma vez
+- Código `REC-AAAAMMDD-NNNNNN`, único e estável
+- Prévia dos códigos de caixa sem reservar a sequência
+- Até 500 caixas por confirmação, sem localização
+- Cada caixa guarda `receiptId` e o histórico aponta o recebimento
+- Impressão e reimpressão das etiquetas já existentes, em folha A4
+- Busca por recebimento, produto, marca, lote e caixa
+- Chave `orion-storage.receipts.v1`, vazia quando ainda não existe
 
 ## Funcionalidades da Fase 3B
 

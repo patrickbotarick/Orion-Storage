@@ -1,4 +1,5 @@
 import type { Box, BoxCreateInput, BoxStatus, BoxUpdateInput } from "./box";
+import type { BoxPersistenceState } from "./box-store";
 
 /**
  * Persistence port for physical boxes.
@@ -23,4 +24,8 @@ export interface BoxRepository {
   ): Promise<Box>;
   /** Restores an exact snapshot. Used only to undo a movement write that did not finish. */
   replace(box: Box): Promise<Box>;
+  /** Full box envelope, including the code ledger. */
+  captureState(): Promise<BoxPersistenceState>;
+  /** Replaces the box envelope. Used to commit or undo a receipt. */
+  replaceState(state: BoxPersistenceState): Promise<void>;
 }

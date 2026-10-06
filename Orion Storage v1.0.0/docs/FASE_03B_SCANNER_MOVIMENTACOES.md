@@ -118,8 +118,8 @@ O detalhe da caixa tem a seção Movimentações. O detalhe do endereço mostra 
 
 ## Limitações
 
-Não há mapa, arrastar e soltar, inventário, contagem, recebimento em lote, impressão em lote, expedição, consumo de rolo, usuários, autenticação, Supabase nem ERP. A câmera não é testada de forma automática. O rollback cobre a falha da gravação da Movement nesta aba, não um conflito entre duas abas.
+Não há mapa, arrastar e soltar, inventário, contagem, expedição, consumo de rolo, usuários, autenticação, Supabase nem ERP. O recebimento em lote e a impressão de várias etiquetas estão na Fase 3C. A câmera não é testada de forma automática. O rollback cobre a falha da gravação da Movement nesta aba, não um conflito entre duas abas.
 
 ## Próxima fase
 
-O registro e a localização atual já existem. O passo seguinte pode ser um mapa de ocupação somente leitura, sem arrastar caixas. Inventário, recebimento em lote e expedição continuam fora até terem fase própria.
+O registro e a localização atual já existem. O recebimento em lote ficou na Fase 3C. O passo seguinte pode ser um mapa de ocupação somente leitura, sem arrastar caixas. Inventário e expedição continuam fora até terem fase própria.

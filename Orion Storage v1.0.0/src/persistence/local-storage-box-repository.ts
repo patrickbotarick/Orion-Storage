@@ -202,6 +202,17 @@ export class LocalStorageBoxRepository implements BoxRepository {
     return cloneBox(box);
   }
 
+  async captureState(): Promise<BoxPersistenceState> {
+    return this.readState();
+  }
+
+  async replaceState(state: BoxPersistenceState): Promise<void> {
+    this.writeState({
+      boxes: state.boxes.map(cloneBox),
+      codeLedger: sanitizeBoxCodeLedger(state.codeLedger),
+    });
+  }
+
   private readState(): BoxPersistenceState {
     const raw = this.store.getItem(STORAGE_KEY);
     if (raw == null) {
@@ -258,6 +269,7 @@ function withContent(current: Box, content: BoxUpdateInput, entry: BoxHistoryEnt
     history: [...current.history.map(cloneHistory), entry],
   };
   if (current.currentLocationId) updated.currentLocationId = current.currentLocationId;
+  if (current.receiptId) updated.receiptId = current.receiptId;
   if (content.manufacturerBatch) updated.manufacturerBatch = content.manufacturerBatch;
   if (content.notes) updated.notes = content.notes;
   return updated;
@@ -280,6 +292,7 @@ function cloneBox(box: Box): Box {
     history: Array.isArray(box.history) ? box.history.map(cloneHistory) : [],
   };
   if (!clone.currentLocationId) delete clone.currentLocationId;
+  if (!clone.receiptId) delete clone.receiptId;
   return clone;
 }
 

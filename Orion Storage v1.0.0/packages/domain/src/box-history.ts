@@ -34,14 +34,25 @@ export function buildCreatedHistory(input: {
   code: string;
   productId: string;
   createdAt: string;
+  receiptId?: string;
+  receiptCode?: string;
 }): BoxHistoryEntry {
+  const metadata: Record<string, string> = {
+    productId: input.productId,
+    status: "RECEIVED",
+  };
+  if (input.receiptId) metadata.receiptId = input.receiptId;
+  if (input.receiptCode) metadata.receiptCode = input.receiptCode;
+  const description = input.receiptCode
+    ? `Caixa ${input.code} registrada pelo recebimento ${input.receiptCode}.`
+    : `Caixa ${input.code} registrada e vinculada ao produto.`;
   return {
     id: input.id,
     boxId: input.boxId,
     type: "CREATED",
     createdAt: input.createdAt,
-    description: `Caixa ${input.code} registrada e vinculada ao produto.`,
-    metadata: { productId: input.productId, status: "RECEIVED" },
+    description,
+    metadata,
   };
 }
 

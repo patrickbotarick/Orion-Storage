@@ -9,6 +9,8 @@ export {
   DuplicateInternalCodeError,
   DuplicateLocationError,
   DuplicateMovementError,
+  DuplicateReceiptCodeError,
+  DuplicateReceiptRequestError,
   DuplicateStorageAreaCodeError,
   IdentificationNotFoundError,
   IdentificationPayloadError,
@@ -21,6 +23,9 @@ export {
   LocationStructureLockedError,
   LocationValidationError,
   MovementNotNeededError,
+  ReceiptCodeCapacityError,
+  ReceiptNotFoundError,
+  ReceiptValidationError,
   ProductNotFoundError,
   ProductValidationError,
   SameLocationMovementError,
@@ -83,6 +88,7 @@ export {
   BOX_CODE_TIME_ZONE,
   MAX_BOX_SEQUENCE,
   allocateBoxCode,
+  allocateBoxCodes,
   assertBoxCodeAvailable,
   boxCodeDateKey,
   canonicalBoxCode,
@@ -228,4 +234,25 @@ export {
   shouldIgnoreRepeatedScan,
 } from "./scan-session";
 export type { ScanApplication, ScanIntent, ScanPhase, ScanSession } from "./scan-session";
-
+export { MAX_BOXES_PER_RECEIPT, RECEIPT_STATUSES, RECEIPT_STATUS_LABEL } from "./receipt";
+export type {
+  Receipt,
+  ReceiptDraft,
+  ReceiptItem,
+  ReceiptItemDraft,
+  ReceiptStatus,
+} from "./receipt";
+export {
+  allocateReceiptCode,
+  assertReceiptCodeAvailable,
+  canonicalReceiptCode,
+  formatReceiptCode,
+  parseReceiptCode,
+  sanitizeReceiptCodeLedger,
+} from "./receipt-code";
+export type { ReceiptCodeLedger } from "./receipt-code";
+export { planReceipt } from "./receipt-plan";
+export type { PlannedReceiptItem, ReceiptPlan } from "./receipt-plan";
+export type { ReceiptPersistenceState, ReceiptRepository } from "./receipt-repository";
+export { filterReceipts } from "./receipt-filter";
+export type { ReceiptListItem, ReceiptQuery, ReceiptStatusFilter } from "./receipt-filter";

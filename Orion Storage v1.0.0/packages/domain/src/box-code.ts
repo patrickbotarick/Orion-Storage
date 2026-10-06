@@ -89,6 +89,36 @@ export function allocateBoxCode(input: {
   };
 }
 
+/** Allocates several codes in order. Does not persist. The caller decides when to keep the ledger. */
+export function allocateBoxCodes(input: {
+  existingCodes: readonly string[];
+  ledger: BoxCodeLedger;
+  now: Date;
+  count: number;
+  timeZone?: string;
+}): { codes: string[]; ledger: BoxCodeLedger } {
+  if (!Number.isInteger(input.count) || input.count < 1) {
+    throw new BoxValidationError([
+      { path: "boxesQuantity", message: "A quantidade de caixas deve ser maior que zero." },
+    ]);
+  }
+  const codes: string[] = [];
+  let ledger = input.ledger;
+  const existing = [...input.existingCodes];
+  for (let index = 0; index < input.count; index += 1) {
+    const next = allocateBoxCode({
+      existingCodes: existing,
+      ledger,
+      now: input.now,
+      timeZone: input.timeZone,
+    });
+    codes.push(next.code);
+    existing.push(next.code);
+    ledger = next.ledger;
+  }
+  return { codes, ledger };
+}
+
 export function assertBoxCodeAvailable(code: string, existingCodes: readonly string[]): void {
   const canonical = canonicalBoxCode(code);
   const taken = existingCodes.some((item) => canonicalBoxCode(item) === canonical);

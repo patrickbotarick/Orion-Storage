@@ -9,6 +9,7 @@ type PrintLabelDialogProps = {
   open: boolean;
   title: string;
   autoPrint?: boolean;
+  wide?: boolean;
   onOpenChange: (open: boolean) => void;
   children: ReactNode;
 };
@@ -17,6 +18,7 @@ export function PrintLabelDialog({
   open,
   title,
   autoPrint = false,
+  wide = false,
   onOpenChange,
   children,
 }: PrintLabelDialogProps) {
@@ -43,7 +45,9 @@ export function PrintLabelDialog({
       >
         <Dialog.Portal>
           <Dialog.Overlay className="print-hide fixed inset-0 z-[60] bg-ink/50" />
-          <Dialog.Content className="print-hide catalog-dialog fixed top-4 right-4 left-4 z-[70] mx-auto overflow-y-auto rounded-lg border border-line bg-surface p-5 shadow-xl md:top-10 md:max-w-xl">
+          <Dialog.Content
+            className={`print-hide catalog-dialog fixed top-4 right-4 left-4 z-[70] mx-auto overflow-y-auto rounded-lg border border-line bg-surface p-5 shadow-xl md:top-10 ${wide ? "md:max-w-4xl" : "md:max-w-xl"}`}
+          >
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <Dialog.Title className="text-xl font-semibold text-ink">{title}</Dialog.Title>

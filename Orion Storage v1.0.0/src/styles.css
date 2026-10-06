@@ -180,6 +180,14 @@
   height: 36mm;
 }
 
+.orion-label-sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 90mm));
+  gap: 4mm;
+  justify-content: center;
+  align-items: start;
+}
+
 @media print {
   @page {
     margin: 10mm;
@@ -197,6 +205,20 @@
     display: block !important;
     background: #fff !important;
     color: #111 !important;
+  }
+
+  body[data-orion-print="label"] .orion-label-sheet {
+    display: grid !important;
+    grid-template-columns: repeat(2, 90mm);
+    gap: 6mm;
+    justify-content: start;
+    align-items: start;
+  }
+
+  body[data-orion-print="label"] .orion-label,
+  body[data-orion-print="label"] .orion-label-box {
+    break-inside: avoid;
+    page-break-inside: avoid;
   }
 
   body[data-orion-print="label"] .orion-label-box {

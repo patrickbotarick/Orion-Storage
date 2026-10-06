@@ -258,3 +258,54 @@ export class DuplicateMovementError extends Error {
   }
 }
 
+export class ReceiptValidationError extends Error {
+  readonly issues: FieldIssue[];
+
+  constructor(issues: FieldIssue[]) {
+    super(issues.map((issue) => issue.message).join(" "));
+    this.name = "ReceiptValidationError";
+    this.issues = issues;
+  }
+}
+
+export class ReceiptNotFoundError extends Error {
+  readonly id: string;
+
+  constructor(id: string) {
+    super(`Recebimento não encontrado: ${id}`);
+    this.name = "ReceiptNotFoundError";
+    this.id = id;
+  }
+}
+
+export class DuplicateReceiptCodeError extends Error {
+  readonly code: string;
+
+  constructor(code: string) {
+    super(`Já existe um recebimento com o código ${code}. Esse código não pode ser reutilizado.`);
+    this.name = "DuplicateReceiptCodeError";
+    this.code = code;
+  }
+}
+
+export class DuplicateReceiptRequestError extends Error {
+  readonly requestId: string;
+
+  constructor(requestId: string) {
+    super("Este recebimento já foi confirmado.");
+    this.name = "DuplicateReceiptRequestError";
+    this.requestId = requestId;
+  }
+}
+
+export class ReceiptCodeCapacityError extends Error {
+  readonly dateKey: string;
+
+  constructor(dateKey: string) {
+    super(`A sequência de recebimentos de ${dateKey} esgotou.`);
+    this.name = "ReceiptCodeCapacityError";
+    this.dateKey = dateKey;
+  }
+}
+
+

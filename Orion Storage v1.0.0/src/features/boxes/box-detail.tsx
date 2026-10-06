@@ -60,6 +60,15 @@ export function BoxDetail({
   const choices = locations.filter(
     (location) => location.status === "ACTIVE" || location.id === box.currentLocationId,
   );
+  const receiptCode = [...box.history]
+    .reverse()
+    .map((entry) => entry.metadata?.receiptCode)
+    .find((code) => code);
+  const origin = receiptCode
+    ? `Recebimento ${receiptCode}`
+    : box.receiptId
+      ? "Recebimento"
+      : "Cadastro avulso";
   const payload = createBoxQrPayload(box.code);
   const identity = [
     product?.brand,
@@ -86,6 +95,7 @@ export function BoxDetail({
         <Item label="Metragem" value={formatMeters(box.totalLengthM)} />
         <Item label="Lote" value={box.manufacturerBatch ?? "—"} />
         <Item label="Recebimento" value={formatDatePt(box.receivedAt)} />
+        <Item label="Origem" value={origin} />
         <Item label="Localização atual" value={locationCode ?? "Sem localização"} />
       </dl>
 
@@ -186,7 +196,8 @@ export function BoxDetail({
         <h3 className="text-sm font-semibold tracking-wide text-muted uppercase">Movimentações</h3>
         {movements.length === 0 ? (
           <p className="mt-2 text-sm text-muted">
-            Nenhuma movimentação registrada. Uma localização anterior a esta fase não gera histórico retroativo.
+            Nenhuma movimentação registrada. Uma localização anterior a esta fase não gera histórico
+            retroativo.
           </p>
         ) : (
           <ol className="mt-3 flex flex-col gap-3">

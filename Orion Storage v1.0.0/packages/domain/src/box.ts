@@ -56,6 +56,8 @@ export type Box = BoxContentFields & {
   status: BoxStatus;
   /** Current physical address. Absent means the box is not on a position yet. */
   currentLocationId?: string;
+  /** Receiving operation that created this box. Absent for boxes registered one by one. */
+  receiptId?: string;
   createdAt: string;
   updatedAt: string;
   history: BoxHistoryEntry[];

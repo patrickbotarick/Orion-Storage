@@ -44,4 +44,4 @@ A impressão é a do navegador (`window.print`). O CSS `@media print` esconde o 
 
 ## Limitações
 
-A leitura por câmera, a movimentação e a tela de movimentações estão na Fase 3B. Esta fase continua responsável só pela geração do QR e pela etiqueta. Não há mapa, recebimento em lote, impressão em lote, inventário, expedição, usuários ou banco remoto. O tamanho não está preso a uma impressora térmica específica.
+A leitura por câmera e a movimentação estão na Fase 3B. A impressão de várias etiquetas de um recebimento está na Fase 3C e reutiliza esta etiqueta. Esta fase continua responsável pela geração do QR e pela etiqueta individual. Não há mapa, inventário, expedição, usuários ou banco remoto. O tamanho não está preso a uma impressora térmica específica.
