@@ -204,3 +204,26 @@ export class LocationCapacityTooSmallError extends Error {
     this.occupied = occupied;
   }
 }
+
+export class IdentificationPayloadError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "IdentificationPayloadError";
+  }
+}
+
+export class IdentificationNotFoundError extends Error {
+  readonly kind: "box" | "location";
+  readonly code: string;
+
+  constructor(kind: "box" | "location", code: string) {
+    super(
+      kind === "box"
+        ? `Não foi encontrada uma caixa com o código ${code}.`
+        : `Não foi encontrado um endereço com o código ${code}.`,
+    );
+    this.name = "IdentificationNotFoundError";
+    this.kind = kind;
+    this.code = code;
+  }
+}

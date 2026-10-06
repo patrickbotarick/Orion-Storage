@@ -18,6 +18,8 @@ import { BoxFilters } from "@/features/boxes/box-filters";
 import { BoxForm } from "@/features/boxes/box-form";
 import { BoxTable } from "@/features/boxes/box-table";
 import { useBoxCatalog } from "@/features/boxes/use-box-catalog";
+import { BoxLabel } from "@/features/identification/box-label";
+import { PrintLabelDialog } from "@/features/identification/print-label-dialog";
 
 type EditorState =
   | { mode: "create"; values: ReturnType<typeof emptyBoxForm> }
@@ -27,6 +29,7 @@ type EditorState =
 export function BoxesPage() {
   const catalog = useBoxCatalog();
   const [editor, setEditor] = useState<EditorState | null>(null);
+  const [label, setLabel] = useState<{ box: Box; autoPrint: boolean } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -148,6 +151,7 @@ export function BoxesPage() {
                 setFormError(null);
                 setEditor({ mode: "edit", box: item.box });
               }}
+              onLabel={(item) => setLabel({ box: item.box, autoPrint: false })}
             />
           )}
         </div>
@@ -239,11 +243,25 @@ export function BoxesPage() {
                 onStatus={handleStatus}
                 onAssign={(locationId) => handleLocation(locationId)}
                 onClear={() => handleLocation(null)}
+                onPreviewLabel={() => setLabel({ box: editor.box, autoPrint: false })}
+                onPrintLabel={() => setLabel({ box: editor.box, autoPrint: true })}
               />
             ) : null}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+      <PrintLabelDialog
+        open={label != null}
+        title="Etiqueta da caixa"
+        autoPrint={label?.autoPrint ?? false}
+        onOpenChange={(open) => {
+          if (!open) setLabel(null);
+        }}
+      >
+        {label ? (
+          <BoxLabel box={label.box} product={findProduct(catalog.products, label.box.productId)} />
+        ) : null}
+      </PrintLabelDialog>
     </>
   );
 }

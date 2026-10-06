@@ -120,4 +120,4 @@ Três caixas de demonstração nascem endereçadas. `CX-20261006-000004` fica se
 
 ## Limitações
 
-Não há QR Code, scanner, etiqueta, mapa gráfico, arrastar e soltar, expedição, inventário, recebimento em lote, usuários ou banco remoto. A troca de posição registrada aqui não substitui a entidade de movimentação de uma fase futura.
+Não há scanner, mapa gráfico, arrastar e soltar, expedição, inventário, recebimento em lote, usuários ou banco remoto. O QR e a etiqueta básica estão na Fase 3A. A troca de posição registrada aqui não substitui a entidade de movimentação de uma fase futura.

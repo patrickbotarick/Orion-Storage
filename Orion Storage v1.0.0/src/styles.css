@@ -49,3 +49,163 @@
     transition: none !important;
   }
 }
+
+.orion-print-sheet {
+  display: none;
+}
+
+.orion-label {
+  box-sizing: border-box;
+  width: 100%;
+  background: #fff;
+  color: #111;
+  border: 1px solid #111;
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+}
+
+.orion-label-box {
+  max-width: 90mm;
+  padding: 4mm;
+}
+
+.orion-label-location {
+  max-width: 100mm;
+  padding: 5mm;
+}
+
+.orion-label-head,
+.orion-label-foot {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4mm;
+}
+
+.orion-kicker {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.orion-brand,
+.orion-color,
+.orion-area {
+  margin: 0;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.orion-brand {
+  font-size: 16px;
+}
+
+.orion-product {
+  margin: 3mm 0 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.orion-color,
+.orion-area {
+  margin-top: 1mm;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+.orion-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm 5mm;
+  margin: 3mm 0 0;
+}
+
+.orion-facts dt {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.orion-facts dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.orion-total,
+.orion-batch {
+  margin: 2mm 0 0;
+  font-size: 12px;
+}
+
+.orion-code,
+.orion-address {
+  margin: 0;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-weight: 500;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.orion-code {
+  font-size: 12px;
+}
+
+.orion-address {
+  margin-top: 3mm;
+  font-size: 20px;
+}
+
+.orion-label-foot {
+  margin-top: 4mm;
+  align-items: center;
+}
+
+.orion-label-qr {
+  display: flex;
+  justify-content: center;
+  margin-top: 3mm;
+}
+
+.orion-qr {
+  display: block;
+  width: 28mm;
+  height: 28mm;
+}
+
+.orion-label-location .orion-qr {
+  width: 36mm;
+  height: 36mm;
+}
+
+@media print {
+  @page {
+    margin: 10mm;
+  }
+
+  body[data-orion-print="label"] {
+    background: #fff !important;
+  }
+
+  body[data-orion-print="label"] > * {
+    display: none !important;
+  }
+
+  body[data-orion-print="label"] > .orion-print-sheet {
+    display: block !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+
+  body[data-orion-print="label"] .orion-label-box {
+    width: 90mm;
+    max-width: none;
+  }
+
+  body[data-orion-print="label"] .orion-label-location {
+    width: 100mm;
+    max-width: none;
+  }
+}

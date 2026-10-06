@@ -2,6 +2,7 @@ import { useState } from "react";
 import {
   BOX_STATUSES,
   BOX_STATUS_LABEL,
+  createBoxQrPayload,
   type Box,
   type BoxStatus,
   type Location,
@@ -19,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Field, controlClass } from "@/components/ui/field";
 import { BoxStatusBadge } from "@/features/boxes/box-status-badge";
+import { QrCode } from "@/features/identification/qr-code";
 
 type BoxDetailProps = {
   box: Box;
@@ -30,6 +32,8 @@ type BoxDetailProps = {
   onStatus: (status: BoxStatus) => Promise<void>;
   onAssign: (locationId: string) => Promise<void>;
   onClear: () => Promise<void>;
+  onPreviewLabel: () => void;
+  onPrintLabel: () => void;
 };
 
 export function BoxDetail({
@@ -42,6 +46,8 @@ export function BoxDetail({
   onStatus,
   onAssign,
   onClear,
+  onPreviewLabel,
+  onPrintLabel,
 }: BoxDetailProps) {
   const [nextStatus, setNextStatus] = useState<BoxStatus>(box.status);
   const [nextLocationId, setNextLocationId] = useState(box.currentLocationId ?? "");
@@ -49,6 +55,14 @@ export function BoxDetail({
   const choices = locations.filter(
     (location) => location.status === "ACTIVE" || location.id === box.currentLocationId,
   );
+  const payload = createBoxQrPayload(box.code);
+  const identity = [
+    product?.brand,
+    product?.colorName,
+    product?.widthMm != null ? `${product.widthMm} mm` : null,
+  ]
+    .filter((part) => part)
+    .join(" · ");
 
   return (
     <div className="flex flex-col gap-6">
@@ -127,7 +141,9 @@ export function BoxDetail({
         </div>
         <Button
           variant="primary"
-          disabled={submitting || nextLocationId === (box.currentLocationId ?? "") || nextLocationId === ""}
+          disabled={
+            submitting || nextLocationId === (box.currentLocationId ?? "") || nextLocationId === ""
+          }
           onClick={() => void onAssign(nextLocationId)}
         >
           {box.currentLocationId ? "Alterar localização" : "Definir localização"}
@@ -140,6 +156,26 @@ export function BoxDetail({
           Remover localização
         </Button>
       </div>
+
+      <section>
+        <h3 className="text-sm font-semibold tracking-wide text-muted uppercase">Identificação</h3>
+        <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center">
+          <QrCode value={payload} title={`QR da caixa ${box.code}`} />
+          <div className="min-w-0">
+            <p className="font-mono text-sm text-ink">{box.code}</p>
+            <p className="mt-1 text-sm text-ink">{identity || product?.name || "Sem produto"}</p>
+            <p className="mt-1 font-mono text-xs break-all text-muted">{payload}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button variant="secondary" disabled={submitting} onClick={onPreviewLabel}>
+                Visualizar etiqueta
+              </Button>
+              <Button variant="primary" disabled={submitting} onClick={onPrintLabel}>
+                Imprimir etiqueta
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section>
         <h3 className="text-sm font-semibold tracking-wide text-muted uppercase">Histórico</h3>

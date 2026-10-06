@@ -5,6 +5,7 @@ import {
   LOCATION_STATUS_LABEL,
   STORAGE_AREA_STATUS_LABEL,
   buildLocationCode,
+  createLocationQrPayload,
   emptyAreaForm,
   emptyLocationForm,
   filterLocations,
@@ -28,12 +29,16 @@ import { getBrowserLocationService } from "@/application/locations/location-serv
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
 import { Field, controlClass } from "@/components/ui/field";
+import { LocationLabel } from "@/features/identification/location-label";
+import { PrintLabelDialog } from "@/features/identification/print-label-dialog";
+import { QrCode } from "@/features/identification/qr-code";
 
 type Editor =
   | { kind: "area-create" }
   | { kind: "area-edit"; area: StorageArea }
   | { kind: "location-create" }
-  | { kind: "location-edit"; location: Location };
+  | { kind: "location-edit"; location: Location }
+  | { kind: "location-detail"; location: Location };
 
 const INITIAL_QUERY: LocationQuery = { text: "", areaId: "", status: "ALL", aisle: "", rack: "" };
 
@@ -46,6 +51,7 @@ export function LocationsPage() {
   const [areaText, setAreaText] = useState("");
   const [view, setView] = useState<"addresses" | "structure" | "areas">("addresses");
   const [editor, setEditor] = useState<Editor | null>(null);
+  const [signage, setSignage] = useState<{ location: Location; autoPrint: boolean } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -70,7 +76,8 @@ export function LocationsPage() {
   useEffect(() => {
     let cancelled = false;
     reload().catch((caught: unknown) => {
-      if (!cancelled) setError(caught instanceof Error ? caught.message : "Não foi possível carregar.");
+      if (!cancelled)
+        setError(caught instanceof Error ? caught.message : "Não foi possível carregar.");
     });
     return () => {
       cancelled = true;
@@ -90,7 +97,10 @@ export function LocationsPage() {
     const text = normalizeForComparison(areaText);
     if (!areas || !text) return areas ?? [];
     return areas.filter((area) =>
-      [area.code, area.name, area.notes].map((value) => normalizeForComparison(value)).join(" ").includes(text),
+      [area.code, area.name, area.notes]
+        .map((value) => normalizeForComparison(value))
+        .join(" ")
+        .includes(text),
     );
   }, [areaText, areas]);
   const visible = useMemo(() => filterLocations(items, query), [items, query]);
@@ -126,7 +136,8 @@ export function LocationsPage() {
             <p className="text-xs font-medium tracking-wide text-muted uppercase">Estoque físico</p>
             <h1 className="text-2xl font-semibold text-ink">Endereçamento</h1>
             <p className="mt-1 max-w-2xl text-sm text-muted">
-              Áreas e posições onde uma caixa pode ficar. O mapa gráfico fica para uma fase seguinte.
+              Áreas e posições onde uma caixa pode ficar. O mapa gráfico fica para uma fase
+              seguinte.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -231,7 +242,10 @@ export function LocationsPage() {
         ) : null}
 
         {error ? (
-          <p className="mt-4 rounded-md border border-danger px-3 py-2 text-sm text-danger" role="alert">
+          <p
+            className="mt-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
+            role="alert"
+          >
             {error}
           </p>
         ) : null}
@@ -258,22 +272,36 @@ export function LocationsPage() {
                   setEditor({ kind: "area-edit", area });
                 }}
                 onStatus={(area, status) =>
-                  void run(() => getBrowserLocationService().setAreaStatus(area.id, status).then(() => undefined))
+                  void run(() =>
+                    getBrowserLocationService()
+                      .setAreaStatus(area.id, status)
+                      .then(() => undefined),
+                  )
                 }
               />
             </>
           ) : view === "structure" ? (
-            <LocationTree trees={tree} />
+            <LocationTree
+              trees={tree}
+              onLabel={(location) => setSignage({ location, autoPrint: false })}
+            />
           ) : (
             <LocationTable
               items={visible}
+              onOpen={(location) => {
+                setFormError(null);
+                setEditor({ kind: "location-detail", location });
+              }}
+              onLabel={(location) => setSignage({ location, autoPrint: false })}
               onEdit={(location) => {
                 setFormError(null);
                 setEditor({ kind: "location-edit", location });
               }}
               onStatus={(location, status) =>
                 void run(() =>
-                  getBrowserLocationService().setLocationStatus(location.id, status).then(() => undefined),
+                  getBrowserLocationService()
+                    .setLocationStatus(location.id, status)
+                    .then(() => undefined),
                 )
               }
             />
@@ -299,7 +327,7 @@ export function LocationsPage() {
                   ? "Editar área"
                   : editor?.kind === "area-create"
                     ? "Nova área"
-                    : editor?.kind === "location-edit"
+                    : editor?.kind === "location-edit" || editor?.kind === "location-detail"
                       ? editor.location.code
                       : "Novo endereço"}
               </Dialog.Title>
@@ -310,7 +338,10 @@ export function LocationsPage() {
               </Dialog.Close>
             </div>
             {formError ? (
-              <p className="mb-4 rounded-md border border-danger px-3 py-2 text-sm text-danger" role="alert">
+              <p
+                className="mb-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
+                role="alert"
+              >
                 {formError}
               </p>
             ) : null}
@@ -324,12 +355,14 @@ export function LocationsPage() {
                     const service = getBrowserLocationService();
                     if (editor.kind === "area-edit") {
                       const parsed = validateAreaUpdateForm(values);
-                      if (!parsed.value) throw new Error(parsed.issues[0]?.message ?? "Dados inválidos.");
+                      if (!parsed.value)
+                        throw new Error(parsed.issues[0]?.message ?? "Dados inválidos.");
                       await service.updateArea(editor.area.id, parsed.value);
                       return;
                     }
                     const parsed = validateAreaCreateForm(values);
-                    if (!parsed.value) throw new Error(parsed.issues[0]?.message ?? "Dados inválidos.");
+                    if (!parsed.value)
+                      throw new Error(parsed.issues[0]?.message ?? "Dados inválidos.");
                     await service.createArea(parsed.value);
                   })
                 }
@@ -339,23 +372,50 @@ export function LocationsPage() {
               <LocationForm
                 areas={areas ?? []}
                 location={editor.kind === "location-edit" ? editor.location : undefined}
-                occupied={editor.kind === "location-edit" ? (counts[editor.location.id] ?? 0) > 0 : false}
+                occupied={
+                  editor.kind === "location-edit" ? (counts[editor.location.id] ?? 0) > 0 : false
+                }
                 submitting={submitting}
                 onCancel={() => setEditor(null)}
                 onSubmit={(values) =>
                   void run(async () => {
                     const parsed = validateLocationForm(values);
-                    if (!parsed.value) throw new Error(parsed.issues[0]?.message ?? "Dados inválidos.");
+                    if (!parsed.value)
+                      throw new Error(parsed.issues[0]?.message ?? "Dados inválidos.");
                     const service = getBrowserLocationService();
-                    if (editor.kind === "location-edit") await service.updateLocation(editor.location.id, parsed.value);
+                    if (editor.kind === "location-edit")
+                      await service.updateLocation(editor.location.id, parsed.value);
                     else await service.createLocation(parsed.value);
                   })
                 }
               />
             ) : null}
+            {editor?.kind === "location-detail" ? (
+              <LocationSignage
+                location={editor.location}
+                area={areas?.find((area) => area.id === editor.location.areaId) ?? null}
+                onPreview={() => setSignage({ location: editor.location, autoPrint: false })}
+                onPrint={() => setSignage({ location: editor.location, autoPrint: true })}
+              />
+            ) : null}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+      <PrintLabelDialog
+        open={signage != null}
+        title="Sinalização do endereço"
+        autoPrint={signage?.autoPrint ?? false}
+        onOpenChange={(open) => {
+          if (!open) setSignage(null);
+        }}
+      >
+        {signage ? (
+          <LocationLabel
+            location={signage.location}
+            area={areas?.find((area) => area.id === signage.location.areaId) ?? null}
+          />
+        ) : null}
+      </PrintLabelDialog>
     </>
   );
 }
@@ -429,10 +489,14 @@ function AreaTable({
 
 function LocationTable({
   items,
+  onOpen,
+  onLabel,
   onEdit,
   onStatus,
 }: {
   items: ReturnType<typeof filterLocations>;
+  onOpen: (location: Location) => void;
+  onLabel: (location: Location) => void;
   onEdit: (location: Location) => void;
   onStatus: (location: Location, status: LocationStatus) => void;
 }) {
@@ -456,7 +520,15 @@ function LocationTable({
         <tbody>
           {items.map((item) => (
             <tr key={item.location.id} className="border-t border-line">
-              <td className="px-3 py-3 font-mono text-xs">{item.location.code}</td>
+              <td className="px-3 py-3 font-mono text-xs">
+                <button
+                  type="button"
+                  className="underline-offset-2 hover:underline"
+                  onClick={() => onOpen(item.location)}
+                >
+                  {item.location.code}
+                </button>
+              </td>
               <td className="px-3 py-3">{item.area?.name ?? "—"}</td>
               <td className="px-3 py-3">{item.location.aisle}</td>
               <td className="px-3 py-3">{item.location.rack}</td>
@@ -469,20 +541,38 @@ function LocationTable({
               <td className="px-3 py-3">{LOCATION_STATUS_LABEL[item.location.status]}</td>
               <td className="px-3 py-3">
                 <div className="flex flex-wrap gap-1">
+                  <Button variant="ghost" className="px-2" onClick={() => onOpen(item.location)}>
+                    Detalhe
+                  </Button>
+                  <Button variant="ghost" className="px-2" onClick={() => onLabel(item.location)}>
+                    Etiqueta
+                  </Button>
                   <Button variant="ghost" className="px-2" onClick={() => onEdit(item.location)}>
                     Editar
                   </Button>
                   {item.location.status !== "ACTIVE" ? (
-                    <Button variant="ghost" className="px-2" onClick={() => onStatus(item.location, "ACTIVE")}>
+                    <Button
+                      variant="ghost"
+                      className="px-2"
+                      onClick={() => onStatus(item.location, "ACTIVE")}
+                    >
                       Ativar
                     </Button>
                   ) : (
-                    <Button variant="ghost" className="px-2" onClick={() => onStatus(item.location, "BLOCKED")}>
+                    <Button
+                      variant="ghost"
+                      className="px-2"
+                      onClick={() => onStatus(item.location, "BLOCKED")}
+                    >
                       Bloquear
                     </Button>
                   )}
                   {item.location.status !== "INACTIVE" ? (
-                    <Button variant="ghost" className="px-2" onClick={() => onStatus(item.location, "INACTIVE")}>
+                    <Button
+                      variant="ghost"
+                      className="px-2"
+                      onClick={() => onStatus(item.location, "INACTIVE")}
+                    >
                       Inativar
                     </Button>
                   ) : null}
@@ -496,7 +586,13 @@ function LocationTable({
   );
 }
 
-function LocationTree({ trees }: { trees: ReturnType<typeof groupLocations> }) {
+function LocationTree({
+  trees,
+  onLabel,
+}: {
+  trees: ReturnType<typeof groupLocations>;
+  onLabel: (location: Location) => void;
+}) {
   if (trees.length === 0) return <Empty text="Nenhuma posição para mostrar." />;
   return (
     <div className="flex flex-col gap-4">
@@ -519,11 +615,24 @@ function LocationTree({ trees }: { trees: ReturnType<typeof groupLocations> }) {
                             Nível {level.level}
                             <ul className="pl-4 text-muted">
                               {level.positions.map((item) => (
-                                <li key={item.location.id} className="font-mono text-xs text-ink">
-                                  Posição {item.location.position} · {item.location.code} · {item.boxCount}
-                                  {item.location.capacityBoxes != null
-                                    ? ` / ${item.location.capacityBoxes}`
-                                    : ""}
+                                <li
+                                  key={item.location.id}
+                                  className="flex flex-wrap items-center gap-2 font-mono text-xs text-ink"
+                                >
+                                  <span>
+                                    Posição {item.location.position} · {item.location.code} ·{" "}
+                                    {item.boxCount}
+                                    {item.location.capacityBoxes != null
+                                      ? ` / ${item.location.capacityBoxes}`
+                                      : ""}
+                                  </span>
+                                  <Button
+                                    variant="ghost"
+                                    className="px-2"
+                                    onClick={() => onLabel(item.location)}
+                                  >
+                                    Etiqueta
+                                  </Button>
                                 </li>
                               ))}
                             </ul>
@@ -554,9 +663,7 @@ function AreaForm({
   onCancel: () => void;
 }) {
   const [values, setValues] = useState<StorageAreaFormValues>(
-    area
-      ? { code: area.code, name: area.name, notes: area.notes ?? "" }
-      : emptyAreaForm(),
+    area ? { code: area.code, name: area.name, notes: area.notes ?? "" } : emptyAreaForm(),
   );
   return (
     <form
@@ -653,7 +760,9 @@ function LocationForm({
         onSubmit(values);
       }}
     >
-      <p className="font-mono text-sm text-ink">{preview || "O código será gerado ao preencher o endereço."}</p>
+      <p className="font-mono text-sm text-ink">
+        {preview || "O código será gerado ao preencher o endereço."}
+      </p>
       {occupied ? (
         <p className="text-sm text-muted">
           Há caixas neste endereço. Só capacidade e observação podem mudar.
@@ -678,12 +787,40 @@ function LocationForm({
         </select>
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Part id="loc-aisle" label="Corredor" value={values.aisle} disabled={lock} onChange={(aisle) => setValues({ ...values, aisle })} />
-        <Part id="loc-rack" label="Prateleira" value={values.rack} disabled={lock} onChange={(rack) => setValues({ ...values, rack })} />
-        <Part id="loc-level" label="Nível" value={values.level} disabled={lock} onChange={(level) => setValues({ ...values, level })} />
-        <Part id="loc-position" label="Posição" value={values.position} disabled={lock} onChange={(position) => setValues({ ...values, position })} />
+        <Part
+          id="loc-aisle"
+          label="Corredor"
+          value={values.aisle}
+          disabled={lock}
+          onChange={(aisle) => setValues({ ...values, aisle })}
+        />
+        <Part
+          id="loc-rack"
+          label="Prateleira"
+          value={values.rack}
+          disabled={lock}
+          onChange={(rack) => setValues({ ...values, rack })}
+        />
+        <Part
+          id="loc-level"
+          label="Nível"
+          value={values.level}
+          disabled={lock}
+          onChange={(level) => setValues({ ...values, level })}
+        />
+        <Part
+          id="loc-position"
+          label="Posição"
+          value={values.position}
+          disabled={lock}
+          onChange={(position) => setValues({ ...values, position })}
+        />
       </div>
-      <Field label="Capacidade (caixas)" htmlFor="loc-capacity" hint="Opcional. Em branco não limita a posição.">
+      <Field
+        label="Capacidade (caixas)"
+        htmlFor="loc-capacity"
+        hint="Opcional. Em branco não limita a posição."
+      >
         <input
           id="loc-capacity"
           inputMode="numeric"
@@ -730,8 +867,60 @@ function Part({
 }) {
   return (
     <Field label={label} htmlFor={id} required>
-      <input id={id} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value)} className={controlClass} />
+      <input
+        id={id}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.value)}
+        className={controlClass}
+      />
     </Field>
+  );
+}
+
+function LocationSignage({
+  location,
+  area,
+  onPreview,
+  onPrint,
+}: {
+  location: Location;
+  area: StorageArea | null;
+  onPreview: () => void;
+  onPrint: () => void;
+}) {
+  const payload = createLocationQrPayload(location.code);
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+        <QrCode value={payload} title={`QR do endereço ${location.code}`} />
+        <dl className="grid gap-2 text-sm sm:grid-cols-2">
+          <Info label="Área" value={area ? `${area.name} (${area.code})` : "Área não encontrada"} />
+          <Info label="Corredor" value={location.aisle} />
+          <Info label="Prateleira" value={location.rack} />
+          <Info label="Nível" value={location.level} />
+          <Info label="Posição" value={location.position} />
+        </dl>
+      </div>
+      <p className="font-mono text-xs break-all text-muted">{payload}</p>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" onClick={onPreview}>
+          Visualizar sinalização
+        </Button>
+        <Button variant="primary" onClick={onPrint}>
+          Imprimir
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-muted">{label}</dt>
+      <dd className="text-ink">{value}</dd>
+    </div>
   );
 }
 

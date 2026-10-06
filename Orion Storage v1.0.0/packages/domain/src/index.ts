@@ -8,6 +8,8 @@ export {
   DuplicateInternalCodeError,
   DuplicateLocationError,
   DuplicateStorageAreaCodeError,
+  IdentificationNotFoundError,
+  IdentificationPayloadError,
   InactiveProductBoxError,
   InactiveStorageAreaError,
   LocationCapacityError,
@@ -147,7 +149,12 @@ export {
 } from "./location";
 export type { Location, LocationDraft, LocationStatus, LocationStructure } from "./location";
 export { filterLocations, groupLocations } from "./location-filter";
-export type { LocationListItem, LocationQuery, LocationStatusFilter, LocationTree } from "./location-filter";
+export type {
+  LocationListItem,
+  LocationQuery,
+  LocationStatusFilter,
+  LocationTree,
+} from "./location-filter";
 export {
   assertValidAreaCreate,
   assertValidAreaUpdate,
@@ -158,5 +165,33 @@ export {
   validateAreaUpdateForm,
   validateLocationForm,
 } from "./location-schema";
-export type { LocationFormValidation, LocationFormValues, StorageAreaFormValidation, StorageAreaFormValues } from "./location-schema";
+export type {
+  LocationFormValidation,
+  LocationFormValues,
+  StorageAreaFormValidation,
+  StorageAreaFormValues,
+} from "./location-schema";
 export { DEMO_AREA_ID, DEMO_LOCATION_IDS, demoLocations, demoStorageAreas } from "./location-seeds";
+export {
+  QR_PROTOCOL,
+  QR_TYPES,
+  QR_VERSION,
+  createBoxQrPayload,
+  createLocationQrPayload,
+  parseQrPayload,
+  resolveIdentification,
+  validateQrPayload,
+} from "./identification";
+export type {
+  IdentificationCatalog,
+  IdentificationHit,
+  QrIdentity,
+  QrType,
+} from "./identification";
+export {
+  LABEL_PRESETS,
+  boxLabelOptionalFields,
+  composeBoxLabel,
+  composeLocationLabel,
+} from "./label";
+export type { BoxLabelModel, LocationLabelModel } from "./label";

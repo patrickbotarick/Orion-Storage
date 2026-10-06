@@ -2,11 +2,11 @@
 
 Sistema independente de controle de estoque físico.
 
-A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física: identidade, conteúdo, status e histórico básico. A Fase 2B entrega o endereço físico: área, posição e o vínculo opcional da caixa. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
+A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física. A Fase 2B entrega o endereço. A Fase 3A entrega o QR e a etiqueta básica da caixa e do endereço. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
 
 ## Objetivo
 
-Separar o cadastro do produto da unidade física que está no estoque. Cada caixa tem código próprio, mesmo quando várias carregam o mesmo produto. Endereço, etiqueta, QR Code e movimentação ficam para as fases seguintes.
+Separar o cadastro do produto da unidade física que está no estoque. Cada caixa tem código próprio, mesmo quando várias carregam o mesmo produto. O QR identifica a caixa ou o endereço sem depender do endereço do servidor. Scanner e movimentação ficam para as fases seguintes.
 
 ## Stack
 
@@ -40,7 +40,7 @@ npm install
 | `npm run dev`       | Sobe o aplicativo na porta 8080. Outra porta: `npm run dev -- --port 8091` |
 | `npm run typecheck` | TypeScript sem emitir arquivos                                                            |
 | `npm run lint`      | ESLint                                                                                    |
-| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A e 2B)         |
+| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A, 2B e 3A)     |
 | `npm run build`     | Build de produção                                                                         |
 | `npm run format`    | Prettier                                                                                  |
 
@@ -51,7 +51,7 @@ Não há banco, autenticação nem serviços externos. Os dados ficam no `localS
 ## Estrutura
 
 ```text
-packages/domain/     produtos, caixas, áreas, endereços, histórico, validação, filtros, seeds
+packages/domain/     produtos, caixas, áreas, endereços, QR, etiquetas, histórico, validação
 packages/shared/     formatação e rótulos
 src/application/     ProductService, BoxService e serviços de endereçamento
 src/persistence/     repositórios em localStorage
@@ -90,14 +90,15 @@ Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegaçã
 npm test
 ```
 
-Cobrem o catálogo da Fase 1, as caixas da Fase 2A e, na Fase 2B, área, endereço, capacidade, vínculo da caixa e histórico de localização.
+Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B e, na Fase 3A, o payload do QR, a resolução e a composição das etiquetas.
 
 ## Status atual
 
 - Fase 1 concluída: catálogo de produtos.
 - Fase 2A concluída: caixas físicas e rastreabilidade básica.
 - Fase 2B concluída: endereçamento físico.
-- QR Code, scanner, mapa gráfico e movimentação completa não foram iniciados.
+- Fase 3A concluída: QR Code e etiquetas básicas.
+- Scanner, mapa gráfico e movimentação completa não foram iniciados.
 
 ## Funcionalidades da Fase 1
 
@@ -124,7 +125,15 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A e, na Fase 2B, área, endere�
 
 ## Próximos passos
 
-Ainda não há QR Code, scanner, mapa gráfico, etiqueta ou entidade de movimentação. O próximo passo natural é a movimentação registrada, ou a etiqueta, ainda sem transformar o endereço em um mapa visual.
+Ainda não há scanner, mapa gráfico ou entidade de movimentação. O próximo passo natural é a leitura do QR (Fase 3B), reutilizando `resolveIdentification`, sem transformar o endereço em um mapa visual.
+
+## Funcionalidades da Fase 3A
+
+- Payload `orion://v1/box/...` e `orion://v1/location/...`, sem URL de servidor
+- QR desenhado na hora, sem gravar imagem
+- Etiqueta da caixa e sinalização do endereço
+- Pré-visualização e impressão pelo navegador
+- Produto sem medidas opcionais continua com etiqueta utilizável
 
 ## Funcionalidades da Fase 2B
 

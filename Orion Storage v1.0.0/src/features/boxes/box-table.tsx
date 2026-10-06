@@ -8,9 +8,10 @@ type BoxTableProps = {
   items: BoxListItem[];
   onOpen: (item: BoxListItem) => void;
   onEdit: (item: BoxListItem) => void;
+  onLabel: (item: BoxListItem) => void;
 };
 
-export function BoxTable({ items, onOpen, onEdit }: BoxTableProps) {
+export function BoxTable({ items, onOpen, onEdit, onLabel }: BoxTableProps) {
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-line bg-surface px-6 py-16 text-center">
@@ -72,7 +73,13 @@ export function BoxTable({ items, onOpen, onEdit }: BoxTableProps) {
                   <BoxStatusBadge status={item.box.status} />
                 </td>
                 <td className="px-3 py-3">
-                  <RowActions item={item} onOpen={onOpen} onEdit={onEdit} layout="row" />
+                  <RowActions
+                    item={item}
+                    onOpen={onOpen}
+                    onEdit={onEdit}
+                    onLabel={onLabel}
+                    layout="row"
+                  />
                 </td>
               </tr>
             ))}
@@ -103,7 +110,13 @@ export function BoxTable({ items, onOpen, onEdit }: BoxTableProps) {
               <Data label="Localização" value={item.locationCode ?? "Sem localização"} />
             </dl>
             <div className="mt-4">
-              <RowActions item={item} onOpen={onOpen} onEdit={onEdit} layout="wrap" />
+              <RowActions
+                item={item}
+                onOpen={onOpen}
+                onEdit={onEdit}
+                onLabel={onLabel}
+                layout="wrap"
+              />
             </div>
           </li>
         ))}
@@ -125,11 +138,13 @@ function RowActions({
   item,
   onOpen,
   onEdit,
+  onLabel,
   layout,
 }: {
   item: BoxListItem;
   onOpen: (item: BoxListItem) => void;
   onEdit: (item: BoxListItem) => void;
+  onLabel: (item: BoxListItem) => void;
   layout: "row" | "wrap";
 }) {
   return (
@@ -139,6 +154,9 @@ function RowActions({
       </Button>
       <Button variant="ghost" className="px-2" onClick={() => onEdit(item)}>
         Editar
+      </Button>
+      <Button variant="ghost" className="px-2" onClick={() => onLabel(item)}>
+        Etiqueta
       </Button>
     </div>
   );

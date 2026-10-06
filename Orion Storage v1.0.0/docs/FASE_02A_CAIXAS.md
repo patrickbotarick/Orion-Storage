@@ -194,4 +194,4 @@ npm run build
 
 ## Fase 2B
 
-O endereço físico está em [FASE_02B_ENDERECAMENTO.md](./FASE_02B_ENDERECAMENTO.md). Esta fase de caixas continua sem QR Code, scanner ou movimentação completa.
+O endereço físico está em [FASE_02B_ENDERECAMENTO.md](./FASE_02B_ENDERECAMENTO.md). O QR e a etiqueta da caixa estão em [FASE_03A_QR_ETIQUETAS.md](./FASE_03A_QR_ETIQUETAS.md). Esta fase de caixas continua sem scanner ou movimentação completa.
