@@ -1,13 +1,15 @@
 import type { Box, BoxStatus } from "./box";
 import { allocateBoxCode } from "./box-code";
-import { buildCreatedHistory, buildStatusHistory } from "./box-history";
+import { buildCreatedHistory, buildLocationHistory, buildStatusHistory } from "./box-history";
 import { insertBox, type BoxPersistenceState } from "./box-store";
 import { calculatedTotalLengthM } from "./length";
+import { DEMO_LOCATION_IDS } from "./location-seeds";
 import type { Product } from "./product";
 import { demoProducts } from "./seeds";
 
 const CREATED_AT = "2026-10-06T15:00:00.000Z";
 const AVAILABLE_AT = "2026-10-06T18:00:00.000Z";
+const LOCATED_AT = "2026-10-06T19:00:00.000Z";
 const RECEIVED_ON = "2026-10-06";
 
 type DemoSpec = {
@@ -16,6 +18,7 @@ type DemoSpec = {
   status: BoxStatus;
   manufacturerBatch?: string;
   notes?: string;
+  location?: { id: string; code: string };
 };
 
 /**
@@ -33,17 +36,20 @@ export function demoBoxState(now = new Date(CREATED_AT)): BoxPersistenceState {
       status: "AVAILABLE",
       manufacturerBatch: "1101TX-26",
       notes: "Etiqueta do fabricante legível.",
+      location: { id: DEMO_LOCATION_IDS.a010101, code: "SUP-A-01-01-01" },
     },
     {
       id: "seed-box-proadec-2",
       product: proadec,
       status: "RECEIVED",
+      location: { id: DEMO_LOCATION_IDS.a010102, code: "SUP-A-01-01-02" },
     },
     {
       id: "seed-box-real-1",
       product: real,
       status: "AVAILABLE",
       manufacturerBatch: "PIN-ESS-04",
+      location: { id: DEMO_LOCATION_IDS.a010201, code: "SUP-A-01-02-01" },
     },
     {
       id: "seed-box-real-2",
@@ -92,6 +98,19 @@ function appendDemoBox(state: BoxPersistenceState, spec: DemoSpec, now: Date): B
       updatedAt = AVAILABLE_AT;
     }
   }
+  if (spec.location) {
+    const located = buildLocationHistory({
+      id: `${spec.id}-location`,
+      boxId: spec.id,
+      createdAt: LOCATED_AT,
+      nextId: spec.location.id,
+      nextCode: spec.location.code,
+    });
+    if (located) {
+      history.push(located);
+      updatedAt = LOCATED_AT;
+    }
+  }
   const box: Box = {
     id: spec.id,
     code: allocated.code,
@@ -104,6 +123,7 @@ function appendDemoBox(state: BoxPersistenceState, spec: DemoSpec, now: Date): B
     updatedAt,
     history,
   };
+  if (spec.location) box.currentLocationId = spec.location.id;
   if (spec.manufacturerBatch) box.manufacturerBatch = spec.manufacturerBatch;
   if (spec.notes) box.notes = spec.notes;
   return insertBox({ boxes: state.boxes, codeLedger: allocated.ledger }, box);

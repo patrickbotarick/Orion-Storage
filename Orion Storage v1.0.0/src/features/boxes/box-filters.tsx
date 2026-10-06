@@ -1,6 +1,7 @@
 import {
   BOX_STATUSES,
   BOX_STATUS_LABEL,
+  type BoxPlacementFilter,
   type BoxQuery,
   type BoxStatusFilter,
   type Product,
@@ -30,8 +31,8 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
           type="search"
           value={query.text ?? ""}
           onChange={(event) => onChange({ ...query, text: event.target.value })}
-          placeholder="Buscar por caixa, produto, marca, cor ou lote"
-          aria-label="Buscar por caixa, produto, marca, cor ou lote"
+          placeholder="Buscar por caixa, produto, marca, cor, lote ou localização"
+          aria-label="Buscar por caixa, produto, marca, cor, lote ou localização"
           className={`${controlClass} pl-10`}
         />
       </div>
@@ -101,6 +102,26 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
             onChange={(event) => onChange({ ...query, receivedAt: event.target.value })}
             className={controlClass}
           />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label
+            htmlFor="filter-box-placement"
+            className="text-xs font-medium tracking-wide text-muted uppercase"
+          >
+            Localização
+          </label>
+          <select
+            id="filter-box-placement"
+            value={query.placement ?? "ALL"}
+            onChange={(event) =>
+              onChange({ ...query, placement: event.target.value as BoxPlacementFilter })
+            }
+            className={controlClass}
+          >
+            <option value="ALL">Todas</option>
+            <option value="WITH_LOCATION">Com localização</option>
+            <option value="WITHOUT_LOCATION">Sem localização</option>
+          </select>
         </div>
       </div>
       <p className="text-sm text-muted" aria-live="polite">

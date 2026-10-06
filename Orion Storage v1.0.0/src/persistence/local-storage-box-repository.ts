@@ -5,6 +5,7 @@ import {
   assertValidBoxCreate,
   assertValidBoxUpdate,
   buildCreatedHistory,
+  buildLocationHistory,
   buildStatusHistory,
   buildUpdatedHistory,
   canonicalBoxCode,
@@ -157,6 +158,35 @@ export class LocalStorageBoxRepository implements BoxRepository {
     return cloneBox(updated);
   }
 
+  async setCurrentLocation(
+    id: string,
+    change: { nextLocationId?: string; previousCode?: string; nextCode?: string },
+  ): Promise<Box> {
+    const state = this.readState();
+    const index = state.boxes.findIndex((box) => box.id === id);
+    const current = state.boxes[index];
+    if (!current) throw new BoxNotFoundError(id);
+    const nextLocationId = change.nextLocationId?.trim() || undefined;
+    const entry = buildLocationHistory({
+      id: this.ids(),
+      boxId: current.id,
+      createdAt: this.now(),
+      previousId: current.currentLocationId,
+      previousCode: change.previousCode,
+      nextId: nextLocationId,
+      nextCode: change.nextCode,
+    });
+    if (!entry) return cloneBox(current);
+    const updated = cloneBox(current);
+    updated.updatedAt = entry.createdAt;
+    updated.history = [...current.history.map(cloneHistory), entry];
+    if (nextLocationId) updated.currentLocationId = nextLocationId;
+    else delete updated.currentLocationId;
+    state.boxes[index] = updated;
+    this.writeState(state);
+    return cloneBox(updated);
+  }
+
   private readState(): BoxPersistenceState {
     const raw = this.store.getItem(STORAGE_KEY);
     if (raw == null) {
@@ -212,6 +242,7 @@ function withContent(current: Box, content: BoxUpdateInput, entry: BoxHistoryEnt
     updatedAt: entry.createdAt,
     history: [...current.history.map(cloneHistory), entry],
   };
+  if (current.currentLocationId) updated.currentLocationId = current.currentLocationId;
   if (content.manufacturerBatch) updated.manufacturerBatch = content.manufacturerBatch;
   if (content.notes) updated.notes = content.notes;
   return updated;
@@ -233,6 +264,7 @@ function cloneBox(box: Box): Box {
     ...box,
     history: Array.isArray(box.history) ? box.history.map(cloneHistory) : [],
   };
+  if (!clone.currentLocationId) delete clone.currentLocationId;
   return clone;
 }
 

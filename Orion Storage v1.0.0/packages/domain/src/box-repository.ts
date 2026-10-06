@@ -12,4 +12,12 @@ export interface BoxRepository {
   update(id: string, input: BoxUpdateInput): Promise<Box>;
   setStatus(id: string, status: BoxStatus): Promise<Box>;
   listByProductId(productId: string): Promise<Box[]>;
+  setCurrentLocation(
+    id: string,
+    change: {
+      nextLocationId?: string;
+      previousCode?: string;
+      nextCode?: string;
+    },
+  ): Promise<Box>;
 }

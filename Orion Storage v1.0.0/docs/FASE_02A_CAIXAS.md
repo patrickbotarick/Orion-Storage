@@ -194,4 +194,4 @@ npm run build
 
 ## Fase 2B
 
-Não foi iniciada. O próximo passo recomendado é o endereço atual da caixa: cadastro simples de posição e um vínculo opcional, ainda sem mapa, QR Code, scanner ou transferência.
+O endereço físico está em [FASE_02B_ENDERECAMENTO.md](./FASE_02B_ENDERECAMENTO.md). Esta fase de caixas continua sem QR Code, scanner ou movimentação completa.

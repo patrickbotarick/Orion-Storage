@@ -2,7 +2,7 @@
 
 Sistema independente de controle de estoque físico.
 
-A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física: identidade, conteúdo, status e histórico básico. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
+A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física: identidade, conteúdo, status e histórico básico. A Fase 2B entrega o endereço físico: área, posição e o vínculo opcional da caixa. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
 
 ## Objetivo
 
@@ -40,7 +40,7 @@ npm install
 | `npm run dev`       | Sobe o aplicativo na porta 8080. Outra porta: `npm run dev -- --port 8091` |
 | `npm run typecheck` | TypeScript sem emitir arquivos                                                            |
 | `npm run lint`      | ESLint                                                                                    |
-| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1 e 2A)              |
+| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A e 2B)         |
 | `npm run build`     | Build de produção                                                                         |
 | `npm run format`    | Prettier                                                                                  |
 
@@ -51,11 +51,11 @@ Não há banco, autenticação nem serviços externos. Os dados ficam no `localS
 ## Estrutura
 
 ```text
-packages/domain/     produtos, caixas, código da caixa, histórico, validação, filtros, seeds
+packages/domain/     produtos, caixas, áreas, endereços, histórico, validação, filtros, seeds
 packages/shared/     formatação e rótulos
-src/application/     ProductService e BoxService
+src/application/     ProductService, BoxService e serviços de endereçamento
 src/persistence/     repositórios em localStorage
-src/features/        telas de produtos e de caixas
+src/features/        telas de produtos, caixas e endereçamento
 src/routes/          entrada da aplicação web
 docs/                documentação das fases
 ```
@@ -69,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos** e **Caixas**. Os dois lados já abrem com dados de demonstração.
+Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos**, **Caixas** e **Endereçamento**. Os três lados já abrem com dados de demonstração.
 
 ### Início rápido no Windows
 
@@ -90,13 +90,14 @@ Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegaçã
 npm test
 ```
 
-Cobrem o catálogo da Fase 1 e, na Fase 2A, código da caixa, unicidade, vínculo com produto, produto inativo, sugestão de conteúdo, lote opcional, status, histórico, edição, recusa de troca de produto, persistência e código interno duplicado.
+Cobrem o catálogo da Fase 1, as caixas da Fase 2A e, na Fase 2B, área, endereço, capacidade, vínculo da caixa e histórico de localização.
 
 ## Status atual
 
 - Fase 1 concluída: catálogo de produtos.
 - Fase 2A concluída: caixas físicas e rastreabilidade básica.
-- Fase 2B não iniciada.
+- Fase 2B concluída: endereçamento físico.
+- QR Code, scanner, mapa gráfico e movimentação completa não foram iniciados.
 
 ## Funcionalidades da Fase 1
 
@@ -123,7 +124,18 @@ Cobrem o catálogo da Fase 1 e, na Fase 2A, código da caixa, unicidade, víncul
 
 ## Próximos passos
 
-Fase 2B recomendada: endereço atual da caixa, ainda sem mapa, QR Code, scanner ou transferência. Etiqueta, leitura, expedição, inventário e troca do repositório local por uma API continuam atrás das portas `ProductRepository` e `BoxRepository`.
+Ainda não há QR Code, scanner, mapa gráfico, etiqueta ou entidade de movimentação. O próximo passo natural é a movimentação registrada, ou a etiqueta, ainda sem transformar o endereço em um mapa visual.
+
+## Funcionalidades da Fase 2B
+
+- Área física com código estável e nome
+- Endereço `AREA-CORREDOR-PRATELEIRA-NIVEL-POSICAO`, gerado e único
+- Capacidade opcional da posição
+- Status ativa, bloqueada ou inativa
+- Caixa sem localização, com localização, troca e remoção
+- Histórico `LOCATION_ASSIGNED`, `LOCATION_CHANGED` e `LOCATION_CLEARED`
+- Lista hierárquica simples, sem mapa gráfico
+- Tela Endereçamento e coluna de localização nas caixas
 
 ## Exportação
 

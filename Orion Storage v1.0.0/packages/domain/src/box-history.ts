@@ -81,3 +81,53 @@ export function buildStatusHistory(input: {
     metadata: { previousStatus: input.previous, nextStatus: input.next },
   };
 }
+
+export function buildLocationHistory(input: {
+  id: string;
+  boxId: string;
+  createdAt: string;
+  previousId?: string;
+  previousCode?: string;
+  nextId?: string;
+  nextCode?: string;
+}): BoxHistoryEntry | null {
+  const previousId = input.previousId?.trim() || undefined;
+  const nextId = input.nextId?.trim() || undefined;
+  if (previousId === nextId) return null;
+  const previousCode = input.previousCode?.trim() || previousId || "sem código";
+  const nextCode = input.nextCode?.trim() || nextId || "sem código";
+  const metadata: Record<string, string> = {};
+  if (previousId) metadata.previousLocationId = previousId;
+  if (input.previousCode) metadata.previousLocationCode = input.previousCode;
+  if (nextId) metadata.nextLocationId = nextId;
+  if (input.nextCode) metadata.nextLocationCode = input.nextCode;
+
+  if (!previousId && nextId) {
+    return {
+      id: input.id,
+      boxId: input.boxId,
+      type: "LOCATION_ASSIGNED",
+      createdAt: input.createdAt,
+      description: `Caixa endereçada em ${nextCode}.`,
+      metadata,
+    };
+  }
+  if (previousId && nextId) {
+    return {
+      id: input.id,
+      boxId: input.boxId,
+      type: "LOCATION_CHANGED",
+      createdAt: input.createdAt,
+      description: `Localização alterada de ${previousCode} para ${nextCode}.`,
+      metadata,
+    };
+  }
+  return {
+    id: input.id,
+    boxId: input.boxId,
+    type: "LOCATION_CLEARED",
+    createdAt: input.createdAt,
+    description: `Localização ${previousCode} removida. A caixa ficou sem endereço.`,
+    metadata,
+  };
+}

@@ -4,6 +4,7 @@ import {
   BOX_STATUS_LABEL,
   type Box,
   type BoxStatus,
+  type Location,
   type Product,
 } from "@orion/domain";
 import {
@@ -22,14 +23,32 @@ import { BoxStatusBadge } from "@/features/boxes/box-status-badge";
 type BoxDetailProps = {
   box: Box;
   product: Product | null;
+  locations: Location[];
+  locationCode?: string;
   submitting: boolean;
   onEdit: () => void;
   onStatus: (status: BoxStatus) => Promise<void>;
+  onAssign: (locationId: string) => Promise<void>;
+  onClear: () => Promise<void>;
 };
 
-export function BoxDetail({ box, product, submitting, onEdit, onStatus }: BoxDetailProps) {
+export function BoxDetail({
+  box,
+  product,
+  locations,
+  locationCode,
+  submitting,
+  onEdit,
+  onStatus,
+  onAssign,
+  onClear,
+}: BoxDetailProps) {
   const [nextStatus, setNextStatus] = useState<BoxStatus>(box.status);
+  const [nextLocationId, setNextLocationId] = useState(box.currentLocationId ?? "");
   const events = [...box.history].reverse();
+  const choices = locations.filter(
+    (location) => location.status === "ACTIVE" || location.id === box.currentLocationId,
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -48,6 +67,7 @@ export function BoxDetail({ box, product, submitting, onEdit, onStatus }: BoxDet
         <Item label="Metragem" value={formatMeters(box.totalLengthM)} />
         <Item label="Lote" value={box.manufacturerBatch ?? "—"} />
         <Item label="Recebimento" value={formatDatePt(box.receivedAt)} />
+        <Item label="Localização atual" value={locationCode ?? "Sem localização"} />
       </dl>
 
       <div>
@@ -82,6 +102,42 @@ export function BoxDetail({ box, product, submitting, onEdit, onStatus }: BoxDet
         </Button>
         <Button variant="secondary" disabled={submitting} onClick={onEdit}>
           Editar conteúdo
+        </Button>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="sm:min-w-72 sm:flex-1">
+          <Field label="Definir localização" htmlFor="box-next-location">
+            <select
+              id="box-next-location"
+              value={nextLocationId}
+              onChange={(event) => setNextLocationId(event.target.value)}
+              className={controlClass}
+              disabled={submitting}
+            >
+              <option value="">Sem localização</option>
+              {choices.map((location) => (
+                <option key={location.id} value={location.id}>
+                  {location.code}
+                  {location.status !== "ACTIVE" ? ` (${location.status})` : ""}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
+        <Button
+          variant="primary"
+          disabled={submitting || nextLocationId === (box.currentLocationId ?? "") || nextLocationId === ""}
+          onClick={() => void onAssign(nextLocationId)}
+        >
+          {box.currentLocationId ? "Alterar localização" : "Definir localização"}
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={submitting || !box.currentLocationId}
+          onClick={() => void onClear()}
+        >
+          Remover localização
         </Button>
       </div>
 

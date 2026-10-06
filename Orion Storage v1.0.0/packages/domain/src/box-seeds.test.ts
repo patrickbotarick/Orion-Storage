@@ -29,8 +29,13 @@ describe("caixas de demonstração", () => {
     expect(realBoxes[0]?.totalLengthM).toBe(300);
     expect(state.boxes.some((box) => box.manufacturerBatch == null)).toBe(true);
     expect(state.boxes.every((box) => box.history[0]?.type === "CREATED")).toBe(true);
+    const addressed = state.boxes.filter((box) => box.currentLocationId);
+    const loose = state.boxes.filter((box) => !box.currentLocationId);
+    expect(addressed).toHaveLength(3);
+    expect(loose).toHaveLength(1);
+    expect(loose[0]?.id).toBe("seed-box-real-2");
     expect(
-      state.boxes.find((box) => box.status === "AVAILABLE")?.history.map((entry) => entry.type),
-    ).toEqual(["CREATED", "STATUS_CHANGED"]);
+      state.boxes.find((box) => box.id === "seed-box-proadec-1")?.history.map((entry) => entry.type),
+    ).toEqual(["CREATED", "STATUS_CHANGED", "LOCATION_ASSIGNED"]);
   });
 });

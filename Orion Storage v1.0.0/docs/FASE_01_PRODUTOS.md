@@ -160,7 +160,7 @@ Estilização com Tailwind e tokens em `src/styles.css`, em vez de CSS Modules, 
 - Sem login, sem auditoria de usuário e sem concorrência.
 - Código interno duplicado passou a ser rejeitado na Fase 2A. Registros que já compartilhavam o mesmo código continuam editáveis se o código não mudar.
 - JSON inválido na chave de storage resulta em lista vazia, sem apagar a string corrompida até o próximo salvamento.
-- Caixas físicas estão na Fase 2A. Ainda não há posições, QR Code, recebimento em lote, mapa ou integração externa.
+- Caixas físicas estão na Fase 2A. O endereço da caixa está na Fase 2B. Ainda não há QR Code, recebimento em lote, mapa gráfico ou integração externa.
 
 ## Testes
 

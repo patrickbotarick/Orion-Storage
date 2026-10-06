@@ -13,7 +13,14 @@ export const BOX_STATUS_LABEL: Record<BoxStatus, string> = {
   BLOCKED: "Bloqueada",
 };
 
-export const BOX_HISTORY_TYPES = ["CREATED", "UPDATED", "STATUS_CHANGED"] as const;
+export const BOX_HISTORY_TYPES = [
+  "CREATED",
+  "UPDATED",
+  "STATUS_CHANGED",
+  "LOCATION_ASSIGNED",
+  "LOCATION_CHANGED",
+  "LOCATION_CLEARED",
+] as const;
 
 export type BoxHistoryType = (typeof BOX_HISTORY_TYPES)[number];
 
@@ -47,6 +54,8 @@ export type Box = BoxContentFields & {
   code: string;
   productId: string;
   status: BoxStatus;
+  /** Current physical address. Absent means the box is not on a position yet. */
+  currentLocationId?: string;
   createdAt: string;
   updatedAt: string;
   history: BoxHistoryEntry[];

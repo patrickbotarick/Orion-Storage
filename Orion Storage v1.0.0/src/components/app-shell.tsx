@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Boxes } from "lucide-react";
 
 type AppShellProps = {
-  section: "products" | "boxes";
+  section: "products" | "boxes" | "locations";
   children: ReactNode;
 };
 
@@ -28,6 +28,9 @@ export function AppShell({ section, children }: AppShellProps) {
             <ShellLink to="/caixas" current={section === "boxes"}>
               Caixas
             </ShellLink>
+            <ShellLink to="/enderecamento" current={section === "locations"}>
+              Endereçamento
+            </ShellLink>
           </nav>
         </aside>
         <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">{children}</main>
@@ -41,7 +44,7 @@ function ShellLink({
   current,
   children,
 }: {
-  to: "/" | "/caixas";
+  to: "/" | "/caixas" | "/enderecamento";
   current: boolean;
   children: string;
 }) {

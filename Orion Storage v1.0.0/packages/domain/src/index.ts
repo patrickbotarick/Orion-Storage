@@ -6,9 +6,20 @@ export {
   BoxValidationError,
   DuplicateBoxCodeError,
   DuplicateInternalCodeError,
+  DuplicateLocationError,
+  DuplicateStorageAreaCodeError,
   InactiveProductBoxError,
+  InactiveStorageAreaError,
+  LocationCapacityError,
+  LocationCapacityTooSmallError,
+  LocationNotAssignableError,
+  LocationNotFoundError,
+  LocationStructureLockedError,
+  LocationValidationError,
   ProductNotFoundError,
   ProductValidationError,
+  StorageAreaNotFoundError,
+  StorageAreaValidationError,
 } from "./errors";
 export type { FieldIssue } from "./errors";
 export { filterProducts, listFilterOptions } from "./filter";
@@ -31,7 +42,7 @@ export {
 } from "./normalize";
 export { EMPTY_PRODUCT_FORM, PRODUCT_STATUSES } from "./product";
 export type { Product, ProductFormValues, ProductInput, ProductStatus } from "./product";
-export type { ProductRepository } from "./repository";
+export type { ProductRepository, StorageAreaRepository, LocationRepository } from "./repository";
 export {
   assertValidProductInput,
   isProductStatus,
@@ -78,9 +89,10 @@ export type { BoxCodeLedger } from "./box-code";
 export { mergeBoxContentSuggestion, suggestBoxContent } from "./box-content";
 export type { BoxContentSource, BoxContentSuggestion } from "./box-content";
 export { filterBoxes } from "./box-filter";
-export type { BoxListItem, BoxQuery, BoxStatusFilter } from "./box-filter";
+export type { BoxListItem, BoxPlacementFilter, BoxQuery, BoxStatusFilter } from "./box-filter";
 export {
   buildCreatedHistory,
+  buildLocationHistory,
   buildStatusHistory,
   buildUpdatedHistory,
   changedBoxFields,
@@ -102,3 +114,49 @@ export type { BoxEditFormValues, BoxFormValidation, BoxFormValues } from "./box-
 export { demoBoxState } from "./box-seeds";
 export { insertBox } from "./box-store";
 export type { BoxPersistenceState } from "./box-store";
+export {
+  STORAGE_AREA_STATUSES,
+  STORAGE_AREA_STATUS_LABEL,
+  assertUniqueAreaCode,
+  canonicalAreaCode,
+  findAreaByCode,
+  isStorageAreaStatus,
+} from "./storage-area";
+export type {
+  StorageArea,
+  StorageAreaCreateInput,
+  StorageAreaStatus,
+  StorageAreaUpdateInput,
+} from "./storage-area";
+export {
+  LOCATION_STATUSES,
+  LOCATION_STATUS_LABEL,
+  addressIdentity,
+  assertCapacityCoversOccupancy,
+  assertLocationAssignable,
+  assertLocationHasRoom,
+  assertStructureEditable,
+  assertUniqueLocation,
+  buildLocationCode,
+  canonicalAddressPart,
+  canonicalStructure,
+  countBoxesAtLocation,
+  findLocationConflict,
+  isLocationStatus,
+  sameLocationStructure,
+} from "./location";
+export type { Location, LocationDraft, LocationStatus, LocationStructure } from "./location";
+export { filterLocations, groupLocations } from "./location-filter";
+export type { LocationListItem, LocationQuery, LocationStatusFilter, LocationTree } from "./location-filter";
+export {
+  assertValidAreaCreate,
+  assertValidAreaUpdate,
+  assertValidLocationForm,
+  emptyAreaForm,
+  emptyLocationForm,
+  validateAreaCreateForm,
+  validateAreaUpdateForm,
+  validateLocationForm,
+} from "./location-schema";
+export type { LocationFormValidation, LocationFormValues, StorageAreaFormValidation, StorageAreaFormValues } from "./location-schema";
+export { DEMO_AREA_ID, DEMO_LOCATION_IDS, demoLocations, demoStorageAreas } from "./location-seeds";

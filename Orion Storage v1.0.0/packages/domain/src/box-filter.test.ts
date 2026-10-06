@@ -25,6 +25,18 @@ describe("busca de caixas", () => {
     expect(filterBoxes(items, { receivedAt: "2026-10-06" })).toHaveLength(4);
     expect(filterBoxes(items, { receivedAt: "2026-10-05" })).toHaveLength(0);
   });
+
+  it("filtra com e sem localização e busca pelo código do endereço", () => {
+    const located = items.map((item) =>
+      item.box.currentLocationId
+        ? { ...item, locationCode: `SUP-${item.box.currentLocationId}` }
+        : item,
+    );
+    expect(filterBoxes(located, { placement: "WITH_LOCATION" })).toHaveLength(3);
+    expect(filterBoxes(located, { placement: "WITHOUT_LOCATION" })).toHaveLength(1);
+    const code = located.find((item) => item.locationCode)?.locationCode ?? "";
+    expect(filterBoxes(located, { text: code.toLowerCase() })).toHaveLength(1);
+  });
 });
 
 function joinDemo(): BoxListItem[] {

@@ -37,6 +37,7 @@ export function BoxTable({ items, onOpen, onEdit }: BoxTableProps) {
               <th className="px-3 py-3 font-medium">Metragem</th>
               <th className="px-3 py-3 font-medium">Lote</th>
               <th className="px-3 py-3 font-medium">Recebimento</th>
+              <th className="px-3 py-3 font-medium">Localização</th>
               <th className="px-3 py-3 font-medium">Status</th>
               <th className="px-3 py-3 font-medium">Ações</th>
             </tr>
@@ -64,6 +65,9 @@ export function BoxTable({ items, onOpen, onEdit }: BoxTableProps) {
                 </td>
                 <td className="px-3 py-3">{item.box.manufacturerBatch ?? "—"}</td>
                 <td className="px-3 py-3 whitespace-nowrap">{formatDatePt(item.box.receivedAt)}</td>
+                <td className="px-3 py-3 font-mono text-xs whitespace-nowrap">
+                  {item.locationCode ?? "Sem localização"}
+                </td>
                 <td className="px-3 py-3">
                   <BoxStatusBadge status={item.box.status} />
                 </td>
@@ -96,6 +100,7 @@ export function BoxTable({ items, onOpen, onEdit }: BoxTableProps) {
               <Data label="Metragem" value={formatMeters(item.box.totalLengthM)} />
               <Data label="Lote" value={item.box.manufacturerBatch ?? "—"} />
               <Data label="Recebimento" value={formatDatePt(item.box.receivedAt)} />
+              <Data label="Localização" value={item.locationCode ?? "Sem localização"} />
             </dl>
             <div className="mt-4">
               <RowActions item={item} onOpen={onOpen} onEdit={onEdit} layout="wrap" />

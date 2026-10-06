@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaixasRouteImport } from './routes/caixas'
+import { Route as EnderecamentoRouteImport } from './routes/enderecamento'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,40 @@ const CaixasRoute = CaixasRouteImport.update({
   path: '/caixas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EnderecamentoRoute = EnderecamentoRouteImport.update({
+  id: '/enderecamento',
+  path: '/enderecamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
+  '/enderecamento': typeof EnderecamentoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
+  '/enderecamento': typeof EnderecamentoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
+  '/enderecamento': typeof EnderecamentoRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/caixas'
+  fullPaths: '/' | '/caixas' | '/enderecamento'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/caixas'
-  id: '__root__' | '/' | '/caixas'
+  to: '/' | '/caixas' | '/enderecamento'
+  id: '__root__' | '/' | '/caixas' | '/enderecamento'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CaixasRoute: typeof CaixasRoute
+  EnderecamentoRoute: typeof EnderecamentoRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +75,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaixasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/enderecamento': {
+      id: '/enderecamento'
+      path: '/enderecamento'
+      fullPath: '/enderecamento'
+      preLoaderRoute: typeof EnderecamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaixasRoute: CaixasRoute,
+  EnderecamentoRoute: EnderecamentoRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -62,6 +62,21 @@ export function BoxesPage() {
     }
   }
 
+  async function handleLocation(locationId: string | null) {
+    if (editor?.mode !== "detail") return;
+    setSubmitting(true);
+    setFormError(null);
+    try {
+      const updated = await catalog.setLocation(editor.box.id, locationId);
+      setEditor({ mode: "detail", box: updated });
+    } catch (caught) {
+      setFormError(
+        caught instanceof Error ? caught.message : "Não foi possível alterar a localização.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
   async function handleStatus(status: BoxStatus) {
     if (editor?.mode !== "detail") return;
     setSubmitting(true);
@@ -86,8 +101,7 @@ export function BoxesPage() {
             </p>
             <h1 className="text-2xl font-semibold text-ink">Caixas</h1>
             <p className="mt-1 max-w-2xl text-sm text-muted">
-              Cada caixa física tem código próprio, conteúdo e histórico. A localização ainda não
-              faz parte desta fase.
+              Cada caixa física tem código próprio, conteúdo e histórico. A localização é opcional.
             </p>
           </div>
           <Button
@@ -215,9 +229,16 @@ export function BoxesPage() {
                 key={`${editor.box.id}-${editor.box.updatedAt}`}
                 box={editor.box}
                 product={findProduct(catalog.products, editor.box.productId)}
+                locations={catalog.locations}
+                locationCode={
+                  catalog.locations.find((location) => location.id === editor.box.currentLocationId)
+                    ?.code
+                }
                 submitting={submitting}
                 onEdit={() => setEditor({ mode: "edit", box: editor.box })}
                 onStatus={handleStatus}
+                onAssign={(locationId) => handleLocation(locationId)}
+                onClear={() => handleLocation(null)}
               />
             ) : null}
           </Dialog.Content>

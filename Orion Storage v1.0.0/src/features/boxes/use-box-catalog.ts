@@ -8,10 +8,13 @@ import {
   type BoxQuery,
   type BoxStatus,
   type BoxUpdateInput,
+  type Location,
   type Product,
 } from "@orion/domain";
 
+import { getBrowserBoxLocationService } from "@/application/locations/box-location-service";
 import { getBrowserBoxService } from "@/application/boxes/box-service";
+import { getBrowserLocationService } from "@/application/locations/location-service";
 import { getBrowserProductService } from "@/application/products/product-service";
 
 const INITIAL_QUERY: BoxQuery = {
@@ -20,31 +23,40 @@ const INITIAL_QUERY: BoxQuery = {
   brand: "",
   status: "ALL",
   receivedAt: "",
+  placement: "ALL",
 };
 
 export function useBoxCatalog() {
   const [boxes, setBoxes] = useState<Box[] | null>(null);
   const [products, setProducts] = useState<Product[] | null>(null);
+  const [locations, setLocations] = useState<Location[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState<BoxQuery>(INITIAL_QUERY);
 
   const reload = useCallback(async () => {
-    const [nextBoxes, nextProducts] = await Promise.all([
+    const [nextBoxes, nextProducts, nextLocations] = await Promise.all([
       getBrowserBoxService().list(),
       getBrowserProductService().list(),
+      getBrowserLocationService().listLocations(),
     ]);
     setBoxes(nextBoxes);
     setProducts(nextProducts);
+    setLocations(nextLocations);
     setError(null);
   }, []);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getBrowserBoxService().list(), getBrowserProductService().list()])
-      .then(([nextBoxes, nextProducts]) => {
+    Promise.all([
+      getBrowserBoxService().list(),
+      getBrowserProductService().list(),
+      getBrowserLocationService().listLocations(),
+    ])
+      .then(([nextBoxes, nextProducts, nextLocations]) => {
         if (cancelled) return;
         setBoxes(nextBoxes);
         setProducts(nextProducts);
+        setLocations(nextLocations);
       })
       .catch((caught: unknown) => {
         if (!cancelled) setError(errorMessage(caught));
@@ -55,12 +67,13 @@ export function useBoxCatalog() {
   }, []);
 
   const items = useMemo<BoxListItem[]>(() => {
-    if (!boxes || !products) return [];
+    if (!boxes || !products || !locations) return [];
     return boxes.map((box) => ({
       box,
       product: products.find((product) => product.id === box.productId) ?? null,
+      locationCode: locations.find((location) => location.id === box.currentLocationId)?.code,
     }));
-  }, [boxes, products]);
+  }, [boxes, products, locations]);
 
   const visible = useMemo(() => filterBoxes(items, query), [items, query]);
   const brands = useMemo(() => listFilterOptions(products ?? [], "brand"), [products]);
@@ -87,18 +100,28 @@ export function useBoxCatalog() {
     return updated;
   }
 
+  async function setLocation(id: string, locationId: string | null) {
+    const updated = locationId
+      ? await getBrowserBoxLocationService().assign(id, locationId)
+      : await getBrowserBoxLocationService().clear(id);
+    await reload();
+    return updated;
+  }
+
   return {
     products,
+    locations: locations ?? [],
     activeProducts,
     brands,
     visible,
     query,
     setQuery,
     error,
-    loading: error == null && (boxes == null || products == null),
+    loading: error == null && (boxes == null || products == null || locations == null),
     create,
     update,
     setStatus,
+    setLocation,
   };
 }
 
