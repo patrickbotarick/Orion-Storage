@@ -1,4 +1,4 @@
-import type { Location } from "./location";
+import type { Location, LocationStatus } from "./location";
 import type { StorageArea } from "./storage-area";
 
 export const DEMO_AREA_ID = "seed-area-sup";
@@ -14,13 +14,18 @@ export const DEMO_LOCATION_IDS = {
 
 const SEEDED_AT = "2026-10-06T14:00:00.000Z";
 
-const POSITIONS: Array<{ id: string; rack: string; level: string; position: string }> = [
-  { id: DEMO_LOCATION_IDS.a010101, rack: "01", level: "01", position: "01" },
-  { id: DEMO_LOCATION_IDS.a010102, rack: "01", level: "01", position: "02" },
-  { id: DEMO_LOCATION_IDS.a010201, rack: "01", level: "02", position: "01" },
-  { id: DEMO_LOCATION_IDS.a010202, rack: "01", level: "02", position: "02" },
-  { id: DEMO_LOCATION_IDS.a020101, rack: "02", level: "01", position: "01" },
-  { id: DEMO_LOCATION_IDS.a020102, rack: "02", level: "01", position: "02" },
+const BLOCKED = new Set(["01-04-04"]);
+const INACTIVE = new Set(["02-03-04"]);
+const WITHOUT_CAPACITY = new Set(["02-03-03"]);
+
+/**
+ * Small demonstration grid. The original six addresses keep their ids.
+ * Extra cells exist only so a first visit can show a shelf. Existing browsers
+ * keep whatever is already stored.
+ */
+const RACKS: Array<{ rack: string; levels: number; positions: number }> = [
+  { rack: "01", levels: 4, positions: 4 },
+  { rack: "02", levels: 3, positions: 4 },
 ];
 
 export function demoStorageAreas(): StorageArea[] {
@@ -38,17 +43,37 @@ export function demoStorageAreas(): StorageArea[] {
 }
 
 export function demoLocations(): Location[] {
-  return POSITIONS.map((item) => ({
-    id: item.id,
-    code: `SUP-A-${item.rack}-${item.level}-${item.position}`,
+  return RACKS.flatMap((rack) =>
+    range(rack.levels).flatMap((level) =>
+      range(rack.positions).map((position) => demoLocation(rack.rack, level, position)),
+    ),
+  );
+}
+
+function demoLocation(rack: string, level: string, position: string): Location {
+  const key = `${rack}-${level}-${position}`;
+  const location: Location = {
+    id: `seed-loc-sup-a-${key}`,
+    code: `SUP-A-${key}`,
     areaId: DEMO_AREA_ID,
     aisle: "A",
-    rack: item.rack,
-    level: item.level,
-    position: item.position,
-    status: "ACTIVE",
-    capacityBoxes: 4,
+    rack,
+    level,
+    position,
+    status: statusOf(key),
     createdAt: SEEDED_AT,
     updatedAt: SEEDED_AT,
-  }));
+  };
+  if (!WITHOUT_CAPACITY.has(key)) location.capacityBoxes = 4;
+  return location;
+}
+
+function statusOf(key: string): LocationStatus {
+  if (BLOCKED.has(key)) return "BLOCKED";
+  if (INACTIVE.has(key)) return "INACTIVE";
+  return "ACTIVE";
+}
+
+function range(size: number): string[] {
+  return Array.from({ length: size }, (_, index) => String(index + 1).padStart(2, "0"));
 }

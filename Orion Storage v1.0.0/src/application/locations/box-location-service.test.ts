@@ -43,7 +43,7 @@ describe("endereçamento da caixa", () => {
     );
     const byArea = await locations.listByAreaId("seed-area-sup");
     expect(byArea.map((item) => item.code)).toContain("SUP-A-01-01-01");
-    expect(byArea).toHaveLength(6);
+    expect(byArea).toHaveLength(28);
 
     const loose = (await boxes.list()).find((box) => box.id === "seed-box-real-2");
     expect(loose?.currentLocationId).toBeUndefined();

@@ -183,6 +183,39 @@ export type {
 } from "./location-schema";
 export { DEMO_AREA_ID, DEMO_LOCATION_IDS, demoLocations, demoStorageAreas } from "./location-seeds";
 export {
+  OCCUPANCY_KINDS,
+  OCCUPANCY_LABEL,
+  areaInactiveBadge,
+  boxesByLocation,
+  buildWarehouseMap,
+  calculateAreaOccupancy,
+  classifyOccupancy,
+  compareNatural,
+  cellKey,
+  filterWarehouseLocations,
+  formatOccupancyCount,
+  formatOccupancyPercent,
+  groupLocationsByArea,
+  isSearchHighlight,
+  occupancyOf,
+  searchWarehouse,
+  spokenLocation,
+} from "./warehouse-map";
+export type {
+  AreaOccupancy,
+  LocationOccupancy,
+  MapBox,
+  MapCell,
+  OccupancyKind,
+  RackView,
+  WarehouseFilters,
+  WarehouseLooseBox,
+  WarehousePlace,
+  WarehouseProductHit,
+  WarehouseSearchResult,
+  WarehouseView,
+} from "./warehouse-map";
+export {
   QR_PROTOCOL,
   QR_TYPES,
   QR_VERSION,

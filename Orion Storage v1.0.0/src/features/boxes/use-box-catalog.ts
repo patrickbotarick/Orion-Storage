@@ -117,6 +117,7 @@ export function useBoxCatalog() {
 
   return {
     products,
+    boxes,
     locations: locations ?? [],
     movements,
     activeProducts,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   boxToEditFormValues,
@@ -32,6 +32,16 @@ export function BoxesPage() {
   const [label, setLabel] = useState<{ box: Box; autoPrint: boolean } | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const openedFromQuery = useRef(false);
+
+  useEffect(() => {
+    if (openedFromQuery.current || catalog.boxes == null) return;
+    openedFromQuery.current = true;
+    const id = new URLSearchParams(window.location.search).get("caixa");
+    if (!id) return;
+    const box = catalog.boxes.find((item) => item.id === id);
+    if (box) setEditor({ mode: "detail", box });
+  }, [catalog.boxes]);
 
   const activeBox = editor && editor.mode !== "create" ? editor.box : null;
   const linkedProduct = findProduct(catalog.products, activeBox?.productId);

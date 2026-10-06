@@ -8,15 +8,15 @@ Não há nota fiscal, XML, preço, financeiro, pedido de compra nem fornecedor f
 
 Persistido apenas depois da confirmação. Não existe rascunho gravado e não há cancelamento nesta fase. Um recebimento confirmado não é editado: ele é fato histórico.
 
-| Campo | Função |
-| --- | --- |
-| `code` | `REC-AAAAMMDD-NNNNNN`, dia operacional de São Paulo, sequência que não volta. |
-| `status` | Somente `CONFIRMED`. |
-| `receivedAt` | Data informada pelo operador, copiada para cada caixa. |
-| `supplierName` | Opcional. Não é cadastro. |
-| `notes` | Opcional, do recebimento inteiro. |
-| `requestId` | Identificador da tentativa de confirmação. |
-| `items` | Uma ou mais linhas de produto. |
+| Campo          | Função                                                                        |
+| -------------- | ----------------------------------------------------------------------------- |
+| `code`         | `REC-AAAAMMDD-NNNNNN`, dia operacional de São Paulo, sequência que não volta. |
+| `status`       | Somente `CONFIRMED`.                                                          |
+| `receivedAt`   | Data informada pelo operador, copiada para cada caixa.                        |
+| `supplierName` | Opcional. Não é cadastro.                                                     |
+| `notes`        | Opcional, do recebimento inteiro.                                             |
+| `requestId`    | Identificador da tentativa de confirmação.                                    |
+| `items`        | Uma ou mais linhas de produto.                                                |
 
 A chave é `orion-storage.receipts.v1`. Se não existir, a lista começa vazia. As quatro caixas de demonstração continuam sem `receiptId`.
 
@@ -73,4 +73,4 @@ A lista filtra por texto (código do recebimento, produto, marca, lote, forneced
 
 ## Limitações
 
-Não há NFe, XML, ERP, preço, mapa, inventário, expedição, usuários, autenticação nem Supabase. O recebimento não atribui endereço. Não há cancelamento que apague caixas. Não há semente de recebimento, para não alterar as caixas de demonstração nem consumir sequência.
+Não há NFe, XML, ERP, preço, inventário, expedição, usuários, autenticação nem Supabase. O mapa somente leitura está na Fase 4A. O recebimento não atribui endereço. Não há cancelamento que apague caixas. Não há semente de recebimento, para não alterar as caixas de demonstração nem consumir sequência.

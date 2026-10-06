@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   LOCATION_STATUSES,
@@ -60,6 +60,16 @@ export function LocationsPage() {
   const [signage, setSignage] = useState<{ location: Location; autoPrint: boolean } | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const openedFromQuery = useRef(false);
+
+  useEffect(() => {
+    if (openedFromQuery.current || !locations) return;
+    openedFromQuery.current = true;
+    const id = new URLSearchParams(window.location.search).get("endereco");
+    if (!id) return;
+    const location = locations.find((item) => item.id === id);
+    if (location) setEditor({ kind: "location-detail", location });
+  }, [locations]);
 
   const reload = useCallback(async () => {
     const service = getBrowserLocationService();
@@ -144,8 +154,7 @@ export function LocationsPage() {
             <p className="text-xs font-medium tracking-wide text-muted uppercase">Estoque físico</p>
             <h1 className="text-2xl font-semibold text-ink">Endereçamento</h1>
             <p className="mt-1 max-w-2xl text-sm text-muted">
-              Áreas e posições onde uma caixa pode ficar. O mapa gráfico fica para uma fase
-              seguinte.
+              Áreas e posições onde uma caixa pode ficar. O mapa mostra a ocupação sem editar.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -934,7 +943,8 @@ function LocationSignage({
         </h3>
         {movements.length === 0 ? (
           <p className="mt-2 text-sm text-muted">
-            Nenhuma movimentação neste endereço. A ocupação anterior a esta fase não gera histórico retroativo.
+            Nenhuma movimentação neste endereço. A ocupação anterior a esta fase não gera histórico
+            retroativo.
           </p>
         ) : (
           <ol className="mt-3 flex flex-col gap-3">

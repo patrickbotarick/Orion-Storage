@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaixasRouteImport } from './routes/caixas'
 import { Route as EnderecamentoRouteImport } from './routes/enderecamento'
+import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as MovimentacoesRouteImport } from './routes/movimentacoes'
 import { Route as RecebimentosRouteImport } from './routes/recebimentos'
 import { Route as ScannerRouteImport } from './routes/scanner'
@@ -29,6 +30,11 @@ const CaixasRoute = CaixasRouteImport.update({
 const EnderecamentoRoute = EnderecamentoRouteImport.update({
   id: '/enderecamento',
   path: '/enderecamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MapaRoute = MapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MovimentacoesRoute = MovimentacoesRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/mapa': typeof MapaRoute
   '/movimentacoes': typeof MovimentacoesRoute
   '/recebimentos': typeof RecebimentosRoute
   '/scanner': typeof ScannerRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/mapa': typeof MapaRoute
   '/movimentacoes': typeof MovimentacoesRoute
   '/recebimentos': typeof RecebimentosRoute
   '/scanner': typeof ScannerRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/mapa': typeof MapaRoute
   '/movimentacoes': typeof MovimentacoesRoute
   '/recebimentos': typeof RecebimentosRoute
   '/scanner': typeof ScannerRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
     | '/'
     | '/caixas'
     | '/enderecamento'
+    | '/mapa'
     | '/movimentacoes'
     | '/recebimentos'
     | '/scanner'
@@ -86,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/caixas'
     | '/enderecamento'
+    | '/mapa'
     | '/movimentacoes'
     | '/recebimentos'
     | '/scanner'
@@ -94,6 +105,7 @@ export interface FileRouteTypes {
     | '/'
     | '/caixas'
     | '/enderecamento'
+    | '/mapa'
     | '/movimentacoes'
     | '/recebimentos'
     | '/scanner'
@@ -103,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CaixasRoute: typeof CaixasRoute
   EnderecamentoRoute: typeof EnderecamentoRoute
+  MapaRoute: typeof MapaRoute
   MovimentacoesRoute: typeof MovimentacoesRoute
   RecebimentosRoute: typeof RecebimentosRoute
   ScannerRoute: typeof ScannerRoute
@@ -129,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/enderecamento'
       fullPath: '/enderecamento'
       preLoaderRoute: typeof EnderecamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mapa': {
+      id: '/mapa'
+      path: '/mapa'
+      fullPath: '/mapa'
+      preLoaderRoute: typeof MapaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/movimentacoes': {
@@ -159,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaixasRoute: CaixasRoute,
   EnderecamentoRoute: EnderecamentoRoute,
+  MapaRoute: MapaRoute,
   MovimentacoesRoute: MovimentacoesRoute,
   RecebimentosRoute: RecebimentosRoute,
   ScannerRoute: ScannerRoute,
