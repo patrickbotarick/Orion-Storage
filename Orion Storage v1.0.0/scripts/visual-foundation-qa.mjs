@@ -6,7 +6,9 @@ import { chromium } from "playwright";
 // Read-only render checks in disposable profiles; no operator storage is opened.
 const port = Number(process.argv[2] ?? 8091);
 assert(Number.isInteger(port) && port >= 1024 && port <= 65535, "Invalid local port");
-const out = resolve("screenshots", "fase4c1", String(port));
+const phase = process.argv[3] ?? "fase4c1";
+assert(/^[a-z0-9-]+$/.test(phase), "Invalid evidence folder");
+const out = resolve("screenshots", phase, String(port));
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({
   headless: true,

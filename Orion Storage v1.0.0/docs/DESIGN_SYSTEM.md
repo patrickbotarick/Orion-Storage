@@ -100,6 +100,14 @@ Exemplos documentam os tokens, não substituem os componentes existentes nem acr
 
 ## Contraste e manutenção
 
+### Navegação e identidade global — 4C.2
+
+`AppShell` mantém o catálogo real de seções, sem modificar paths ou serviços. Sua assinatura provisória está isolada em `OrionSignature`: nome Orion Storage em Manrope, sem símbolo ou logotipo definitivo. O rodapé traz “Controle físico. Visibilidade total.”, sem associação visual a clientes.
+
+A sidebar grafite usa ícones Lucide, texto e `aria-current="page"`. A seleção combina fundo teal e borda clara, mantendo indicação além da cor. Links têm altura mínima de 44px. Abaixo de 768px, o cabeçalho compacto abre uma navegação modal com Radix Dialog já instalado: foco contido, fechamento por Escape/botão e retorno de foco. Navegar fecha o menu; passar à largura desktop também o fecha. Textos ampliados podem quebrar nos rótulos, e o painel permite rolagem vertical.
+
+O cabeçalho de contexto mostra a seção atual; títulos H1 das páginas usam a escala de 24px/700 em `.orion-page-content`. A ação “Pular para o conteúdo” aparece ao receber foco e direciona ao main. Não foram substituídos formulários, tabelas, feedbacks ou fluxos operacionais: sua padronização permanece na 4C.3/4C.4.
+
 `node scripts/visual-token-check.mjs` lê a paleta diretamente do CSS e verifica 26 combinações semânticas: textos com mínimo 4,5:1 e bordas/foco com mínimo 3:1. Esses resultados são referência WCAG AA para cores, não certificação integral de WCAG 2.2 AA. A homologação inclui teclado, zoom, composição, mensagens e telas nas etapas seguintes.
 
 Ao adicionar um papel ou mudar um token, atualize as combinações verificadas, valide a aparência em desktop/mobile e evite alterar etiquetas por herança. Rotas, dados, persistência, QR e regras de negócio ficam fora das decisões deste documento.
