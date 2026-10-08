@@ -14,6 +14,7 @@ Separar o cadastro do produto da unidade física que está no estoque. Cada caix
 - TanStack Router / Start, já usado por este aplicativo
 - Zod para validação dos contratos
 - Tailwind CSS 4, com tokens em `src/styles.css`
+- Three.js / React Three Fiber / Drei, carregados sob demanda no mapa espacial
 - Vitest
 - ESLint e Prettier
 - npm
@@ -90,7 +91,7 @@ Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegaçã
 npm test
 ```
 
-Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B, o QR e as etiquetas da Fase 3A, a movimentação e a sessão do scanner da Fase 3B, o recebimento em lote da Fase 3C, o mapa da Fase 4A e o inventário físico da Fase 4B. São 129 testes em 29 arquivos. Não há teste da câmera física.
+Cobrem catálogo, caixas, endereçamento, QR/etiquetas, movimentação/scanner, recebimento, mapa, inventário e domínio/geração/persistência espacial da Fase 5A. São 159 testes em 33 arquivos. Não há teste da câmera física.
 
 ## Status atual
 
@@ -102,6 +103,8 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B,
 - Fase 3C concluída: recebimento em lote e impressão múltipla de etiquetas.
 - Fase 4A concluída: mapa visual somente leitura.
 - Fase 4B concluída: inventário físico por escopo e registro de divergências.
+- Fase 4C implementada: identidade Industrial Precision e componentes compartilhados; homologação física permanece no checklist visual.
+- Fase 5A implementada: mapa espacial 3D/2D, estruturas modulares, editor e integração operacional. Medidas reais dependem de levantamento físico.
 - Correções de inventário, expedição, usuários e banco remoto não foram iniciados.
 
 ## Funcionalidades da Fase 1
@@ -129,7 +132,21 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B,
 
 ## Próximos passos
 
-O mapa mostra a ocupação sem editá-la e sinaliza divergências da última conferência concluída. A Fase 4B compara a contagem com um snapshot fixo do início. Uma fase futura poderá tratar correções explícitas e auditáveis; nenhum ajuste automático é feito hoje. Expedição continua fora.
+Configurar um layout medido na área real e homologar câmera/impressora e desempenho nos dispositivos da operação. O mapa consulta ocupação oficial; editar geometria não movimenta caixas. Inventário mantém snapshot fixo, sem ajuste automático. Expedição continua fora.
+
+## Funcionalidades da Fase 5A
+
+- Em Mapa, alternar entre mapa operacional e espacial; criar áreas pelo Endereçamento existente.
+- Estruturas simples, duplas, colmeias e suporte básico de piso; face U ou A/B, níveis e posições independentes.
+- Editor separado da consulta: arraste, snap, coordenadas, rotação, dimensões, zonas e duplicação sem vínculos.
+- Validação de colisões, limites e códigos; remoção vazia exige confirmação, ocupada é recusada.
+- Save/reload com revisão e journal de recuperação local; nenhum saldo paralelo ou migração automática do legado.
+- Perspectiva, superior e frontal; 2D/lista como modo inicial e alternativa sem WebGL.
+- Busca com várias localizações, destaque da posição e detalhe com caixas oficiais.
+- QR estável para posições novas, compatibilidade com códigos antigos e scanner com confirmação.
+- Exemplo separado não pode ser gravado como estoque oficial.
+
+Arquitetura, limites e verificações: [FASE_05A_MAPA_ESPACIAL_3D.md](docs/FASE_05A_MAPA_ESPACIAL_3D.md). QA reproduzível: `node scripts/spatial-map-qa.mjs 8091` (dev) e `node scripts/spatial-map-qa.mjs 8081` (produção), usando perfis descartáveis.
 
 ## Funcionalidades da Fase 4B
 

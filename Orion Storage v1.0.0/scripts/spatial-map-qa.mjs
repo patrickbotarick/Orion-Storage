@@ -17,6 +17,10 @@ try {
     const context = await browser.newContext({ viewport: { width, height: 844 } });
     const page = await context.newPage();
     const errors = [];
+    const sceneRequests = [];
+    page.on("request", (request) => {
+      if (request.url().includes("spatial-scene")) sceneRequests.push(request.url());
+    });
     const accessibility = [];
     const audit = async (name) => {
       const axePath = resolve("screenshots/fase4c5/tooling/node_modules/axe-core/axe.min.js");
@@ -75,6 +79,7 @@ try {
       null,
     );
     await page.getByRole("button", { name: "Exemplo interativo", exact: true }).click();
+    assert.equal(sceneRequests.length, 0, "3D is not loaded before activation");
     assert(await page.getByRole("button", { name: "Salvar layout", exact: true }).isDisabled());
     await page.getByRole("button", { name: "Ativar 3D", exact: true }).click();
     await page.locator(".orion-spatial-viewport canvas").waitFor();
@@ -224,7 +229,7 @@ try {
     assert.deepEqual(await getLayout(), stored);
     assert.deepEqual(await stock(), before);
     await confirmation.getByRole("button", { name: "Voltar ao editor", exact: true }).click();
-    assert.equal(await page.evaluate(() => document.activeElement?.id), "spatial-save-layout");
+    await page.waitForFunction(() => document.activeElement?.id === "spatial-save-layout");
     await page.getByRole("button", { name: "Cancelar edição", exact: true }).click();
     await choose(double.code);
     await page.getByRole("button", { name: "Face B", exact: true }).click();
@@ -314,6 +319,9 @@ try {
     await page.getByRole("dialog", { name: destination.code, exact: true }).waitFor();
     await page.getByRole("dialog").getByText("CX-20261006-000004", { exact: true }).waitFor();
     await page.keyboard.press("Escape");
+    await page
+      .getByRole("button", { name: /^Face B nível 1 posição 1, Ativa, 1 caixas$/ })
+      .waitFor();
     assert.equal(
       await search.getByRole("button", { name: /^SUP-A-01-02-01/ }).count(),
       1,
@@ -343,6 +351,51 @@ try {
     });
     await context.close();
   }
+  // Create an area through the existing workflow; duplicate geometry without stock links.
+  const areaContext = await browser.newContext({ viewport: { width: 1280, height: 844 } });
+  const areaPage = await areaContext.newPage();
+  await areaPage.goto(`http://127.0.0.1:${port}/enderecamento`);
+  await areaPage.waitForLoadState("networkidle");
+  await areaPage.getByRole("button", { name: "Nova área", exact: true }).click();
+  const areaDialog = areaPage.getByRole("dialog", { name: "Nova área", exact: true });
+  await areaDialog.locator("#area-code").fill("EXP");
+  await areaDialog.locator("#area-name").fill("Expedição QA");
+  await areaDialog.getByRole("button", { name: "Salvar", exact: true }).click();
+  await areaDialog.waitFor({ state: "hidden" });
+  await areaPage.goto(`http://127.0.0.1:${port}/mapa`);
+  await areaPage.waitForLoadState("networkidle");
+  await areaPage.getByRole("button", { name: "Mapa espacial", exact: true }).click();
+  await areaPage.getByLabel("Área", { exact: true }).selectOption({ label: "Expedição QA" });
+  await areaPage.getByRole("button", { name: "Editar layout", exact: true }).click();
+  await areaPage.getByRole("button", { name: "Adicionar estrutura", exact: true }).click();
+  await areaPage.getByLabel("Coordenada X (m)", { exact: true }).fill("4");
+  await areaPage.getByLabel("Coordenada Z (m)", { exact: true }).fill("3");
+  await areaPage.getByRole("button", { name: "Duplicar configuração", exact: true }).click();
+  await areaPage.getByLabel("Coordenada X (m)", { exact: true }).fill("10");
+  await areaPage.getByRole("button", { name: "Salvar layout", exact: true }).click();
+  await areaPage.getByRole("button", { name: "Editar layout", exact: true }).waitFor();
+  await areaPage.reload();
+  await areaPage.waitForLoadState("networkidle");
+  await areaPage.getByRole("button", { name: "Mapa espacial", exact: true }).click();
+  await areaPage.getByLabel("Área", { exact: true }).selectOption({ label: "Expedição QA" });
+  await areaPage.getByRole("button", { name: /^E002 ·/ }).waitFor();
+  const areaResult = await areaPage.evaluate(() => {
+    const area = JSON.parse(localStorage.getItem("orion-storage.storage-areas.v1")).areas.find(
+      (a) => a.code === "EXP",
+    );
+    const layout = JSON.parse(
+      localStorage.getItem("orion-storage.spatial-layouts.v1"),
+    ).layouts.find((l) => l.areaId === area.id);
+    return {
+      structures: layout.structures.length,
+      ids: layout.structures.flatMap((s) =>
+        s.faces.flatMap((f) => f.levels.flatMap((l) => l.slots.map((p) => p.locationId))),
+      ),
+    };
+  });
+  assert.equal(areaResult.structures, 2);
+  assert.equal(new Set(areaResult.ids).size, areaResult.ids.length);
+  await areaContext.close();
   // Unsupported WebGL must never block layout or stock operations.
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await context.addInitScript(() => {
@@ -367,9 +420,22 @@ try {
   await context.close();
   writeFileSync(
     resolve(out, "spatial-results.json"),
-    JSON.stringify({ ok: true, port, results, fallback: true }, null, 2),
+    JSON.stringify(
+      { ok: true, port, results, fallback: true, areaCreation: true, duplication: true },
+      null,
+      2,
+    ),
   );
-  console.log(JSON.stringify({ ok: true, port, results, fallback: true }));
+  console.log(
+    JSON.stringify({
+      ok: true,
+      port,
+      results,
+      fallback: true,
+      areaCreation: true,
+      duplication: true,
+    }),
+  );
 } finally {
   await browser.close();
 }

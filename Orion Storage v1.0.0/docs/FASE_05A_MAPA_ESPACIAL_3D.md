@@ -1,8 +1,10 @@
 # Fase 5A — mapa espacial 3D
 
+Status atual: seis checkpoints implementados e verificados em software em 08/10/2026. Levantamento do layout físico, impressão/câmera e desempenho em equipamentos da operação permanecem para homologação local. O registro de preparação abaixo é histórico.
+
 ## Preparação — 08/10/2026
 
-Status: preparação e checkpoint anterior à implementação. Nenhuma funcionalidade da 5A foi implementada ou homologada nesta revisão.
+Status na preparação: checkpoint anterior à implementação, sem funcionalidades 5A naquela revisão.
 
 Repositório local em `main`, HEAD inicial `5e68573`. Remoto `origin`: `https://github.com/patrickbotarick/Orion-Storage.git`. Após `git fetch origin`, `origin/main` aponta para `35d9a81`; a branch local está cinco commits à frente e nenhum atrás. Fetch consulta o remoto; nenhum pull, push, merge ou tag foi executado. Conforme instrução do usuário, qualquer `git pull` exige confirmação explícita antes de executar.
 
@@ -93,3 +95,55 @@ Etiquetas de posições novas utilizam `orion://v1/location/LOC-ID`; códigos an
 Formulário anterior conserva capacidade/notas/status, mas hierarquia espacial é editada pelo mapa. Save de geometria não desfaz mudanças operacionais de status/capacidade. Envelopes inválidos de endereços/caixas são recusados antes da escrita; testes demonstram preservação dos valores corrompidos, sem reset. Diálogo de remoção mantém foco no editor ao fechar e impede fechamento durante gravação.
 
 Lint/typecheck e 159 testes em 33 arquivos passaram. QA real em desenvolvimento: desktop/mobile, arraste com snap, consulta sem edição, câmeras, fallback, estoque, scanner, busca e QR passaram sem erros de console. Axe nos estados vazio/editor/confirmador/consulta não encontrou violações nas regras WCAG A/AA selecionadas; itens incompletos são registrados para revisão manual. Isso não certifica acessibilidade integral nem substitui hardware físico.
+
+### Checkpoint 6 — validação e fechamento
+
+Gates finais: `npm run lint`, `npm run typecheck`, `npm test` (159 testes/33 arquivos) e `npm run build`. Build de produção gerado após as últimas alterações de aplicação. Mapa espacial verificado em Edge/Chromium no desenvolvimento e nesse build, em 1280×844 e 390×844, com capturas de perspectiva, superior, frontal B, planta, detalhe/busca e etiqueta inspecionadas. Console sem erros e sem overflow horizontal da página. A vista frontal usa rolagem própria quando há muitas posições.
+
+`scripts/spatial-map-qa.mjs` valida criação de área pelo cadastro existente, duplicação com IDs/vínculos diferentes, reload, assimetria de faces/níveis, arraste com snap e consulta sem gravação, cancelamento, limites, proteção de posição ocupada, retorno de foco, câmeras, carregamento tardio do módulo 3D, fallback sem WebGL, QR decodificado, confirmação do scanner, saldo após movimentação e produto em várias posições. Todas as gravações de QA são em perfis descartáveis, sem tocar o perfil de operação.
+
+Regressões `operational-screens-qa.mjs` e `inventory-browser-qa.mjs` passaram em desenvolvimento e produção: mapa operacional, recebimento com prévia sem gravação, criação de lote/etiquetas, movimentação/remoção e inventário físico. `qr-print-homologation-qa.mjs` verificou novamente QR/etiquetas legados na produção, incluindo viewport 320. Evidências/logs da 5A em `screenshots/fase5a/`; scripts anteriores mantêm também suas pastas originais de captura.
+
+Axe executado em quatro estados por viewport (vazio, editor, confirmação destrutiva e consulta salva), sem violações das regras WCAG selecionadas. Itens incompletos no diálogo (`aria-hidden-focus` e, no mobile, `color-contrast`) exigem revisão manual; não foram descartados como aprovados. Capturas confirmam conteúdo visível em desktop/mobile e foco evidente. Tooling Axe usa a instalação isolada da auditoria anterior; se ausente, o script não alega essa auditoria. `agent-browser` não está instalado e os helpers Grok de smoke assumem `/workspace`; o QA usa o padrão Playwright/Edge existente neste projeto Windows.
+
+## Hierarquia e exemplos
+
+Área → zona opcional → estrutura → face → nível → posição. Zona organiza finalidade, sem compor a identidade do endereço. Subposição é evolução futura, não entidade implementada. Estruturas e slots têm IDs internos; Location tem seu próprio ID usado por caixas e histórico.
+
+Exemplo novo: `SUP-E003-B-N02-P04`; QR `orion://v1/location/LOC-<ID>`. Renomear E003 preserva ID/QR e mantém o código anterior nos aliases. Endereço legado vinculado explicitamente mantém seu código, por exemplo `SUP-A-01-01-01`. Nenhuma posição antiga é convertida por semelhança de nome.
+
+## Arquivos e componentes
+
+| Superfície           | Arquivos                                                                                                                                                                                                                                                   |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Domínio              | `packages/domain/src/spatial.ts`, `spatial-generator.ts`, respectivos testes e `index.ts`; extensões compatíveis em `location.ts`, `identification.ts`, `label.ts`                                                                                         |
+| Aplicação            | `src/application/spatial/spatial-service.ts`, teste; proteção da hierarquia em `src/application/locations/location-service.ts`                                                                                                                             |
+| Persistência         | `src/persistence/local-storage-spatial-repository.ts`, `spatial-transaction.ts`, recuperação/aliases em `local-storage-location-repository.ts`                                                                                                             |
+| Interface            | `src/features/spatial/spatial-panel.tsx` (editor/planta/vista frontal), `spatial-scene.tsx` (cena/câmeras), integração em `warehouse/warehouse-page.tsx`, `locations/locations-page.tsx`, `identification/location-label.tsx`; estilos em `src/styles.css` |
+| Dependências/QA/docs | `package.json`, `package-lock.json`, `scripts/spatial-map-qa.mjs`, `README.md`, `docs/ESTADO_ATUAL_PROJETO.md` e este documento                                                                                                                            |
+
+Primitivas existentes Button/Input/Select/Field/Card/Alert/ConfirmDialog/PrintLabelDialog reutilizadas. Editor não altera contratos de Box, Movement, Receipt ou Inventory; somente adiciona metadados opcionais compatíveis a Location.
+
+## Limitações e próximo passo
+
+- Medidas iniciais são sugestões: configurar a área e estruturas a partir de levantamento físico antes de vincular endereços operacionais. Exemplo permanece separado e não salvável.
+- Sem banco remoto, autenticação, colaboração entre abas ou transação distribuída; journal protege recuperação local, com limites documentados acima.
+- 3D sob demanda de ~248kB gzip, sem benchmark em GPU/celular modestos reais. Default 2D e alternativa sem WebGL. Limite por área: 50 estruturas, 2000 posições; recursos avançados de piso/pallets/subposições ficam fora desta fase.
+- Câmera física, impressão em impressora real, leitor de tela e revisão WCAG manual integral continuam pendentes. Testes de QR utilizam imagem real renderizada e o decoder; não simulam uso de câmera física.
+- Três alertas preexistentes de tooling no npm audit foram preservados e comparados com a baseline. Atualizar ferramentas de teste em rodada própria, com avaliação de compatibilidade.
+
+Próxima rodada recomendada: levantamento e configuração do estoque superior, validação dos códigos existentes e homologação nos dispositivos/impressoras reais. Não avançar para expedição, novos saldos ou correção automática de inventário sem novo escopo.
+
+## Commits desta execução
+
+| Checkpoint                                      | Commit                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------ |
+| Preservação anterior / antes do pull autorizado | `2e6c354`                                                    |
+| 1 — domínio espacial                            | `a3b113f`                                                    |
+| 2 — gerador modular                             | `86c0996`                                                    |
+| 3 — visualizador                                | `244ff01`                                                    |
+| 4 — editor                                      | `c206455`                                                    |
+| 5 — integração operacional                      | `c024706`                                                    |
+| 6 — validação/fechamento                        | Commit que contém este registro, criado após os gates finais |
+
+Branch `codex/phase-5a-spatial-map`. Pull confirmado foi `git pull --ff-only origin main` (Already up to date). Nenhum outro pull, push, merge ou tag nesta execução. Qualquer pull futuro exige confirmação do usuário.

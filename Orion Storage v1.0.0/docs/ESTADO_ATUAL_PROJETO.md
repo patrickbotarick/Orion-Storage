@@ -1,6 +1,16 @@
 # ORION STORAGE — estado atual e continuidade no Codex
 
-Atualizado em 08/10/2026 após implementar a Fase 4B. A auditoria inicial foi preservada abaixo como registro da base anterior; as referências a fases/testes naquele registro descrevem o momento anterior ao inventário. Os contratos atuais da Fase 4B estão em [FASE_04B_INVENTARIO.md](FASE_04B_INVENTARIO.md).
+Atualizado em 08/10/2026 após implementar a Fase 5A. Os registros 4B e auditoria inicial abaixo são históricos. Contratos da 4B: [FASE_04B_INVENTARIO.md](FASE_04B_INVENTARIO.md); detalhes atuais: [FASE_05A_MAPA_ESPACIAL_3D.md](FASE_05A_MAPA_ESPACIAL_3D.md).
+
+## Estado atual após a Fase 5A
+
+- Branch `codex/phase-5a-spatial-map`; baseline preservada em `2e6c354`, pull autorizado `--ff-only` sem novidades. Sem push, merge ou tag.
+- Industrial Precision preservado; mapa operacional continua como modo inicial. `/mapa` adiciona consulta/editor espacial com 2D/lista e WebGL sob demanda.
+- Área existente, zona, estrutura, face, nível e posição. Compartimentos referenciam Location oficial; caixa/movimentação/inventário continuam fontes operacionais.
+- SINGLE/DOUBLE/HONEYCOMB/FLOOR; dimensões e modulação variáveis, snap/rotação/duplicação, validações e cancelamento. Remoção ocupada recusada; vazia desativa sem apagar histórico.
+- IDs estáveis, QR v1 com aliases, ligação explícita do legado sem geometria presumida. Novas chaves de layout/journal, sem reset de chaves anteriores.
+- 159 testes/33 arquivos. Evidências desktop/mobile e dev/produção em `screenshots/fase5a/`; documentação da fase registra gates, limitações e commits.
+- Persistência local tem recuperação de falhas, sem garantia transacional entre abas. WebGL verificado por software; medição física, hardware móvel/GPU/impressora e acessibilidade manual integral ainda exigem homologação na operação.
 
 ## Estado atual após a Fase 4B
 
@@ -26,16 +36,16 @@ Não houve reescrita, alteração de regras, remoção de resíduos, commit ou p
 
 ## Stack e configuração
 
-| Camada | Situação verificada |
-| --- | --- |
-| Ambiente da auditoria | Windows, Node 24.11.1, npm 11.6.2 |
-| Interface | React/React DOM 19.3.0, TypeScript 5.9.3 strict, Tailwind 4.3.3, Radix UI, Lucide |
-| Aplicação web | Vite 8.3.2, TanStack Start 1.168.60 e Router 1.170.41 |
-| Validação | Zod 4.6.5 e validadores de domínio |
-| QR | qrcode.react 4.2.0 e html5-qrcode 2.3.8 |
-| Qualidade | Vitest 3.2.4, ESLint 9.39.5, Prettier 3.9.9 |
-| Produção | Nitro 3.0.260610-beta, preset Vercel; saída .vercel/output |
-| Dados | localStorage por origem, sem banco remoto ou autenticação |
+| Camada                | Situação verificada                                                               |
+| --------------------- | --------------------------------------------------------------------------------- |
+| Ambiente da auditoria | Windows, Node 24.11.1, npm 11.6.2                                                 |
+| Interface             | React/React DOM 19.3.0, TypeScript 5.9.3 strict, Tailwind 4.3.3, Radix UI, Lucide |
+| Aplicação web         | Vite 8.3.2, TanStack Start 1.168.60 e Router 1.170.41                             |
+| Validação             | Zod 4.6.5 e validadores de domínio                                                |
+| QR                    | qrcode.react 4.2.0 e html5-qrcode 2.3.8                                           |
+| Qualidade             | Vitest 3.2.4, ESLint 9.39.5, Prettier 3.9.9                                       |
+| Produção              | Nitro 3.0.260610-beta, preset Vercel; saída .vercel/output                        |
+| Dados                 | localStorage por origem, sem banco remoto ou autenticação                         |
 
 Versões acima são as efetivamente instaladas, não apenas os intervalos do package.json. O README pede Node 22 ou superior, mas não existe engines no package.json. Esta execução validou Node 24; não constitui teste em todas as versões de Node 22.
 
@@ -82,15 +92,15 @@ O inventário completo dos arquivos de fonte, documentação e ferramentas está
 
 ## Entidades e relações
 
-| Entidade | Contrato e principais campos | Relações |
-| --- | --- | --- |
-| Product | product.ts; internalCode, name, category, status, marca e medidas opcionais, timestamps | Uma Product tem muitas Box; produto precisa estar ativo para criar caixa |
-| Box | box.ts; code, productId, rollsQuantity, totalLengthM, receivedAt, status, history | productId imutável; currentLocationId e receiptId opcionais |
-| StorageArea | storage-area.ts; code estável, name, ACTIVE/INACTIVE | Uma área tem muitas Location |
-| Location | location.ts; areaId, aisle, rack, level, position, code, capacityBoxes opcional, status | Muitas caixas podem ocupar uma posição; uma caixa tem no máximo uma posição |
-| Movement | movement.ts; boxId, type, source, origem/destino opcionais, instante e metadata | Muitas Movement por Box; origem/destino apontam Location; append-only |
-| Receipt | receipt.ts; code, CONFIRMED, receivedAt, supplierName livre, requestId, items | Cria várias Box vinculadas por receiptId |
-| ReceiptItem | embutido em Receipt.items; receiptId, productId, boxesQuantity, conteúdo por caixa e lote | Não possui repositório próprio; não há receiptItemId na Box |
+| Entidade    | Contrato e principais campos                                                              | Relações                                                                    |
+| ----------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| Product     | product.ts; internalCode, name, category, status, marca e medidas opcionais, timestamps   | Uma Product tem muitas Box; produto precisa estar ativo para criar caixa    |
+| Box         | box.ts; code, productId, rollsQuantity, totalLengthM, receivedAt, status, history         | productId imutável; currentLocationId e receiptId opcionais                 |
+| StorageArea | storage-area.ts; code estável, name, ACTIVE/INACTIVE                                      | Uma área tem muitas Location                                                |
+| Location    | location.ts; areaId, aisle, rack, level, position, code, capacityBoxes opcional, status   | Muitas caixas podem ocupar uma posição; uma caixa tem no máximo uma posição |
+| Movement    | movement.ts; boxId, type, source, origem/destino opcionais, instante e metadata           | Muitas Movement por Box; origem/destino apontam Location; append-only       |
+| Receipt     | receipt.ts; code, CONFIRMED, receivedAt, supplierName livre, requestId, items             | Cria várias Box vinculadas por receiptId                                    |
+| ReceiptItem | embutido em Receipt.items; receiptId, productId, boxesQuantity, conteúdo por caixa e lote | Não possui repositório próprio; não há receiptItemId na Box                 |
 
 BoxHistoryEntry é um histórico embutido na caixa. Seus tipos são CREATED, UPDATED, STATUS_CHANGED, LOCATION_ASSIGNED, LOCATION_CHANGED e LOCATION_CLEARED. Histórico da entidade e Movement logística são registros distintos.
 
@@ -100,14 +110,14 @@ Normalização central em normalize.ts: espaços, comparação sem acentos/caixa
 
 ## Repositories, serviços e persistência
 
-| Contrato | Adapter | Chave localStorage | Serviço |
-| --- | --- | --- | --- |
-| ProductRepository | LocalStorageProductRepository | orion-storage.products.v1 | ProductService |
-| BoxRepository | LocalStorageBoxRepository | orion-storage.boxes.v1 | BoxService |
+| Contrato              | Adapter                           | Chave localStorage             | Serviço         |
+| --------------------- | --------------------------------- | ------------------------------ | --------------- |
+| ProductRepository     | LocalStorageProductRepository     | orion-storage.products.v1      | ProductService  |
+| BoxRepository         | LocalStorageBoxRepository         | orion-storage.boxes.v1         | BoxService      |
 | StorageAreaRepository | LocalStorageStorageAreaRepository | orion-storage.storage-areas.v1 | LocationService |
-| LocationRepository | LocalStorageLocationRepository | orion-storage.locations.v1 | LocationService |
-| MovementRepository | LocalStorageMovementRepository | orion-storage.movements.v1 | MovementService |
-| ReceiptRepository | LocalStorageReceiptRepository | orion-storage.receipts.v1 | ReceiptService |
+| LocationRepository    | LocalStorageLocationRepository    | orion-storage.locations.v1     | LocationService |
+| MovementRepository    | LocalStorageMovementRepository    | orion-storage.movements.v1     | MovementService |
+| ReceiptRepository     | LocalStorageReceiptRepository     | orion-storage.receipts.v1      | ReceiptService  |
 
 BoxLocationService permanece como implementação da Fase 2B e é testado, mas a interface atual usa MovementService para atribuir/trocar/remover localização. Evitar reutilizar aquele serviço no fluxo operacional atual: ele atualiza o histórico da caixa sem criar Movement.
 
@@ -119,29 +129,29 @@ Seeds só entram quando a respectiva chave não existe: dois produtos, quatro ca
 
 ## Funcionalidades e fases confirmadas por código
 
-| Fase | Implementação confirmada |
-| --- | --- |
-| 1 — Produtos | Cadastro, edição, duplicação por formulário, ativar/desativar, busca, categoria/marca/status, código sugerido/editável, unicidade e divergência de metragem |
-| 2A — Caixas | Criação, edição do conteúdo, código único com ledger, cinco status, histórico, filtros e consulta de localização atual; produto e código imutáveis |
-| 2B — Endereçamento | Áreas e posições, edição/status, hierarquia física, código composto único, capacidade e bloqueio de estrutura ocupada |
-| 3A — QR/etiquetas | Box e Location, protocolo orion://v1, parser/resolução, SVG QR na tela, preview e impressão individual |
-| 3B — Scanner/movimentos | Câmera sob ação explícita com preferência traseira/fallback frontal, entrada manual, confirmação obrigatória, STORED/MOVED/REMOVED, histórico e filtros |
-| 3C — Recebimentos | Vários produtos/caixas, preview sem reservar sequência, limite 500 caixas, confirmação idempotente, vínculo de origem, etiquetas A4 em lote e reimpressão |
-| 4A — Mapa | Somente leitura, área/corredor/prateleira/nível/posição, ocupação, status/capacidade, busca e filtros, detalhes e atalhos para caixa/endereço |
+| Fase                    | Implementação confirmada                                                                                                                                    |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 — Produtos            | Cadastro, edição, duplicação por formulário, ativar/desativar, busca, categoria/marca/status, código sugerido/editável, unicidade e divergência de metragem |
+| 2A — Caixas             | Criação, edição do conteúdo, código único com ledger, cinco status, histórico, filtros e consulta de localização atual; produto e código imutáveis          |
+| 2B — Endereçamento      | Áreas e posições, edição/status, hierarquia física, código composto único, capacidade e bloqueio de estrutura ocupada                                       |
+| 3A — QR/etiquetas       | Box e Location, protocolo orion://v1, parser/resolução, SVG QR na tela, preview e impressão individual                                                      |
+| 3B — Scanner/movimentos | Câmera sob ação explícita com preferência traseira/fallback frontal, entrada manual, confirmação obrigatória, STORED/MOVED/REMOVED, histórico e filtros     |
+| 3C — Recebimentos       | Vários produtos/caixas, preview sem reservar sequência, limite 500 caixas, confirmação idempotente, vínculo de origem, etiquetas A4 em lote e reimpressão   |
+| 4A — Mapa               | Somente leitura, área/corredor/prateleira/nível/posição, ocupação, status/capacidade, busca e filtros, detalhes e atalhos para caixa/endereço               |
 
 O QR identifica por código operacional, sem URL de servidor. A câmera depende de contexto seguro e permissão; não foi validada com hardware físico. Impressão usa window.print e CSS, sem serviço de impressora ou biblioteca de PDF. A inspeção de código confirma impressão individual e múltipla; impressão física não foi executada.
 
 ## Rotas e execução verificada
 
-| Rota | Página | Dev 8091 desktop/mobile | Produção 8081 desktop/mobile |
-| --- | --- | --- | --- |
-| / | Produtos | 200, conteúdo visível | 200, conteúdo visível |
-| /caixas | Caixas | 200, conteúdo visível | 200, conteúdo visível |
-| /enderecamento | Endereçamento | 200, conteúdo visível | 200, conteúdo visível |
-| /scanner | Scanner | 200, conteúdo visível | 200, conteúdo visível |
-| /movimentacoes | Movimentações | 200, conteúdo visível | 200, conteúdo visível |
-| /recebimentos | Recebimentos | 200, conteúdo visível | 200, conteúdo visível |
-| /mapa | Mapa | 200, conteúdo visível | 200, conteúdo visível |
+| Rota           | Página        | Dev 8091 desktop/mobile | Produção 8081 desktop/mobile |
+| -------------- | ------------- | ----------------------- | ---------------------------- |
+| /              | Produtos      | 200, conteúdo visível   | 200, conteúdo visível        |
+| /caixas        | Caixas        | 200, conteúdo visível   | 200, conteúdo visível        |
+| /enderecamento | Endereçamento | 200, conteúdo visível   | 200, conteúdo visível        |
+| /scanner       | Scanner       | 200, conteúdo visível   | 200, conteúdo visível        |
+| /movimentacoes | Movimentações | 200, conteúdo visível   | 200, conteúdo visível        |
+| /recebimentos  | Recebimentos  | 200, conteúdo visível   | 200, conteúdo visível        |
+| /mapa          | Mapa          | 200, conteúdo visível   | 200, conteúdo visível        |
 
 Não há /produtos na árvore gerada; o catálogo está em /. As 28 combinações de rota/viewport/ambiente foram capturadas com Edge headless via Playwright: zero erros de console/pageerror capturados e zero overflow global. Screenshots e texto/resultado JSON estão em `../screenshots/codex-auditoria/`. A validação cobre carregamento, hidratação e renderização; não equivale a teste de cada interação ou hardware. Foi usado um smoke transitório, pois o helper Grok exige /workspace e o Chromium próprio do Playwright não estava instalado. Não foi necessário mudar o código do produto.
 
@@ -151,14 +161,14 @@ INICIAR_ORION.bat foi inspecionado: cd /d %~dp0, verificação de npm, instalaç
 
 ## Checks e testes
 
-| Comando | Resultado |
-| --- | --- |
+| Comando                                                     | Resultado                                                                                         |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | npm install --offline --ignore-scripts --no-audit --no-fund | Sucesso pelo cache local; não é prova de instalação do zero com rede nem de scripts de instalação |
-| npm run lint | Exit 0, sem avisos emitidos |
-| npm run typecheck | Exit 0 |
-| npm test | 26 arquivos, 103 testes, todos passaram |
-| npm run build | Exit 0, client + SSR + Nitro/Vercel |
-| node --test scripts/*.test.mjs | 5 arquivos, 149 testes, todos passaram fora do isolamento |
+| npm run lint                                                | Exit 0, sem avisos emitidos                                                                       |
+| npm run typecheck                                           | Exit 0                                                                                            |
+| npm test                                                    | 26 arquivos, 103 testes, todos passaram                                                           |
+| npm run build                                               | Exit 0, client + SSR + Nitro/Vercel                                                               |
+| node --test scripts/*.test.mjs                              | 5 arquivos, 149 testes, todos passaram fora do isolamento                                         |
 
 Os primeiros testes auxiliares tiveram EPERM ao renomear arquivos temporários no isolamento; a repetição com acesso normal passou sem editar os scripts. O npm avisou que @vitest/mocker 3.2.4 declara peerOptional Vite 5/6/7, enquanto o projeto usa Vite 8.3.2. O build emitiu avisos MODULE_LEVEL_DIRECTIVE para dependências com "use client" e aviso de tempo de callbacks do plugin TanStack. São avisos reais, sem falha de build ou renderização neste conjunto de checks. Nitro ainda é beta.
 
@@ -168,28 +178,28 @@ Os 26 arquivos do produto estão no inventário ao final. Cobrem normalização/
 
 Classificação considera o estado atual e o contrato preservado; removível significa candidato a limpeza futura, não autorização para apagar agora.
 
-| Item | Classe | Build/testes e decisão |
-| --- | --- | --- |
-| .grok/skills e .grok/references | ÚTIL / legado de orientação | Não são runtime do estoque; referências também são verificadas por testes auxiliares. Preservados como documentação histórica |
-| .grok/app-env.json | LEGADO / REMOVÍVEL isoladamente | Scripts npm atuais chamam Vite diretamente; não há with-app-env ativo. Auth/db já ausentes da aplicação. Arquivo não decide o comportamento atual |
-| .grok/status e .node_modules.lock | LEGADO / REMOVÍVEL | Estado do antigo ambiente; não encontrado consumo em fonte/config/scripts ativos. Não usar status como prova de servidor ativo |
-| .tanstack/tmp | LEGADO / REMOVÍVEL (gerado) | Cache do framework; pode ser recriado com servidores parados; não é código nem dados de estoque |
-| .vercel/output | LEGADO / REMOVÍVEL (gerado) | Saída do build, usada pelo preview de produção. Limpeza exige rebuild antes do próximo preview |
-| artifacts/ | INCERTO / atualmente vazio | Não participa do build atual; a instrução antiga o descreve como fonte de anexos. Preservado |
-| screenshots/ anteriores | ÚTIL | Evidências de QA, fora do build e dos testes do produto. Removíveis para runtime, úteis para histórico |
-| AGENTS.md | ÚTIL, com instruções legadas | Não entra no build; testes auxiliares verificam partes do texto. Suposições Linux/Grok conflitam com Windows. Nesta auditoria prevaleceu a instrução explícita do usuário |
-| AGENTS.project.md | LEGADO | Aponta /workspace/artifacts, incompatível com o ambiente atual; não é dependência de runtime. Preservado |
-| startup.sh | LEGADO no Windows | Contrato de revive Grok com /workspace e /tmp. Windows usa o .bat; não entra no build/testes do produto. Não removido |
-| vercel.json e Nitro em vite.config.ts | ESSENCIAL para destino atual de build | Instalação/deploy Vercel e saída de produção. Mudar destino seria outra alteração de configuração |
-| server/middleware/grok-pwa.ts e declaração virtual | ESSENCIAL na configuração atual | Incluídos pelo Nitro; importam recursos/scripts PWA. Remoção isolada quebra ou altera a produção |
-| scripts/grok-pwa-plugin.mjs, shared e install-page.html | ESSENCIAL na configuração atual | Plugin Vite e middleware de produção; testes auxiliares. Preservar o conjunto |
-| public/__grok/ | ESSENCIAL para recursos PWA atuais | Copiados ao build; shell referencia ícone/manifesto. Não remover isoladamente |
-| PreviewHostBridge e lib preview-* | ÚTIL / integração ativa | Montado no shell e incluído no bundle; noop sem contexto de preview. Não removido |
-| scripts/browser-smoke*, browser-guard e preview-thumbnail | ÚTIL / QA legado | Não participam do npm test; arquivos de verdict têm testes Node. Caminhos /workspace impedem uso direto no Windows |
-| scripts/preview.mjs | ÚTIL, portabilidade parcial | Usa /proc para identificar processos; spawn adapta shell Windows, mas controle de processo não é portável. Evitar preview:restart/stop para encerrar processos locais não identificados; npm run preview funcionou |
-| scripts/brand-check* e write-atomic* | ÚTIL / ferramentas legadas | Usados no fluxo de marca e testes auxiliares; não são regras de estoque |
-| src/routeTree.gen.ts | ESSENCIAL (gerado) | Importado pelo router e regenerado pelo framework. Não editar manualmente |
-| node_modules/ | ESSENCIAL para execução, regenerável | Fora do Git/build de fonte; instalar novamente quando necessário |
+| Item                                                      | Classe                                | Build/testes e decisão                                                                                                                                                                                             |
+| --------------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| .grok/skills e .grok/references                           | ÚTIL / legado de orientação           | Não são runtime do estoque; referências também são verificadas por testes auxiliares. Preservados como documentação histórica                                                                                      |
+| .grok/app-env.json                                        | LEGADO / REMOVÍVEL isoladamente       | Scripts npm atuais chamam Vite diretamente; não há with-app-env ativo. Auth/db já ausentes da aplicação. Arquivo não decide o comportamento atual                                                                  |
+| .grok/status e .node_modules.lock                         | LEGADO / REMOVÍVEL                    | Estado do antigo ambiente; não encontrado consumo em fonte/config/scripts ativos. Não usar status como prova de servidor ativo                                                                                     |
+| .tanstack/tmp                                             | LEGADO / REMOVÍVEL (gerado)           | Cache do framework; pode ser recriado com servidores parados; não é código nem dados de estoque                                                                                                                    |
+| .vercel/output                                            | LEGADO / REMOVÍVEL (gerado)           | Saída do build, usada pelo preview de produção. Limpeza exige rebuild antes do próximo preview                                                                                                                     |
+| artifacts/                                                | INCERTO / atualmente vazio            | Não participa do build atual; a instrução antiga o descreve como fonte de anexos. Preservado                                                                                                                       |
+| screenshots/ anteriores                                   | ÚTIL                                  | Evidências de QA, fora do build e dos testes do produto. Removíveis para runtime, úteis para histórico                                                                                                             |
+| AGENTS.md                                                 | ÚTIL, com instruções legadas          | Não entra no build; testes auxiliares verificam partes do texto. Suposições Linux/Grok conflitam com Windows. Nesta auditoria prevaleceu a instrução explícita do usuário                                          |
+| AGENTS.project.md                                         | LEGADO                                | Aponta /workspace/artifacts, incompatível com o ambiente atual; não é dependência de runtime. Preservado                                                                                                           |
+| startup.sh                                                | LEGADO no Windows                     | Contrato de revive Grok com /workspace e /tmp. Windows usa o .bat; não entra no build/testes do produto. Não removido                                                                                              |
+| vercel.json e Nitro em vite.config.ts                     | ESSENCIAL para destino atual de build | Instalação/deploy Vercel e saída de produção. Mudar destino seria outra alteração de configuração                                                                                                                  |
+| server/middleware/grok-pwa.ts e declaração virtual        | ESSENCIAL na configuração atual       | Incluídos pelo Nitro; importam recursos/scripts PWA. Remoção isolada quebra ou altera a produção                                                                                                                   |
+| scripts/grok-pwa-plugin.mjs, shared e install-page.html   | ESSENCIAL na configuração atual       | Plugin Vite e middleware de produção; testes auxiliares. Preservar o conjunto                                                                                                                                      |
+| public/__grok/                                            | ESSENCIAL para recursos PWA atuais    | Copiados ao build; shell referencia ícone/manifesto. Não remover isoladamente                                                                                                                                      |
+| PreviewHostBridge e lib preview-*                         | ÚTIL / integração ativa               | Montado no shell e incluído no bundle; noop sem contexto de preview. Não removido                                                                                                                                  |
+| scripts/browser-smoke*, browser-guard e preview-thumbnail | ÚTIL / QA legado                      | Não participam do npm test; arquivos de verdict têm testes Node. Caminhos /workspace impedem uso direto no Windows                                                                                                 |
+| scripts/preview.mjs                                       | ÚTIL, portabilidade parcial           | Usa /proc para identificar processos; spawn adapta shell Windows, mas controle de processo não é portável. Evitar preview:restart/stop para encerrar processos locais não identificados; npm run preview funcionou |
+| scripts/brand-check* e write-atomic*                      | ÚTIL / ferramentas legadas            | Usados no fluxo de marca e testes auxiliares; não são regras de estoque                                                                                                                                            |
+| src/routeTree.gen.ts                                      | ESSENCIAL (gerado)                    | Importado pelo router e regenerado pelo framework. Não editar manualmente                                                                                                                                          |
+| node_modules/                                             | ESSENCIAL para execução, regenerável  | Fora do Git/build de fonte; instalar novamente quando necessário                                                                                                                                                   |
 
 Candidatos mais seguros para futura limpeza são saídas/cache com aplicação parada, marcadores antigos e screenshots dispensáveis. A integração Grok não pode ser tratada como pasta morta: há imports e referências reais no build. Não houve limpeza nesta execução.
 
