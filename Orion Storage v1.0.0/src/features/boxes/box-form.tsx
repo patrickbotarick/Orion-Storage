@@ -1,3 +1,5 @@
+import { Select, Input, Textarea } from "@/components/ui/controls";
+import { EmptyState } from "@/components/ui/feedback";
 import { useState, type FormEvent } from "react";
 import {
   calculatedTotalLengthM,
@@ -124,16 +126,17 @@ export function BoxForm({
 
       {mode === "create" ? (
         products.length === 0 ? (
-          <p className="rounded-md border border-line bg-bg px-3 py-3 text-sm text-ink">
-            Nenhum produto ativo. Cadastre ou reative um produto antes de registrar uma caixa.
-          </p>
+          <EmptyState
+            title="Nenhum produto ativo. Cadastre ou reative um produto antes de registrar uma caixa."
+            className="mt-4"
+          />
         ) : (
           <Field label="Produto" htmlFor="box-product" required error={errors.productId}>
-            <select
+            <Select
               id="box-product"
               value={values.productId}
               onChange={(event) => applyProduct(event.target.value)}
-              className={controlClass}
+
               aria-invalid={Boolean(errors.productId)}
             >
               <option value="">Selecione</option>
@@ -142,7 +145,7 @@ export function BoxForm({
                   {item.name}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
         )
       ) : null}
@@ -157,12 +160,12 @@ export function BoxForm({
           error={errors.rollsQuantity}
           hint="Conteúdo real desta caixa. Pode ser diferente do padrão do produto."
         >
-          <input
+          <Input
             id="rollsQuantity"
             inputMode="numeric"
             value={values.rollsQuantity}
             onChange={(event) => updateRolls(event.target.value)}
-            className={controlClass}
+
             aria-invalid={Boolean(errors.rollsQuantity)}
           />
         </Field>
@@ -173,7 +176,7 @@ export function BoxForm({
           hint="Metros. Não é sobrescrita se você informar outro valor."
           error={errors.totalLengthM}
         >
-          <input
+          <Input
             id="totalLengthM"
             inputMode="decimal"
             value={values.totalLengthM}
@@ -181,7 +184,7 @@ export function BoxForm({
               setLengthTouched(true);
               setValues((current) => ({ ...current, totalLengthM: event.target.value }));
             }}
-            className={controlClass}
+
             aria-invalid={Boolean(errors.totalLengthM)}
           />
         </Field>
@@ -191,32 +194,32 @@ export function BoxForm({
           hint="Opcional. Texto ou código informado pelo fornecedor."
           error={errors.manufacturerBatch}
         >
-          <input
+          <Input
             id="manufacturerBatch"
             value={values.manufacturerBatch}
             onChange={(event) =>
               setValues((current) => ({ ...current, manufacturerBatch: event.target.value }))
             }
-            className={controlClass}
+
             aria-invalid={Boolean(errors.manufacturerBatch)}
           />
         </Field>
         <Field label="Data de recebimento" htmlFor="receivedAt" required error={errors.receivedAt}>
-          <input
+          <Input
             id="receivedAt"
             type="date"
             value={values.receivedAt}
             onChange={(event) =>
               setValues((current) => ({ ...current, receivedAt: event.target.value }))
             }
-            className={controlClass}
+
             aria-invalid={Boolean(errors.receivedAt)}
           />
         </Field>
       </div>
 
       <Field label="Observações" htmlFor="box-notes" error={errors.notes}>
-        <textarea
+        <Textarea
           id="box-notes"
           value={values.notes}
           onChange={(event) => setValues((current) => ({ ...current, notes: event.target.value }))}

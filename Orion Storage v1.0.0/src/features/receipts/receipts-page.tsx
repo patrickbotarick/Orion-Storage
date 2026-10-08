@@ -1,3 +1,6 @@
+import { Alert, LoadingState, EmptyState } from "@/components/ui/feedback";
+import { SearchInput, Input, Select } from "@/components/ui/controls";
+import { PageHeader } from "@/components/ui/surfaces";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   RECEIPT_STATUS_LABEL,
@@ -16,7 +19,6 @@ import { getBrowserProductService } from "@/application/products/product-service
 import { getBrowserReceiptService } from "@/application/receipts/receipt-service";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
-import { controlClass } from "@/components/ui/field";
 import { BoxLabel } from "@/features/identification/box-label";
 import { PrintLabelDialog } from "@/features/identification/print-label-dialog";
 import { ReceiptForm } from "@/features/receipts/receipt-form";
@@ -138,39 +140,38 @@ export function ReceiptsPage() {
 
   return (
     <AppShell section="receipts">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs font-medium tracking-wide text-muted uppercase">Entrada</p>
-          <h1 className="text-2xl font-semibold text-ink">Recebimentos</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted">
-            Gera várias caixas de uma vez, sem endereço. A etiqueta sai agora; a posição entra
-            depois, no scanner.
-          </p>
-        </div>
-        {screen.kind === "list" ? (
-          <Button
-            variant="primary"
-            onClick={() => {
-              setPreview(null);
-              setError(null);
-              setScreen({ kind: "create" });
-            }}
-          >
-            + Novo recebimento
-          </Button>
-        ) : (
-          <Button
-            variant="secondary"
-            onClick={() => {
-              setPreview(null);
-              setError(null);
-              setScreen({ kind: "list" });
-            }}
-          >
-            Voltar à lista
-          </Button>
-        )}
-      </header>
+      <PageHeader
+        title="Recebimentos"
+        eyebrow="Entrada"
+        description="Gera várias caixas de uma vez, sem endereço. A etiqueta sai agora; a posição entra depois, no scanner."
+        actions={
+          <>
+            {screen.kind === "list" ? (
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setPreview(null);
+                  setError(null);
+                  setScreen({ kind: "create" });
+                }}
+              >
+                + Novo recebimento
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  setPreview(null);
+                  setError(null);
+                  setScreen({ kind: "list" });
+                }}
+              >
+                Voltar à lista
+              </Button>
+            )}
+          </>
+        }
+      />
 
       {screen.kind === "create" ? (
         <div className="mt-6">
@@ -191,7 +192,7 @@ export function ReceiptsPage() {
       ) : null}
 
       {screen.kind === "done" && detail ? (
-        <section className="mt-6 rounded-lg border border-ink bg-surface p-5">
+        <section className="mt-6 rounded-card border border-success-border bg-success-bg p-5">
           <h2 className="text-lg font-semibold text-ink">Recebimento concluído.</h2>
           <p className="mt-2 font-mono text-sm">{detail.code}</p>
           <p className="mt-1 text-sm text-ink">{detailBoxes.length} caixas criadas.</p>
@@ -234,25 +235,24 @@ export function ReceiptsPage() {
       {screen.kind === "list" ? (
         <div className="mt-6">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <input
-              type="search"
+            <SearchInput
               value={query.text ?? ""}
               aria-label="Buscar recebimentos"
               placeholder="Código, produto, marca, lote ou caixa"
-              className={controlClass}
+
               onChange={(event) => setQuery({ ...query, text: event.target.value })}
             />
-            <input
+            <Input
               type="date"
               aria-label="Filtrar por data"
               value={query.date ?? ""}
-              className={controlClass}
+
               onChange={(event) => setQuery({ ...query, date: event.target.value })}
             />
-            <select
+            <Select
               aria-label="Filtrar por produto"
               value={query.productId ?? ""}
-              className={controlClass}
+
               onChange={(event) => setQuery({ ...query, productId: event.target.value })}
             >
               <option value="">Todos os produtos</option>
@@ -261,11 +261,11 @@ export function ReceiptsPage() {
                   {product.name}
                 </option>
               ))}
-            </select>
-            <select
+            </Select>
+            <Select
               aria-label="Filtrar por marca"
               value={query.brand ?? ""}
-              className={controlClass}
+
               onChange={(event) => setQuery({ ...query, brand: event.target.value })}
             >
               <option value="">Todas as marcas</option>
@@ -274,28 +274,28 @@ export function ReceiptsPage() {
                   {brand}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
           {error ? (
-            <p className="mt-4 text-sm text-danger" role="alert">
+            <Alert tone="danger" className="mt-4">
               {error}
-            </p>
+            </Alert>
           ) : null}
           <div className="mt-4">
             {receipts == null ? (
-              <p className="text-sm text-muted">Carregando recebimentos…</p>
+              <LoadingState label="Carregando recebimentos…" className="mt-6" />
             ) : visible.length === 0 ? (
-              <p className="rounded-lg border border-dashed border-line bg-surface px-6 py-16 text-center text-sm text-muted">
-                Nenhum recebimento encontrado. Caixas antigas continuam válidas sem vínculo com um
-                recebimento.
-              </p>
+              <EmptyState
+                title="Nenhum recebimento encontrado. Caixas antigas continuam válidas sem vínculo com um recebimento."
+                className="mt-4"
+              />
             ) : (
               <ul className="flex flex-col gap-3">
                 {visible.map((item) => (
                   <li key={item.receipt.id}>
                     <button
                       type="button"
-                      className="w-full rounded-lg border border-line bg-surface p-4 text-left text-sm hover:border-ink"
+                      className="w-full rounded-lg border border-line bg-surface p-4 text-left text-sm transition-colors hover:border-accent hover:bg-selected"
                       onClick={() => setScreen({ kind: "detail", receiptId: item.receipt.id })}
                     >
                       <p className="font-mono">{item.receipt.code}</p>

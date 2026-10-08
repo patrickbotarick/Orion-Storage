@@ -50,7 +50,7 @@ export function LocationCell({ cell, highlighted, onOpen }: LocationCellProps) {
       <span className="text-sm font-semibold tabular-nums">
         {formatOccupancyCount(cell.occupancy)}
       </span>
-      <span className="inline-flex items-center gap-1 text-[10px] font-medium tracking-wide uppercase">
+      <span className="inline-flex items-center gap-1 text-xs font-medium tracking-wide uppercase">
         <Icon className="size-3 shrink-0" aria-hidden="true" />
         {OCCUPANCY_LABEL[cell.occupancy.kind]}
       </span>

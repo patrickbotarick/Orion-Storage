@@ -1,3 +1,6 @@
+import { Input } from "@/components/ui/controls";
+import { Alert } from "@/components/ui/feedback";
+import { PageHeader } from "@/components/ui/surfaces";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BOX_STATUS_LABEL,
@@ -68,7 +71,8 @@ export function ScannerPage() {
   useEffect(() => {
     let cancelled = false;
     reload().catch((caught: unknown) => {
-      if (!cancelled) setNotice(caught instanceof Error ? caught.message : "Não foi possível carregar.");
+      if (!cancelled)
+        setNotice(caught instanceof Error ? caught.message : "Não foi possível carregar.");
     });
     return () => {
       cancelled = true;
@@ -92,7 +96,8 @@ export function ScannerPage() {
   const currentLocation = locations.find((item) => item.id === box?.currentLocationId) ?? null;
   const destinationArea = areas.find((item) => item.id === destination?.areaId) ?? null;
   const occupied = destination
-    ? boxes.filter((item) => item.currentLocationId === destination.id && item.id !== box?.id).length
+    ? boxes.filter((item) => item.currentLocationId === destination.id && item.id !== box?.id)
+        .length
     : 0;
 
   const preview = useMemo(() => {
@@ -102,9 +107,11 @@ export function ScannerPage() {
         const plan = planMovement(box.currentLocationId, undefined);
         return { type: plan.type, error: null as string | null };
       }
-      if (!destination || !destinationArea) return { type: "MOVED" as MovementType, error: "Localização não encontrada." };
+      if (!destination || !destinationArea)
+        return { type: "MOVED" as MovementType, error: "Localização não encontrada." };
       assertLocationAssignable(destination.status);
-      if (destinationArea.status !== "ACTIVE") throw new InactiveStorageAreaError(destinationArea.id);
+      if (destinationArea.status !== "ACTIVE")
+        throw new InactiveStorageAreaError(destinationArea.id);
       assertLocationHasRoom({
         capacityBoxes: destination.capacityBoxes,
         boxes,
@@ -155,23 +162,32 @@ export function ScannerPage() {
   return (
     <AppShell section="scanner">
       <div className="mx-auto flex w-full max-w-md flex-col gap-4">
-        <header>
-          <p className="text-xs font-medium tracking-wide text-muted uppercase">Operação</p>
-          <h1 className="text-2xl font-semibold text-ink">Scanner</h1>
-          <p className="mt-1 text-sm text-muted">
-            A câmera do celular exige HTTPS ou localhost. Neste computador, localhost funciona. Em outro aparelho na rede, o navegador pode bloquear a câmera.
-          </p>
-        </header>
+        <PageHeader
+          title="Scanner"
+          eyebrow="Operação"
+          description="A câmera do celular exige HTTPS ou localhost. Neste computador, localhost funciona. Em outro aparelho na rede, o navegador pode bloquear a câmera."
+        />
 
-        <p className="rounded-md bg-ink px-4 py-3 text-center text-base font-semibold text-on-ink" aria-live="polite">
-          {session.phase === "WAITING_DESTINATION" ? "Caixa identificada" : PHASE_LABEL[session.phase]}
+        <p
+          className="rounded-md bg-ink px-4 py-3 text-center text-base font-semibold text-on-ink"
+          aria-live="polite"
+        >
+          {session.phase === "WAITING_DESTINATION"
+            ? "Caixa identificada"
+            : PHASE_LABEL[session.phase]}
           {session.phase === "WAITING_DESTINATION" ? " · Aguardando destino" : ""}
-          {session.phase === "READY_TO_CONFIRM" && session.intent === "PLACE" ? " · Destino identificado" : ""}
+          {session.phase === "READY_TO_CONFIRM" && session.intent === "PLACE"
+            ? " · Destino identificado"
+            : ""}
         </p>
 
         <div
           id="orion-qr-reader"
-          className={camera.status === "live" || camera.status === "starting" ? "min-h-64 overflow-hidden rounded-lg bg-ink" : "hidden"}
+          className={
+            camera.status === "live" || camera.status === "starting"
+              ? "min-h-64 overflow-hidden rounded-lg bg-ink"
+              : "hidden"
+          }
         />
 
         <div className="flex flex-col gap-2">
@@ -180,11 +196,21 @@ export function ScannerPage() {
               Parar câmera
             </Button>
           ) : (
-            <Button variant="primary" className="min-h-14" onClick={() => void camera.start()} disabled={camera.status === "starting"}>
+            <Button
+              variant="primary"
+              className="min-h-14"
+              onClick={() => void camera.start()}
+              disabled={camera.status === "starting"}
+              loading={camera.status === "starting"}
+            >
               {camera.status === "starting" ? "Abrindo câmera…" : "Usar câmera"}
             </Button>
           )}
-          {camera.message ? <p className="text-sm text-danger" role="alert">{camera.message}</p> : null}
+          {camera.message ? (
+            <Alert tone="danger" className="">
+              {camera.message}
+            </Alert>
+          ) : null}
         </div>
 
         <form
@@ -197,12 +223,12 @@ export function ScannerPage() {
           <label htmlFor="manual-code" className="text-sm font-medium text-ink">
             Digitar ou colar código
           </label>
-          <input
+          <Input
             id="manual-code"
             value={manual}
             onChange={(event) => setManual(event.target.value)}
             placeholder="CX-20261006-000001 ou SUP-A-01-01-01"
-            className="min-h-14 rounded-md border border-line bg-surface px-3 text-base"
+            className="min-h-14 text-base font-mono"
             autoCapitalize="characters"
           />
           <Button variant="secondary" className="min-h-14" type="submit">
@@ -211,14 +237,14 @@ export function ScannerPage() {
         </form>
 
         {notice ? (
-          <p className="rounded-md border border-danger px-3 py-2 text-sm text-danger" role="alert">
+          <Alert tone="danger" className="">
             {notice}
-          </p>
+          </Alert>
         ) : null}
         {success ? (
-          <p className="rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink" role="status">
+          <Alert tone="success" className="">
             {success}
-          </p>
+          </Alert>
         ) : null}
 
         {box ? (
@@ -239,29 +265,43 @@ export function ScannerPage() {
             <h2 className="font-mono text-sm">{destination.code}</h2>
             <p className="mt-1 text-sm">{destinationArea?.name ?? "Área não encontrada"}</p>
             <p className="text-sm text-muted">
-              Corredor {destination.aisle} · Prateleira {destination.rack} · Nível {destination.level} · Posição {destination.position}
+              Corredor {destination.aisle} · Prateleira {destination.rack} · Nível{" "}
+              {destination.level} · Posição {destination.position}
             </p>
             <p className="mt-2 text-sm">
               {occupied}
-              {destination.capacityBoxes != null ? ` / ${destination.capacityBoxes}` : ""} caixas · {LOCATION_STATUS_LABEL[destination.status]}
+              {destination.capacityBoxes != null ? ` / ${destination.capacityBoxes}` : ""} caixas ·{" "}
+              {LOCATION_STATUS_LABEL[destination.status]}
             </p>
           </section>
         ) : null}
 
         {session.phase === "READY_TO_CONFIRM" && box ? (
-          <section className="rounded-lg border border-ink bg-surface p-4">
+          <section className="rounded-card border border-accent bg-selected p-4">
             <p className="text-sm font-semibold">
-              {session.intent === "REMOVE" ? "Remover" : preview?.type === "STORED" ? "Armazenar" : "Mover"}
+              {session.intent === "REMOVE"
+                ? "Remover"
+                : preview?.type === "STORED"
+                  ? "Armazenar"
+                  : "Mover"}
             </p>
             <p className="mt-2 font-mono text-sm">{box.code}</p>
             <p className="mt-2 text-sm">De: {currentLocation?.code ?? "Sem localização"}</p>
             <p className="text-sm">
-              Para: {session.intent === "REMOVE" ? "Sem localização" : destination?.code ?? "—"}
+              Para: {session.intent === "REMOVE" ? "Sem localização" : (destination?.code ?? "—")}
             </p>
-            {preview?.type ? <p className="mt-2 text-xs text-muted">{MOVEMENT_TYPE_LABEL[preview.type]}</p> : null}
+            {preview?.type ? (
+              <p className="mt-2 text-xs text-muted">{MOVEMENT_TYPE_LABEL[preview.type]}</p>
+            ) : null}
             {preview?.error ? <p className="mt-2 text-sm text-danger">{preview.error}</p> : null}
             <div className="mt-4 flex flex-col gap-2">
-              <Button variant="primary" className="min-h-14" disabled={busy || Boolean(preview?.error)} onClick={() => void confirm()}>
+              <Button
+                variant="primary"
+                className="min-h-14"
+                disabled={busy || Boolean(preview?.error)}
+                loading={busy}
+                onClick={() => void confirm()}
+              >
                 {session.intent === "REMOVE" ? "Confirmar remoção" : "Confirmar movimentação"}
               </Button>
               <Button
@@ -269,7 +309,12 @@ export function ScannerPage() {
                 className="min-h-14"
                 disabled={busy}
                 onClick={() => {
-                  const next = { ...session, phase: "WAITING_DESTINATION" as const, destinationId: undefined, intent: undefined };
+                  const next = {
+                    ...session,
+                    phase: "WAITING_DESTINATION" as const,
+                    destinationId: undefined,
+                    intent: undefined,
+                  };
                   sessionRef.current = next;
                   setSession(next);
                   setNotice(null);

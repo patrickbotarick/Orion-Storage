@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/ui/feedback";
+import { ModalOverlay, Modal } from "@/components/ui/modal";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
   BOX_STATUS_LABEL,
@@ -11,7 +13,7 @@ import {
 import { formatMillimeters } from "@orion/shared";
 import { X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/button";
 
 type LocationDetailProps = {
   cell: MapCell | null;
@@ -30,8 +32,8 @@ export function LocationDetail({ cell, area, products, onClose }: LocationDetail
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/50" />
-        <Dialog.Content className="catalog-dialog fixed top-4 right-4 left-4 z-50 mx-auto overflow-y-auto rounded-lg border border-line bg-surface p-5 shadow-xl md:top-10 md:max-w-3xl">
+        <ModalOverlay className="" />
+        <Modal className="md:max-w-3xl">
           <div className="mb-5 flex items-start justify-between gap-4">
             <div>
               <Dialog.Title className="font-mono text-xl font-semibold text-ink">
@@ -42,9 +44,9 @@ export function LocationDetail({ cell, area, products, onClose }: LocationDetail
               </Dialog.Description>
             </div>
             <Dialog.Close asChild>
-              <Button variant="ghost" aria-label="Fechar">
+              <IconButton variant="ghost" aria-label="Fechar">
                 <X className="size-4" aria-hidden="true" />
-              </Button>
+              </IconButton>
             </Dialog.Close>
           </div>
           {cell && location ? (
@@ -76,7 +78,7 @@ export function LocationDetail({ cell, area, products, onClose }: LocationDetail
               <div>
                 <h3 className="text-sm font-semibold text-ink">Caixas armazenadas</h3>
                 {cell.boxes.length === 0 ? (
-                  <p className="mt-2 text-sm text-muted">Nenhuma caixa nesta posição.</p>
+                  <EmptyState title="Nenhuma caixa nesta posição." className="mt-4" />
                 ) : (
                   <ul className="mt-2 divide-y divide-line rounded-lg border border-line">
                     {cell.boxes.map((box) => {
@@ -108,7 +110,7 @@ export function LocationDetail({ cell, area, products, onClose }: LocationDetail
               </div>
             </div>
           ) : null}
-        </Dialog.Content>
+        </Modal>
       </Dialog.Portal>
     </Dialog.Root>
   );

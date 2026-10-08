@@ -56,10 +56,13 @@
   --color-disabled-border: var(--color-signal-disabled);
 
   --spacing: 0.25rem;
+  --spacing-map-cell: 6.5rem;
+  --spacing-map-cell-height: 6rem;
   --radius-control: 0.625rem;
   --radius-card: 0.875rem;
   --radius-dialog: 1rem;
   --radius-md: var(--radius-control);
+  --radius-lg: var(--radius-card);
   --shadow-card: 0 1px 3px rgb(15 20 26 / 0.06);
   --shadow-dialog: 0 8px 24px rgb(15 20 26 / 0.12);
 
@@ -89,12 +92,24 @@
   line-height: var(--text-heading-1--line-height);
 }
 
+.orion-page-content h2:not(.font-mono) {
+  font-size: var(--text-heading-2);
+  font-weight: 700;
+}
+
+.orion-page-content h3:not(.font-mono) {
+  font-size: var(--text-heading-3);
+  font-weight: 600;
+}
+
 .orion-skip-link {
   position: fixed;
   top: calc(var(--spacing) * 4);
   left: calc(var(--spacing) * 4);
   z-index: 60;
   transform: translateY(calc(-100% - var(--spacing) * 8));
+  opacity: 0;
+  pointer-events: none;
   border-radius: var(--radius-control);
   background: var(--color-surface);
   color: var(--color-ink);
@@ -104,6 +119,8 @@
 
 .orion-skip-link:focus {
   transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 @layer base {
@@ -337,8 +354,8 @@
 .orion-map-cell,
 .orion-map-hole {
   box-sizing: border-box;
-  min-width: 4.75rem;
-  min-height: 4.75rem;
+  min-width: var(--spacing-map-cell);
+  min-height: var(--spacing-map-cell-height);
 }
 
 .orion-map-cell {
@@ -346,19 +363,20 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.125rem;
-  border: 1px solid rgba(28, 36, 48, 0.45);
-  border-radius: 0.5rem;
+  gap: 0.25rem;
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-control);
   background: var(--color-surface);
   color: var(--color-ink);
-  padding: 0.25rem;
+  padding: 0.5rem;
   text-align: center;
   cursor: pointer;
 }
 
 .orion-map-cell:focus-visible {
-  outline: 2px solid var(--color-ink);
-  outline-offset: 2px;
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px var(--color-surface);
 }
 
 .orion-map-hole {
@@ -367,24 +385,33 @@
 
 .orion-cell-partial {
   border-bottom-width: 4px;
+  border-color: var(--color-accent);
+  background: var(--color-selected);
 }
 
 .orion-cell-full {
-  box-shadow: inset 0 0 0 3px var(--color-ink);
+  background: var(--color-selected);
+  box-shadow: inset 0 0 0 3px var(--color-accent);
 }
 
 .orion-cell-unbounded {
   border-style: dotted;
   border-width: 2px;
+  border-color: var(--color-info-border);
+  background: var(--color-info-bg);
+  color: var(--color-info);
 }
 
 .orion-cell-blocked {
+  border-color: var(--color-danger-border);
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
   background-image: repeating-linear-gradient(
     -45deg,
     transparent,
     transparent 5px,
-    rgba(28, 36, 48, 0.16) 5px,
-    rgba(28, 36, 48, 0.16) 7px
+    color-mix(in srgb, var(--color-danger) 10%, transparent) 5px,
+    color-mix(in srgb, var(--color-danger) 10%, transparent) 7px
   );
 }
 
@@ -395,12 +422,41 @@
     90deg,
     transparent,
     transparent 4px,
-    rgba(28, 36, 48, 0.14) 4px,
-    rgba(28, 36, 48, 0.14) 5px
+    color-mix(in srgb, var(--color-muted) 10%, transparent) 4px,
+    color-mix(in srgb, var(--color-muted) 10%, transparent) 5px
   );
 }
 
 .orion-cell-highlight {
-  outline: 3px solid var(--color-accent);
+  outline: 3px solid var(--color-info-border);
   outline-offset: 2px;
+}
+
+/* Compatibility for the pending 4B screen: presentation only, no inventory writes. */
+.orion-page-content[data-section="inventories"] .font-mono {
+  font-size: var(--text-code);
+}
+
+.orion-page-content[data-section="inventories"] dl dd {
+  font-size: var(--text-stat);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.orion-page-content[data-section="inventories"] [role="alert"],
+.orion-page-content[data-section="inventories"] [role="status"] {
+  border-radius: var(--radius-control);
+  padding: 0.75rem 1rem;
+}
+
+.orion-page-content[data-section="inventories"] [role="alert"] {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+}
+
+.orion-page-content[data-section="inventories"] [role="status"] {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+  border: 1px solid var(--color-success-border);
 }

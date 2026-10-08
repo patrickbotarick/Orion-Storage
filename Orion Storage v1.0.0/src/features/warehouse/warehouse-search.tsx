@@ -1,6 +1,7 @@
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/feedback";
+import { SearchInput } from "@/components/ui/controls";
 import type { WarehouseSearchResult } from "@orion/domain";
-
-import { controlClass } from "@/components/ui/field";
 
 type WarehouseSearchProps = {
   query: string;
@@ -20,28 +21,27 @@ export function WarehouseSearch({ query, result, onQuery, onReveal }: WarehouseS
   return (
     <section className="mt-4" aria-label="Busca no mapa">
       <div className="flex flex-col gap-2 sm:flex-row">
-        <input
-          type="search"
+        <SearchInput
           value={query}
           onChange={(event) => onQuery(event.target.value)}
           placeholder="Caixa, endereço, produto, marca, cor ou largura"
           aria-label="Buscar no mapa"
-          className={controlClass}
         />
         {active ? (
-          <button
+          <Button
+            variant="ghost"
             type="button"
-            className="min-h-11 rounded-md border border-line bg-surface px-3 text-sm font-medium"
+            className="shrink-0 border border-control-border bg-surface whitespace-nowrap"
             onClick={() => onQuery("")}
           >
             Limpar busca
-          </button>
+          </Button>
         ) : null}
       </div>
       {active ? (
         <div className="mt-3 rounded-lg border border-line bg-surface p-3" aria-live="polite">
           {result.products.length === 0 && lonely.length === 0 && result.looseBoxes.length === 0 ? (
-            <p className="text-sm text-muted">Nenhum resultado no mapa.</p>
+            <EmptyState title="Nenhum resultado no mapa." className="mt-4" />
           ) : (
             <div className="flex flex-col gap-4">
               {result.products.map((hit) => (
@@ -54,9 +54,10 @@ export function WarehouseSearch({ query, result, onQuery, onReveal }: WarehouseS
                   <ul className="mt-2 flex flex-col gap-1">
                     {hit.places.map((place) => (
                       <li key={place.locationId}>
-                        <button
+                        <Button
+                          variant="ghost"
                           type="button"
-                          className="min-h-11 w-full rounded-md px-2 text-left text-sm hover:bg-bg"
+                          className="min-h-11 w-full rounded-md px-2 justify-start text-left text-sm hover:bg-bg"
                           onClick={() => onReveal(place.locationId)}
                         >
                           <span className="font-mono">{place.code}</span>
@@ -66,7 +67,7 @@ export function WarehouseSearch({ query, result, onQuery, onReveal }: WarehouseS
                             {place.rack} / Nível {place.level} / P{place.position} —{" "}
                             {place.boxCount}
                           </span>
-                        </button>
+                        </Button>
                       </li>
                     ))}
                   </ul>
@@ -78,13 +79,14 @@ export function WarehouseSearch({ query, result, onQuery, onReveal }: WarehouseS
                   <ul className="mt-2 flex flex-col gap-1">
                     {lonely.map((place) => (
                       <li key={place.locationId}>
-                        <button
+                        <Button
+                          variant="ghost"
                           type="button"
-                          className="min-h-11 w-full rounded-md px-2 text-left font-mono text-sm hover:bg-bg"
+                          className="min-h-11 w-full rounded-md px-2 justify-start text-left font-mono text-sm hover:bg-bg"
                           onClick={() => onReveal(place.locationId)}
                         >
                           {place.code}
-                        </button>
+                        </Button>
                       </li>
                     ))}
                   </ul>

@@ -18,7 +18,7 @@ export function WarehouseMap({ view, highlighted, onOpen }: WarehouseMapProps) {
         {OCCUPANCY_KINDS.map((kind) => (
           <li
             key={kind}
-            className="rounded-md border border-line bg-surface px-2 py-1 text-xs text-ink"
+            className={`rounded-control border border-control-border bg-surface px-3 py-2 text-metadata text-ink orion-cell-${kind.toLowerCase()}`}
           >
             {OCCUPANCY_LABEL[kind]}
           </li>

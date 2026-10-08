@@ -106,6 +106,7 @@ export function AppShell({ section, children }: AppShellProps) {
           </div>
           <main
             id="conteudo-principal"
+            data-section={section}
             tabIndex={-1}
             className="orion-page-content min-w-0 px-4 py-6 md:px-8 md:py-8"
           >

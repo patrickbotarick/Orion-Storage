@@ -1,3 +1,7 @@
+import { ModalOverlay, Modal } from "@/components/ui/modal";
+import { Alert, LoadingState, EmptyState } from "@/components/ui/feedback";
+import { SearchInput, Select, Input, Textarea } from "@/components/ui/controls";
+import { PageHeader, DataTable } from "@/components/ui/surfaces";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import {
@@ -32,7 +36,7 @@ import { getBrowserBoxService } from "@/application/boxes/box-service";
 import { getBrowserLocationService } from "@/application/locations/location-service";
 import { getBrowserMovementService } from "@/application/movements/movement-service";
 import { AppShell } from "@/components/app-shell";
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
 import { Field, controlClass } from "@/components/ui/field";
 import { LocationLabel } from "@/features/identification/location-label";
 import { PrintLabelDialog } from "@/features/identification/print-label-dialog";
@@ -149,35 +153,35 @@ export function LocationsPage() {
   return (
     <>
       <AppShell section="locations">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium tracking-wide text-muted uppercase">Estoque físico</p>
-            <h1 className="text-2xl font-semibold text-ink">Endereçamento</h1>
-            <p className="mt-1 max-w-2xl text-sm text-muted">
-              Áreas e posições onde uma caixa pode ficar. O mapa mostra a ocupação sem editar.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setFormError(null);
-                setEditor({ kind: "area-create" });
-              }}
-            >
-              Nova área
-            </Button>
-            <Button
-              variant="primary"
-              onClick={() => {
-                setFormError(null);
-                setEditor({ kind: "location-create" });
-              }}
-            >
-              Novo endereço
-            </Button>
-          </div>
-        </header>
+        <PageHeader
+          title="Endereçamento"
+          eyebrow="Estoque físico"
+          description="Áreas e posições onde uma caixa pode ficar. O mapa mostra a ocupação sem editar."
+          actions={
+            <>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    setFormError(null);
+                    setEditor({ kind: "area-create" });
+                  }}
+                >
+                  Nova área
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setFormError(null);
+                    setEditor({ kind: "location-create" });
+                  }}
+                >
+                  Novo endereço
+                </Button>
+              </div>
+            </>
+          }
+        />
 
         <div className="mt-6 flex flex-wrap gap-2">
           <ViewButton current={view} value="addresses" onChange={setView}>
@@ -193,19 +197,16 @@ export function LocationsPage() {
 
         {view !== "areas" ? (
           <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <input
-              type="search"
+            <SearchInput
               value={query.text ?? ""}
               onChange={(event) => setQuery({ ...query, text: event.target.value })}
               placeholder="Código, área, corredor ou posição"
               aria-label="Buscar endereços"
-              className={controlClass}
             />
-            <select
+            <Select
               aria-label="Filtrar por área"
               value={query.areaId ?? ""}
               onChange={(event) => setQuery({ ...query, areaId: event.target.value })}
-              className={controlClass}
             >
               <option value="">Todas as áreas</option>
               {(areas ?? []).map((area) => (
@@ -213,12 +214,11 @@ export function LocationsPage() {
                   {area.code} — {area.name}
                 </option>
               ))}
-            </select>
-            <select
+            </Select>
+            <Select
               aria-label="Filtrar por corredor"
               value={query.aisle ?? ""}
               onChange={(event) => setQuery({ ...query, aisle: event.target.value })}
-              className={controlClass}
             >
               <option value="">Todos os corredores</option>
               {aisles.map((aisle) => (
@@ -226,12 +226,11 @@ export function LocationsPage() {
                   {aisle}
                 </option>
               ))}
-            </select>
-            <select
+            </Select>
+            <Select
               aria-label="Filtrar por prateleira"
               value={query.rack ?? ""}
               onChange={(event) => setQuery({ ...query, rack: event.target.value })}
-              className={controlClass}
             >
               <option value="">Todas as prateleiras</option>
               {racks.map((rack) => (
@@ -239,14 +238,13 @@ export function LocationsPage() {
                   {rack}
                 </option>
               ))}
-            </select>
-            <select
+            </Select>
+            <Select
               aria-label="Filtrar por status"
               value={query.status ?? "ALL"}
               onChange={(event) =>
                 setQuery({ ...query, status: event.target.value as LocationQuery["status"] })
               }
-              className={controlClass}
             >
               <option value="ALL">Todos os status</option>
               {LOCATION_STATUSES.map((status) => (
@@ -254,32 +252,27 @@ export function LocationsPage() {
                   {LOCATION_STATUS_LABEL[status]}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
         ) : null}
 
         {error ? (
-          <p
-            className="mt-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-            role="alert"
-          >
+          <Alert tone="danger" className="mt-4">
             {error}
-          </p>
+          </Alert>
         ) : null}
 
         <div className="mt-4">
           {areas == null || locations == null ? (
-            <p className="text-sm text-muted">Carregando endereçamento…</p>
+            <LoadingState label="Carregando endereçamento…" className="mt-6" />
           ) : view === "areas" ? (
             <>
               <div className="mb-4">
-                <input
-                  type="search"
+                <SearchInput
                   value={areaText}
                   onChange={(event) => setAreaText(event.target.value)}
                   placeholder="Buscar área por código ou nome"
                   aria-label="Buscar áreas"
-                  className={controlClass}
                 />
               </div>
               <AreaTable
@@ -336,8 +329,8 @@ export function LocationsPage() {
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/50" />
-          <Dialog.Content className="catalog-dialog fixed top-4 right-4 left-4 z-50 mx-auto overflow-y-auto rounded-lg border border-line bg-surface p-5 shadow-xl md:top-10 md:max-w-2xl">
+          <ModalOverlay className="" />
+          <Modal className="md:max-w-2xl">
             <div className="mb-5 flex items-start justify-between gap-4">
               <Dialog.Title className="text-xl font-semibold text-ink">
                 {editor?.kind === "area-edit"
@@ -349,18 +342,15 @@ export function LocationsPage() {
                       : "Novo endereço"}
               </Dialog.Title>
               <Dialog.Close asChild>
-                <Button variant="ghost" aria-label="Fechar" disabled={submitting}>
+                <IconButton variant="ghost" aria-label="Fechar" disabled={submitting}>
                   <X className="size-4" aria-hidden="true" />
-                </Button>
+                </IconButton>
               </Dialog.Close>
             </div>
             {formError ? (
-              <p
-                className="mb-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-                role="alert"
-              >
+              <Alert tone="danger" className="mb-4">
                 {formError}
-              </p>
+              </Alert>
             ) : null}
             {editor?.kind === "area-create" || editor?.kind === "area-edit" ? (
               <AreaForm
@@ -422,7 +412,7 @@ export function LocationsPage() {
                   .slice(0, 8)}
               />
             ) : null}
-          </Dialog.Content>
+          </Modal>
         </Dialog.Portal>
       </Dialog.Root>
       <PrintLabelDialog
@@ -456,7 +446,11 @@ function ViewButton({
   children: string;
 }) {
   return (
-    <Button variant={current === value ? "primary" : "secondary"} onClick={() => onChange(value)}>
+    <Button
+      selected={current === value}
+      variant={current === value ? "primary" : "secondary"}
+      onClick={() => onChange(value)}
+    >
       {children}
     </Button>
   );
@@ -473,41 +467,39 @@ function AreaTable({
 }) {
   if (areas.length === 0) return <Empty text="Nenhuma área cadastrada." />;
   return (
-    <div className="overflow-x-auto rounded-lg border border-line bg-surface">
-      <table className="w-full min-w-max border-collapse text-left text-sm">
-        <thead className="bg-bg text-xs tracking-wide text-muted uppercase">
-          <tr>
-            <th className="px-3 py-3 font-medium">Código</th>
-            <th className="px-3 py-3 font-medium">Nome</th>
-            <th className="px-3 py-3 font-medium">Status</th>
-            <th className="px-3 py-3 font-medium">Ações</th>
+    <DataTable label="Áreas cadastradas">
+      <thead className="bg-bg text-xs tracking-wide text-muted uppercase">
+        <tr>
+          <th className="px-3 py-3 font-medium">Código</th>
+          <th className="px-3 py-3 font-medium">Nome</th>
+          <th className="px-3 py-3 font-medium">Status</th>
+          <th className="px-3 py-3 font-medium">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {areas.map((area) => (
+          <tr key={area.id} className="border-t border-line">
+            <td className="px-3 py-3 font-mono text-code">{area.code}</td>
+            <td className="px-3 py-3">{area.name}</td>
+            <td className="px-3 py-3">{STORAGE_AREA_STATUS_LABEL[area.status]}</td>
+            <td className="px-3 py-3">
+              <div className="flex flex-wrap gap-1">
+                <Button variant="ghost" className="px-2" onClick={() => onEdit(area)}>
+                  Editar
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="px-2"
+                  onClick={() => onStatus(area, area.status === "ACTIVE" ? "INACTIVE" : "ACTIVE")}
+                >
+                  {area.status === "ACTIVE" ? "Desativar" : "Ativar"}
+                </Button>
+              </div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {areas.map((area) => (
-            <tr key={area.id} className="border-t border-line">
-              <td className="px-3 py-3 font-mono text-xs">{area.code}</td>
-              <td className="px-3 py-3">{area.name}</td>
-              <td className="px-3 py-3">{STORAGE_AREA_STATUS_LABEL[area.status]}</td>
-              <td className="px-3 py-3">
-                <div className="flex flex-wrap gap-1">
-                  <Button variant="ghost" className="px-2" onClick={() => onEdit(area)}>
-                    Editar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="px-2"
-                    onClick={() => onStatus(area, area.status === "ACTIVE" ? "INACTIVE" : "ACTIVE")}
-                  >
-                    {area.status === "ACTIVE" ? "Desativar" : "Ativar"}
-                  </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </DataTable>
   );
 }
 
@@ -526,87 +518,85 @@ function LocationTable({
 }) {
   if (items.length === 0) return <Empty text="Nenhum endereço encontrado." />;
   return (
-    <div className="overflow-x-auto rounded-lg border border-line bg-surface">
-      <table className="w-full min-w-max border-collapse text-left text-sm">
-        <thead className="bg-bg text-xs tracking-wide text-muted uppercase">
-          <tr>
-            <th className="px-3 py-3 font-medium">Código</th>
-            <th className="px-3 py-3 font-medium">Área</th>
-            <th className="px-3 py-3 font-medium">Corredor</th>
-            <th className="px-3 py-3 font-medium">Prateleira</th>
-            <th className="px-3 py-3 font-medium">Nível</th>
-            <th className="px-3 py-3 font-medium">Posição</th>
-            <th className="px-3 py-3 font-medium">Caixas</th>
-            <th className="px-3 py-3 font-medium">Status</th>
-            <th className="px-3 py-3 font-medium">Ações</th>
+    <DataTable label="Endereços cadastrados">
+      <thead className="bg-bg text-xs tracking-wide text-muted uppercase">
+        <tr>
+          <th className="px-3 py-3 font-medium">Código</th>
+          <th className="px-3 py-3 font-medium">Área</th>
+          <th className="px-3 py-3 font-medium">Corredor</th>
+          <th className="px-3 py-3 font-medium">Prateleira</th>
+          <th className="px-3 py-3 font-medium">Nível</th>
+          <th className="px-3 py-3 font-medium">Posição</th>
+          <th className="px-3 py-3 font-medium">Caixas</th>
+          <th className="px-3 py-3 font-medium">Status</th>
+          <th className="px-3 py-3 font-medium">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {items.map((item) => (
+          <tr key={item.location.id} className="border-t border-line">
+            <td className="px-3 py-3 font-mono text-code">
+              <button
+                type="button"
+                className="underline-offset-2 hover:underline"
+                onClick={() => onOpen(item.location)}
+              >
+                {item.location.code}
+              </button>
+            </td>
+            <td className="px-3 py-3">{item.area?.name ?? "—"}</td>
+            <td className="px-3 py-3">{item.location.aisle}</td>
+            <td className="px-3 py-3">{item.location.rack}</td>
+            <td className="px-3 py-3">{item.location.level}</td>
+            <td className="px-3 py-3">{item.location.position}</td>
+            <td className="px-3 py-3 whitespace-nowrap">
+              {item.boxCount}
+              {item.location.capacityBoxes != null ? ` / ${item.location.capacityBoxes}` : ""}
+            </td>
+            <td className="px-3 py-3">{LOCATION_STATUS_LABEL[item.location.status]}</td>
+            <td className="px-3 py-3">
+              <div className="flex flex-wrap gap-1">
+                <Button variant="ghost" className="px-2" onClick={() => onOpen(item.location)}>
+                  Detalhe
+                </Button>
+                <Button variant="ghost" className="px-2" onClick={() => onLabel(item.location)}>
+                  Etiqueta
+                </Button>
+                <Button variant="ghost" className="px-2" onClick={() => onEdit(item.location)}>
+                  Editar
+                </Button>
+                {item.location.status !== "ACTIVE" ? (
+                  <Button
+                    variant="ghost"
+                    className="px-2"
+                    onClick={() => onStatus(item.location, "ACTIVE")}
+                  >
+                    Ativar
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    className="px-2"
+                    onClick={() => onStatus(item.location, "BLOCKED")}
+                  >
+                    Bloquear
+                  </Button>
+                )}
+                {item.location.status !== "INACTIVE" ? (
+                  <Button
+                    variant="ghost"
+                    className="px-2"
+                    onClick={() => onStatus(item.location, "INACTIVE")}
+                  >
+                    Inativar
+                  </Button>
+                ) : null}
+              </div>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={item.location.id} className="border-t border-line">
-              <td className="px-3 py-3 font-mono text-xs">
-                <button
-                  type="button"
-                  className="underline-offset-2 hover:underline"
-                  onClick={() => onOpen(item.location)}
-                >
-                  {item.location.code}
-                </button>
-              </td>
-              <td className="px-3 py-3">{item.area?.name ?? "—"}</td>
-              <td className="px-3 py-3">{item.location.aisle}</td>
-              <td className="px-3 py-3">{item.location.rack}</td>
-              <td className="px-3 py-3">{item.location.level}</td>
-              <td className="px-3 py-3">{item.location.position}</td>
-              <td className="px-3 py-3 whitespace-nowrap">
-                {item.boxCount}
-                {item.location.capacityBoxes != null ? ` / ${item.location.capacityBoxes}` : ""}
-              </td>
-              <td className="px-3 py-3">{LOCATION_STATUS_LABEL[item.location.status]}</td>
-              <td className="px-3 py-3">
-                <div className="flex flex-wrap gap-1">
-                  <Button variant="ghost" className="px-2" onClick={() => onOpen(item.location)}>
-                    Detalhe
-                  </Button>
-                  <Button variant="ghost" className="px-2" onClick={() => onLabel(item.location)}>
-                    Etiqueta
-                  </Button>
-                  <Button variant="ghost" className="px-2" onClick={() => onEdit(item.location)}>
-                    Editar
-                  </Button>
-                  {item.location.status !== "ACTIVE" ? (
-                    <Button
-                      variant="ghost"
-                      className="px-2"
-                      onClick={() => onStatus(item.location, "ACTIVE")}
-                    >
-                      Ativar
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="ghost"
-                      className="px-2"
-                      onClick={() => onStatus(item.location, "BLOCKED")}
-                    >
-                      Bloquear
-                    </Button>
-                  )}
-                  {item.location.status !== "INACTIVE" ? (
-                    <Button
-                      variant="ghost"
-                      className="px-2"
-                      onClick={() => onStatus(item.location, "INACTIVE")}
-                    >
-                      Inativar
-                    </Button>
-                  ) : null}
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+        ))}
+      </tbody>
+    </DataTable>
   );
 }
 
@@ -623,7 +613,7 @@ function LocationTree({
       {trees.map((area) => (
         <section key={area.areaId} className="rounded-lg border border-line bg-surface p-4">
           <h2 className="font-semibold text-ink">
-            {area.areaName} <span className="font-mono text-xs text-muted">{area.areaCode}</span>
+            {area.areaName} <span className="font-mono text-code text-muted">{area.areaCode}</span>
           </h2>
           <ul className="mt-3 flex flex-col gap-3 border-l border-line pl-4">
             {area.aisles.map((aisle) => (
@@ -641,7 +631,7 @@ function LocationTree({
                               {level.positions.map((item) => (
                                 <li
                                   key={item.location.id}
-                                  className="flex flex-wrap items-center gap-2 font-mono text-xs text-ink"
+                                  className="flex flex-wrap items-center gap-2 font-mono text-code text-ink"
                                 >
                                   <span>
                                     Posição {item.location.position} · {item.location.code} ·{" "}
@@ -698,27 +688,27 @@ function AreaForm({
       }}
     >
       <Field label="Código" htmlFor="area-code" required>
-        <input
+        <Input
           id="area-code"
           value={values.code}
           disabled={Boolean(area) || submitting}
           onChange={(event) => setValues({ ...values, code: event.target.value })}
-          className={controlClass}
+
           placeholder="SUP"
         />
       </Field>
       <Field label="Nome" htmlFor="area-name" required>
-        <input
+        <Input
           id="area-name"
           value={values.name}
           disabled={submitting}
           onChange={(event) => setValues({ ...values, name: event.target.value })}
-          className={controlClass}
+
           placeholder="Estoque Superior"
         />
       </Field>
       <Field label="Observação" htmlFor="area-notes">
-        <textarea
+        <Textarea
           id="area-notes"
           value={values.notes}
           disabled={submitting}
@@ -793,12 +783,11 @@ function LocationForm({
         </p>
       ) : null}
       <Field label="Área" htmlFor="loc-area" required>
-        <select
+        <Select
           id="loc-area"
           value={values.areaId}
           disabled={lock}
           onChange={(event) => setValues({ ...values, areaId: event.target.value })}
-          className={controlClass}
         >
           <option value="">Selecione</option>
           {areas
@@ -808,7 +797,7 @@ function LocationForm({
                 {item.code} — {item.name}
               </option>
             ))}
-        </select>
+        </Select>
       </Field>
       <div className="grid gap-3 sm:grid-cols-2">
         <Part
@@ -845,18 +834,18 @@ function LocationForm({
         htmlFor="loc-capacity"
         hint="Opcional. Em branco não limita a posição."
       >
-        <input
+        <Input
           id="loc-capacity"
           inputMode="numeric"
           value={values.capacityBoxes}
           disabled={submitting}
           onChange={(event) => setValues({ ...values, capacityBoxes: event.target.value })}
-          className={controlClass}
+
           placeholder="4"
         />
       </Field>
       <Field label="Observação" htmlFor="loc-notes">
-        <textarea
+        <Textarea
           id="loc-notes"
           value={values.notes}
           disabled={submitting}
@@ -891,12 +880,11 @@ function Part({
 }) {
   return (
     <Field label={label} htmlFor={id} required>
-      <input
+      <Input
         id={id}
         value={value}
         disabled={disabled}
         onChange={(event) => onChange(event.target.value)}
-        className={controlClass}
       />
     </Field>
   );
@@ -928,7 +916,7 @@ function LocationSignage({
           <Info label="Posição" value={location.position} />
         </dl>
       </div>
-      <p className="font-mono text-xs break-all text-muted">{payload}</p>
+      <p className="font-mono text-code break-all text-muted">{payload}</p>
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" onClick={onPreview}>
           Visualizar sinalização
@@ -942,10 +930,10 @@ function LocationSignage({
           Movimentações recentes
         </h3>
         {movements.length === 0 ? (
-          <p className="mt-2 text-sm text-muted">
-            Nenhuma movimentação neste endereço. A ocupação anterior a esta fase não gera histórico
-            retroativo.
-          </p>
+          <EmptyState
+            title="Nenhuma movimentação neste endereço. A ocupação anterior a esta fase não gera histórico retroativo."
+            className="mt-4"
+          />
         ) : (
           <ol className="mt-3 flex flex-col gap-3">
             {movements.map((movement) => (
@@ -978,9 +966,5 @@ function Info({ label, value }: { label: string; value: string }) {
 }
 
 function Empty({ text }: { text: string }) {
-  return (
-    <div className="rounded-lg border border-dashed border-line bg-surface px-6 py-16 text-center text-sm text-muted">
-      {text}
-    </div>
-  );
+  return <EmptyState title={text} />;
 }

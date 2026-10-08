@@ -22,14 +22,14 @@ export function RackGrid({ rack, highlighted, onOpen }: RackGridProps) {
         <div
           className="inline-grid gap-2"
           style={{
-            gridTemplateColumns: `minmax(4.5rem, auto) repeat(${rack.positions.length}, minmax(4.75rem, 1fr))`,
+            gridTemplateColumns: `minmax(4.5rem, auto) repeat(${rack.positions.length}, minmax(var(--spacing-map-cell), 1fr))`,
           }}
         >
           <span />
           {rack.positions.map((position) => (
             <span
               key={`head-${position}`}
-              className="text-center font-mono text-[11px] font-medium tracking-wide text-muted"
+              className="text-center font-mono text-xs font-medium tracking-wide text-muted"
             >
               {/^\d+$/.test(position) ? `P${position}` : position}
             </span>

@@ -1,3 +1,6 @@
+import { Select } from "@/components/ui/controls";
+import { Alert, LoadingState, EmptyState } from "@/components/ui/feedback";
+import { PageHeader } from "@/components/ui/surfaces";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   LOCATION_STATUSES,
@@ -20,7 +23,6 @@ import { getBrowserBoxService } from "@/application/boxes/box-service";
 import { getBrowserLocationService } from "@/application/locations/location-service";
 import { getBrowserProductService } from "@/application/products/product-service";
 import { AppShell } from "@/components/app-shell";
-import { controlClass } from "@/components/ui/field";
 import { AreaSummary } from "@/features/warehouse/area-summary";
 import { LocationDetail } from "@/features/warehouse/location-detail";
 import { WarehouseMap } from "@/features/warehouse/warehouse-map";
@@ -151,28 +153,22 @@ export function WarehousePage() {
   return (
     <>
       <AppShell section="map">
-        <header>
-          <p className="text-xs font-medium tracking-wide text-muted uppercase">Estoque físico</p>
-          <h1 className="text-2xl font-semibold text-ink">Mapa</h1>
-          <p className="mt-1 max-w-2xl text-sm text-muted">
-            Visualização do estoque. A ocupação vem da localização atual da caixa. Nada aqui é
-            arrastado nem editado.
-          </p>
-        </header>
+        <PageHeader
+          title="Mapa"
+          eyebrow="Estoque físico"
+          description="Visualização do estoque. A ocupação vem da localização atual da caixa. Nada aqui é arrastado nem editado."
+        />
 
         {error ? (
-          <p
-            className="mt-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-            role="alert"
-          >
+          <Alert tone="danger" className="mt-4">
             {error}
-          </p>
+          </Alert>
         ) : null}
 
-        {loading ? <p className="mt-6 text-sm text-muted">Carregando mapa…</p> : null}
+        {loading ? <LoadingState label="Carregando mapa…" className="mt-6" /> : null}
 
         {!loading && areas && areas.length === 0 ? (
-          <p className="mt-6 text-sm text-muted">Nenhuma área cadastrada.</p>
+          <EmptyState title="Nenhuma área cadastrada." className="mt-4" />
         ) : null}
 
         {!loading && areas && areas.length > 0 ? (
@@ -180,9 +176,9 @@ export function WarehousePage() {
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Área</span>
-                <select
+                <Select
                   aria-label="Área"
-                  className={controlClass}
+
                   value={areaId}
                   onChange={(event) => {
                     setAreaId(event.target.value);
@@ -194,13 +190,13 @@ export function WarehousePage() {
                       {item.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Corredor</span>
-                <select
+                <Select
                   aria-label="Filtrar por corredor"
-                  className={controlClass}
+
                   value={filters.aisle ?? ""}
                   onChange={(event) =>
                     setFilters((current) => ({ ...current, aisle: event.target.value, rack: "" }))
@@ -212,13 +208,13 @@ export function WarehousePage() {
                       {aisle}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Prateleira</span>
-                <select
+                <Select
                   aria-label="Filtrar por prateleira"
-                  className={controlClass}
+
                   value={filters.rack ?? ""}
                   onChange={(event) =>
                     setFilters((current) => ({ ...current, rack: event.target.value }))
@@ -230,13 +226,13 @@ export function WarehousePage() {
                       {rack}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Status</span>
-                <select
+                <Select
                   aria-label="Filtrar por status da posição"
-                  className={controlClass}
+
                   value={filters.status ?? "ALL"}
                   onChange={(event) =>
                     setFilters((current) => ({
@@ -251,13 +247,13 @@ export function WarehousePage() {
                       {LOCATION_STATUS_LABEL[status]}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Ocupação</span>
-                <select
+                <Select
                   aria-label="Filtrar por ocupação"
-                  className={controlClass}
+
                   value={filters.fill ?? "ALL"}
                   onChange={(event) =>
                     setFilters((current) => ({
@@ -270,13 +266,13 @@ export function WarehousePage() {
                   <option value="EMPTY">Livre</option>
                   <option value="OCCUPIED">Ocupada</option>
                   <option value="FULL">Lotada</option>
-                </select>
+                </Select>
               </label>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Produto</span>
-                <select
+                <Select
                   aria-label="Filtrar por produto"
-                  className={controlClass}
+
                   value={filters.productId ?? ""}
                   onChange={(event) =>
                     setFilters((current) => ({ ...current, productId: event.target.value }))
@@ -288,13 +284,13 @@ export function WarehousePage() {
                       {product.name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Marca</span>
-                <select
+                <Select
                   aria-label="Filtrar por marca"
-                  className={controlClass}
+
                   value={filters.brand ?? ""}
                   onChange={(event) =>
                     setFilters((current) => ({ ...current, brand: event.target.value }))
@@ -306,7 +302,7 @@ export function WarehousePage() {
                       {brand}
                     </option>
                   ))}
-                </select>
+                </Select>
               </label>
             </div>
 
@@ -320,9 +316,9 @@ export function WarehousePage() {
             {area ? <AreaSummary area={area} summary={summary} /> : null}
 
             {areaLocations.length === 0 ? (
-              <p className="mt-6 text-sm text-muted">Esta área ainda não possui endereços.</p>
+              <EmptyState title="Esta área ainda não possui endereços." className="mt-4" />
             ) : view.aisles.length === 0 ? (
-              <p className="mt-6 text-sm text-muted">Nenhuma posição corresponde aos filtros.</p>
+              <EmptyState title="Nenhuma posição corresponde aos filtros." className="mt-4" />
             ) : (
               <WarehouseMap view={view} highlighted={highlighted} onOpen={setSelected} />
             )}

@@ -1,9 +1,10 @@
+import { ModalOverlay, Modal } from "@/components/ui/modal";
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
 
 type PrintLabelDialogProps = {
   open: boolean;
@@ -44,10 +45,8 @@ export function PrintLabelDialog({
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="print-hide fixed inset-0 z-[60] bg-ink/50" />
-          <Dialog.Content
-            className={`print-hide catalog-dialog fixed top-4 right-4 left-4 z-[70] mx-auto overflow-y-auto rounded-lg border border-line bg-surface p-5 shadow-xl md:top-10 ${wide ? "md:max-w-4xl" : "md:max-w-xl"}`}
-          >
+          <ModalOverlay className="print-hide z-[60]" />
+          <Modal className={`print-hide z-[70] ${wide ? "md:max-w-4xl" : "md:max-w-xl"}`}>
             <div className="mb-4 flex items-start justify-between gap-4">
               <div>
                 <Dialog.Title className="text-xl font-semibold text-ink">{title}</Dialog.Title>
@@ -56,9 +55,9 @@ export function PrintLabelDialog({
                 </Dialog.Description>
               </div>
               <Dialog.Close asChild>
-                <Button variant="ghost" aria-label="Fechar">
+                <IconButton variant="ghost" aria-label="Fechar">
                   <X className="size-4" aria-hidden="true" />
-                </Button>
+                </IconButton>
               </Dialog.Close>
             </div>
             <div className="flex justify-center overflow-x-auto rounded-md bg-bg p-4">
@@ -75,7 +74,7 @@ export function PrintLabelDialog({
                 <Button variant="secondary">Fechar</Button>
               </Dialog.Close>
             </div>
-          </Dialog.Content>
+          </Modal>
         </Dialog.Portal>
       </Dialog.Root>
       {open ? <PrintSheet>{children}</PrintSheet> : null}

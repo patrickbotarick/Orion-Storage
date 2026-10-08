@@ -15,10 +15,10 @@ O trabalho anterior permanece fora do commit 4C.1. A etapa visual não regulariz
 | 4C.1     | Tokens, fontes, base CSS, documentação e validação da fundação | Implementada; resultados abaixo |
 | 4C.2     | AppShell, sidebar, cabeçalhos e navegação responsiva           | Implementada; resultados abaixo |
 | 4C.3     | Componentes compartilhados e seus estados                      | Implementada; resultados abaixo |
-| 4C.4     | Migração das rotas reais e impressão                           | Pendente                        |
+| 4C.4     | Migração das rotas reais e impressão                           | Implementada; resultados abaixo |
 | 4C.5     | Refinamento e homologação integral                             | Pendente                        |
 
-As rotas atuais são `/` (Produtos), `/caixas`, `/enderecamento`, `/movimentacoes`, `/mapa`, `/scanner`, `/recebimentos` e `/inventarios`. Não existe dashboard separado. Etiquetas integram caixas/endereçamento/recebimentos; não será criada página fictícia para elas. Inventários, acrescentado na 4B, deve participar da migração posterior.
+As rotas atuais são `/` (Produtos), `/caixas`, `/enderecamento`, `/movimentacoes`, `/mapa`, `/scanner`, `/recebimentos` e `/inventarios`. Não existe dashboard separado. Etiquetas integram caixas/endereçamento/recebimentos; não será criada página fictícia para elas. Inventários, acrescentado na 4B, recebeu compatibilidade visual na 4C.4.
 
 ## Decisões da 4C.1
 
@@ -118,9 +118,48 @@ Arquivos desta etapa:
 
 - [x] Navegação e identidade global; assinatura temporária substituível.
 - [x] Estados default/hover/focus/disabled/selected/loading/error nos componentes compartilhados; composições finais ainda exigem revisão.
-- [ ] Migração de todas as rotas reais, incluindo inventários.
+- [x] Migração visual das rotas reais, incluindo compatibilidade com inventários.
 - [ ] Teclado, zoom e contraste das composições finais segundo WCAG 2.2 AA.
 - [ ] Scanner móvel e confirmação operacional.
 - [ ] Movimentações e recebimentos funcionais, preservando dados.
 - [ ] Etiquetas, payloads QR e compatibilidade de impressão.
 - [ ] Revisão final de consistência, suíte e build de produção.
+
+### Migração das telas 4C.4 — 08/10/2026
+
+Partida em `main`, HEAD `b0fd059`; índice vazio. Auditoria e 4B registradas, com alterações anteriores ainda pendentes. Linha de base: 134 testes em 30 arquivos aprovados. Inventário real: oito rotas no workspace, com Produtos como entrada; não existe dashboard separado. A rodada migra apresentação dessas telas, sem criar páginas ou funcionalidades.
+
+Alterações:
+
+- Produtos/Caixas: formulários usam os controles compartilhados; buscas, tabelas, status e cabeçalhos já integrados na 4C.3 são preservados.
+- Endereçamento: PageHeader, controles, DataTable com região/caption, seleção de visualização com aria-pressed, estados vazios e Modal com fechamento/foco. Estrutura física e ações permanecem existentes; códigos técnicos recebem escala de 14px.
+- Movimentações: cabeçalho, filtros, loading, erro e vazio padronizados; histórico mantém origem/destino, data, fonte e produto efetivamente existentes.
+- Mapa: controles e detalhe compartilhados, oito métricas existentes em StatCard, células legíveis e estados/legenda semânticos, sem edição ou alteração da ordenação espacial.
+- Scanner: PageHeader, Input, Alert, loading nas ações, controles móveis e confirmação destacada. Handlers e validações preservados.
+- Recebimentos: cabeçalho, controles, feedbacks, prévia e confirmação consistentes; reserva de códigos e criação continuam apenas ao confirmar.
+- Etiquetas: apenas o diálogo utiliza as primitivas; conteúdo, payloads, dimensões e CSS de impressão preservados.
+- Inventários: adaptação por CSS e atributo de seção, preservando o código não commitado da 4B. Não houve reescrita de inventários.
+
+Segurança: 146 handlers de formulário/ação comparados antes/depois, preservados (normalização apenas de formatação). Nenhuma edição desta rodada em domínio, serviços, persistência, contratos, chaves, rotas ou protocolos QR. Dados de QA são gerados pelas ações reais em contextos descartáveis; não são adicionados dados simulados à produção nem aberto o perfil operacional.
+
+Validação e homologação desta rodada:
+
+- Lint sem erros/avisos, typecheck, 134 testes/30 arquivos e build aprovados. O primeiro build encontrou EPERM de acesso à saída no sandbox Windows; repetido com acesso aprovado ao mesmo diretório, passou. Avisos existentes de dependências no build permanecem.
+- `visual-foundation-qa` em dev/produção: oito rotas × desktop/mobile, 32 renderizações; fontes, fundo, foco de 3px, ausência de overflow global e scanner com fonte em 200%. Capturas inspecionadas. A revisão detectou sobreposição nas colunas antigas de 76px do mapa móvel; a largura da grade/células foi centralizada no mesmo token de 104px e o QA passou a verificar dimensões e separação entre células. Build e QA de renderização/fluxos em dev e produção foram repetidos após a correção. Mapa/tabelas mantêm rolagem interna quando necessária.
+- `shared-components-qa` em dev/produção: buscas, filtros, formulários inválidos sem gravação, foco contido, Escape/retorno ao botão, etiqueta com QR e scanner sem gravação antes da confirmação.
+- `operational-screens-qa` em dev/produção e desktop/mobile: seleção de visualizações, áreas, busca/detalhe somente leitura do mapa e retorno de foco; erro de recebimento sem gravação; prévia sem reserva/gravação; confirmação cria duas caixas sem endereço e sem movimento; scanner armazena, troca endereço e remove somente após confirmação; histórico mostra os três eventos e não altera dados.
+- Impressão em mídia print: duas etiquetas, superfície branca, largura de 90mm, interface excluída, paths do QR idênticos entre prévia/folha e PDF gerado. Componentes de arte e payloads não foram editados. Câmera/leitura óptica e impressão físicas não foram executadas.
+- Regressão de inventários aprovada em dev/produção, desktop/mobile, mantendo bytes de caixas/movimentações oficiais. Script de contraste: 26 pares aprovados; conformidade integral WCAG 2.2 AA permanece para a 4C.5.
+
+Evidências: `screenshots/fase4c4/`, com logs, capturas, resultados JSON e PDFs, fora do commit. QA reproduzível novo: `scripts/operational-screens-qa.mjs`.
+
+Arquivos: AppShell (atributo de seção), controls/feedback, CSS; formulários de produtos/caixas; página de endereçamento/movimentações/scanner; página/formulário de recebimentos; diálogo de etiquetas; componentes de mapa (página, resumo, grade, célula, legenda, busca, detalhe); este relatório, Design System e script de QA operacional.
+
+O commit inclui exclusivamente a apresentação da 4C.4. Para AppShell e arquivos do mapa com alterações da 4B, versões de índice foram reconstruídas a partir de HEAD com os mesmos ajustes visuais. Imports, props e anotações de inventários anteriores continuam apenas no workspace. A validação descrita é do workspace integrado com a 4B, cuja implementação permanece pendente no Git. Sem push, merge, tag, reset ou limpeza de dados.
+
+- [x] Rotas reais migradas, sem dashboard fictício.
+- [x] Identidade e componentes consistentes em desktop/mobile.
+- [x] Confirmações, dados e fluxo de recebimento preservados.
+- [x] Etiquetas/QR e saída PDF preservados.
+- [x] Gates, QA em navegador e regressão aprovados.
+- [ ] Homologação abrangente 4C.5: revisão final WCAG, dispositivos/câmera e impressão físicas. Não iniciada nesta rodada.

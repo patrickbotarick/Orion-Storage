@@ -150,3 +150,17 @@ O cabeçalho de contexto mostra a seção atual; títulos H1 das páginas usam a
 `node scripts/visual-token-check.mjs` lê a paleta diretamente do CSS e verifica 26 combinações semânticas: textos com mínimo 4,5:1 e bordas/foco com mínimo 3:1. Esses resultados são referência WCAG AA para cores, não certificação integral de WCAG 2.2 AA. A homologação inclui teclado, zoom, composição, mensagens e telas nas etapas seguintes.
 
 Ao adicionar um papel ou mudar um token, atualize as combinações verificadas, valide a aparência em desktop/mobile e evite alterar etiquetas por herança. Rotas, dados, persistência, QR e regras de negócio ficam fora das decisões deste documento.
+
+### Telas operacionais — 4C.4
+
+As rotas existentes usam a mesma fundação, sem criar dashboard: Produtos (`/`), Caixas, Endereçamento, Movimentações, Mapa, Scanner, Recebimentos e Inventários no workspace integrado com a 4B. Formulários reutilizam Input/Select/Textarea e buscas SearchInput; cabeçalhos, erros, loading, estados vazios, tabelas e modais usam as primitivas compartilhadas. `EmptyState` admite `className` para espaçamento externo, sem mudar sua semântica. O wrapper de SearchInput permite encolhimento em barras flexíveis.
+
+Os utilitários legados `rounded-md` e `rounded-lg` apontam para os raios de controles (10px) e cards (14px). H2/H3 operacionais seguem 20px/700 e 18px/600; identificadores em títulos técnicos permanecem monoespaçados. Evitar novos valores locais de cor, raio ou tamanho quando já existe token.
+
+Mapa: células de pelo menos 104 × 96px, texto de estado de 12px, indicadores numéricos e código técnico. Livre usa superfície branca; parcial e lotada usam seleção teal, distinguindo borda inferior e contorno interno; sem capacidade usa superfície/borda info pontilhada; bloqueada usa danger e hachura; inativa usa cinza, linhas e borda tracejada. Texto, ícone e padrão mantêm o significado além da cor. A legenda compartilha esses estilos. Busca, grade, ordem espacial, seleção e detalhe continuam somente leitura. StatCard apresenta os oito indicadores já calculados, com duas colunas até o breakpoint xl para evitar aperto no tablet.
+
+Scanner: controles de 56px e entrada monoespaçada, resumo e confirmação destacados, erro/sucesso por Alert com ícone e texto. A leitura não grava; os callbacks de confirmar, cancelar, trocar endereço e remover continuam os originais. Prévia de recebimento usa borda/fundo de seleção; conclusão usa success. Quantidades, reservas, limites e gravação permanecem do serviço existente.
+
+Inventários é código pendente da 4B. A compatibilidade visual utiliza `data-section` no main e seletores de apresentação para códigos, totais e feedback; não reescreve nem inclui sua implementação no commit visual. Essa compatibilidade pode ser migrada às primitivas quando a 4B for regularizada.
+
+Etiquetas: apenas o diálogo de prévia usa Modal/Overlay/IconButton. Arte, fontes de impressão, dimensões, QR e CSS de impressão ficam independentes das cores operacionais. Não aplicar tokens decorativos dentro da etiqueta. `node scripts/operational-screens-qa.mjs PORT` verifica recebimento, prévia sem gravação, confirmação do scanner, histórico e impressão em perfis descartáveis.

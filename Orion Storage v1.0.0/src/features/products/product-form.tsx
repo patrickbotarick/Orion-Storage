@@ -1,3 +1,4 @@
+import { Input, Select, Textarea } from "@/components/ui/controls";
 import { useState, type FormEvent } from "react";
 import {
   detectLengthDivergence,
@@ -70,11 +71,11 @@ export function ProductForm({
         <h3 className="text-sm font-semibold tracking-wide text-muted uppercase">Identificação</h3>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Nome" htmlFor="name" required error={errors.name}>
-            <input
+            <Input
               id="name"
               value={values.name}
               onChange={(event) => update({ name: event.target.value })}
-              className={controlClass}
+
               aria-invalid={Boolean(errors.name)}
               aria-describedby={errors.name ? "name-error" : undefined}
             />
@@ -86,60 +87,55 @@ export function ProductForm({
             error={errors.category}
             hint="Obrigatória para qualquer tipo de produto."
           >
-            <input
+            <Input
               id="category"
               value={values.category}
               onChange={(event) => update({ category: event.target.value })}
               placeholder="Ex.: Fita de borda"
-              className={controlClass}
+
               aria-invalid={Boolean(errors.category)}
               aria-describedby={errors.category ? "category-error" : undefined}
             />
           </Field>
           <Field label="Marca" htmlFor="brand" error={errors.brand}>
-            <input
+            <Input
               id="brand"
               value={values.brand}
               onChange={(event) => update({ brand: event.target.value })}
-              className={controlClass}
             />
           </Field>
           <Field label="Linha / modelo" htmlFor="line" error={errors.line}>
-            <input
+            <Input
               id="line"
               value={values.line}
               onChange={(event) => update({ line: event.target.value })}
-              className={controlClass}
             />
           </Field>
           <Field label="Fabricante" htmlFor="manufacturer" error={errors.manufacturer}>
-            <input
+            <Input
               id="manufacturer"
               value={values.manufacturer}
               onChange={(event) => update({ manufacturer: event.target.value })}
-              className={controlClass}
             />
           </Field>
           <Field label="Fornecedor" htmlFor="supplier" error={errors.supplier}>
-            <input
+            <Input
               id="supplier"
               value={values.supplier}
               onChange={(event) => update({ supplier: event.target.value })}
-              className={controlClass}
             />
           </Field>
           <Field label="Status" htmlFor="status" required error={errors.status}>
-            <select
+            <Select
               id="status"
               value={values.status}
               onChange={(event) =>
                 update({ status: event.target.value === "INACTIVE" ? "INACTIVE" : "ACTIVE" })
               }
-              className={controlClass}
             >
               <option value="ACTIVE">Ativo</option>
               <option value="INACTIVE">Inativo</option>
-            </select>
+            </Select>
           </Field>
         </div>
         <Field
@@ -150,7 +146,7 @@ export function ProductForm({
           hint="Sugestão automática. Você pode editar. Letras, números e hífens."
         >
           <div className="flex flex-col gap-2 sm:flex-row">
-            <input
+            <Input
               id="internalCode"
               value={values.internalCode}
               onChange={(event) => {
@@ -187,11 +183,10 @@ export function ProductForm({
             htmlFor="manufacturerCode"
             error={errors.manufacturerCode}
           >
-            <input
+            <Input
               id="manufacturerCode"
               value={values.manufacturerCode}
               onChange={(event) => update({ manufacturerCode: event.target.value })}
-              className={controlClass}
             />
           </Field>
           <Field
@@ -199,11 +194,10 @@ export function ProductForm({
             htmlFor="originalBarcode"
             error={errors.originalBarcode}
           >
-            <input
+            <Input
               id="originalBarcode"
               value={values.originalBarcode}
               onChange={(event) => update({ originalBarcode: event.target.value })}
-              className={controlClass}
             />
           </Field>
         </div>
@@ -221,28 +215,26 @@ export function ProductForm({
         </div>
         <div className="grid gap-4 md:grid-cols-2">
           <Field label="Cor" htmlFor="colorName" error={errors.colorName}>
-            <input
+            <Input
               id="colorName"
               value={values.colorName}
               onChange={(event) => update({ colorName: event.target.value })}
-              className={controlClass}
             />
           </Field>
           <Field label="Código da cor" htmlFor="colorCode" error={errors.colorCode}>
-            <input
+            <Input
               id="colorCode"
               value={values.colorCode}
               onChange={(event) => update({ colorCode: event.target.value })}
-              className={controlClass}
             />
           </Field>
           <Field label="Largura" htmlFor="widthMm" hint="Milímetros" error={errors.widthMm}>
-            <input
+            <Input
               id="widthMm"
               inputMode="decimal"
               value={values.widthMm}
               onChange={(event) => update({ widthMm: event.target.value })}
-              className={controlClass}
+
               aria-invalid={Boolean(errors.widthMm)}
               aria-describedby={errors.widthMm ? "widthMm-error" : undefined}
             />
@@ -253,12 +245,12 @@ export function ProductForm({
             hint="Milímetros"
             error={errors.thicknessMm}
           >
-            <input
+            <Input
               id="thicknessMm"
               inputMode="decimal"
               value={values.thicknessMm}
               onChange={(event) => update({ thicknessMm: event.target.value })}
-              className={controlClass}
+
               aria-invalid={Boolean(errors.thicknessMm)}
               aria-describedby={errors.thicknessMm ? "thicknessMm-error" : undefined}
             />
@@ -269,12 +261,12 @@ export function ProductForm({
             hint="Metros"
             error={errors.rollLengthM}
           >
-            <input
+            <Input
               id="rollLengthM"
               inputMode="decimal"
               value={values.rollLengthM}
               onChange={(event) => update({ rollLengthM: event.target.value })}
-              className={controlClass}
+
               aria-invalid={Boolean(errors.rollLengthM)}
               aria-describedby={errors.rollLengthM ? "rollLengthM-error" : undefined}
             />
@@ -285,12 +277,12 @@ export function ProductForm({
             hint="Inteiro"
             error={errors.rollsPerBox}
           >
-            <input
+            <Input
               id="rollsPerBox"
               inputMode="numeric"
               value={values.rollsPerBox}
               onChange={(event) => update({ rollsPerBox: event.target.value })}
-              className={controlClass}
+
               aria-invalid={Boolean(errors.rollsPerBox)}
               aria-describedby={errors.rollsPerBox ? "rollsPerBox-error" : undefined}
             />
@@ -301,12 +293,12 @@ export function ProductForm({
             hint="Metros informados pelo fabricante. Não é sobrescrita pelo cálculo."
             error={errors.totalLengthPerBoxM}
           >
-            <input
+            <Input
               id="totalLengthPerBoxM"
               inputMode="decimal"
               value={values.totalLengthPerBoxM}
               onChange={(event) => update({ totalLengthPerBoxM: event.target.value })}
-              className={controlClass}
+
               aria-invalid={Boolean(errors.totalLengthPerBoxM)}
               aria-describedby={errors.totalLengthPerBoxM ? "totalLengthPerBoxM-error" : undefined}
             />
@@ -316,7 +308,7 @@ export function ProductForm({
       </section>
 
       <Field label="Observações" htmlFor="notes" error={errors.notes}>
-        <textarea
+        <Textarea
           id="notes"
           value={values.notes}
           onChange={(event) => update({ notes: event.target.value })}

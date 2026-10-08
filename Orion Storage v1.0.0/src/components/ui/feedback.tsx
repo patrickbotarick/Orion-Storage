@@ -88,13 +88,20 @@ export function EmptyState({
   title,
   description,
   action,
+  className,
 }: {
   title: string;
   description?: string;
   action?: ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="rounded-card border border-dashed border-control-border bg-surface px-6 py-12 text-center">
+    <div
+      className={cn(
+        "rounded-card border border-dashed border-control-border bg-surface px-6 py-12 text-center",
+        className,
+      )}
+    >
       <PackageOpen className="mx-auto mb-4 size-6 text-muted" aria-hidden="true" />
       <p className="text-base font-semibold">{title}</p>
       {description ? <p className="mt-2 text-sm text-muted">{description}</p> : null}

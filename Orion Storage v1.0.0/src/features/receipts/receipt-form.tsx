@@ -1,3 +1,5 @@
+import { Alert } from "@/components/ui/feedback";
+import { Input, Textarea, Select } from "@/components/ui/controls";
 import { useState } from "react";
 import {
   MAX_BOXES_PER_RECEIPT,
@@ -12,7 +14,7 @@ import {
 import { formatMeters, formatQuantity } from "@orion/shared";
 
 import { Button } from "@/components/ui/button";
-import { Field, controlClass } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 
 type ItemForm = {
   key: string;
@@ -127,11 +129,11 @@ export function ReceiptForm({
     <div className="flex flex-col gap-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <Field label="Data de recebimento" htmlFor="receipt-date" required>
-          <input
+          <Input
             id="receipt-date"
             type="date"
             value={form.receivedAt}
-            className={controlClass}
+
             onChange={(event) => update({ ...form, receivedAt: event.target.value })}
           />
         </Field>
@@ -140,20 +142,20 @@ export function ReceiptForm({
           htmlFor="receipt-supplier"
           hint="Nome livre para a entrega. Não é um cadastro fiscal."
         >
-          <input
+          <Input
             id="receipt-supplier"
             value={form.supplierName}
-            className={controlClass}
+
             onChange={(event) => update({ ...form, supplierName: event.target.value })}
           />
         </Field>
       </div>
       <Field label="Observações do recebimento" htmlFor="receipt-notes">
-        <textarea
+        <Textarea
           id="receipt-notes"
           value={form.notes}
           rows={2}
-          className={controlClass}
+
           onChange={(event) => update({ ...form, notes: event.target.value })}
         />
       </Field>
@@ -178,10 +180,10 @@ export function ReceiptForm({
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Produto" htmlFor={`product-${item.key}`} required>
-                  <select
+                  <Select
                     id={`product-${item.key}`}
                     value={item.productId}
-                    className={controlClass}
+
                     onChange={(event) => chooseProduct(item.key, event.target.value)}
                   >
                     <option value="">Selecione</option>
@@ -191,14 +193,14 @@ export function ReceiptForm({
                         {option.name}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </Field>
                 <Field label="Quantidade de caixas" htmlFor={`qty-${item.key}`} required>
-                  <input
+                  <Input
                     id={`qty-${item.key}`}
                     inputMode="numeric"
                     value={item.boxesQuantity}
-                    className={controlClass}
+
                     onChange={(event) =>
                       updateItem(item.key, { boxesQuantity: event.target.value })
                     }
@@ -212,11 +214,11 @@ export function ReceiptForm({
                     product ? "Sugestão do produto. Pode ajustar só neste recebimento." : undefined
                   }
                 >
-                  <input
+                  <Input
                     id={`rolls-${item.key}`}
                     inputMode="numeric"
                     value={item.rollsQuantity}
-                    className={controlClass}
+
                     onChange={(event) =>
                       updateItem(item.key, {
                         rollsQuantity: event.target.value,
@@ -226,11 +228,11 @@ export function ReceiptForm({
                   />
                 </Field>
                 <Field label="Metragem por caixa" htmlFor={`length-${item.key}`} required>
-                  <input
+                  <Input
                     id={`length-${item.key}`}
                     inputMode="decimal"
                     value={item.totalLengthM}
-                    className={controlClass}
+
                     onChange={(event) =>
                       updateItem(item.key, {
                         totalLengthM: event.target.value,
@@ -240,20 +242,20 @@ export function ReceiptForm({
                   />
                 </Field>
                 <Field label="Lote" htmlFor={`batch-${item.key}`}>
-                  <input
+                  <Input
                     id={`batch-${item.key}`}
                     value={item.manufacturerBatch}
-                    className={controlClass}
+
                     onChange={(event) =>
                       updateItem(item.key, { manufacturerBatch: event.target.value })
                     }
                   />
                 </Field>
                 <Field label="Observação do item" htmlFor={`item-notes-${item.key}`}>
-                  <input
+                  <Input
                     id={`item-notes-${item.key}`}
                     value={item.notes}
-                    className={controlClass}
+
                     onChange={(event) => updateItem(item.key, { notes: event.target.value })}
                   />
                 </Field>
@@ -277,9 +279,9 @@ export function ReceiptForm({
       </div>
 
       {formError || error ? (
-        <p className="rounded-md border border-danger px-3 py-2 text-sm text-danger" role="alert">
+        <Alert tone="danger" className="">
           {formError || error}
-        </p>
+        </Alert>
       ) : null}
 
       {previewReady && preview ? <Preview plan={preview} products={products} /> : null}
@@ -291,6 +293,7 @@ export function ReceiptForm({
         <Button
           variant="primary"
           disabled={!previewReady || submitting}
+          loading={submitting}
           onClick={() => void confirmNow()}
         >
           {submitting ? "Confirmando…" : "Confirmar recebimento"}
@@ -305,7 +308,7 @@ export function ReceiptForm({
 
 function Preview({ plan, products }: { plan: ReceiptPlan; products: Product[] }) {
   return (
-    <section className="rounded-lg border border-ink bg-surface p-4">
+    <section className="rounded-card border border-accent bg-selected p-4">
       <h2 className="text-sm font-semibold tracking-wide text-muted uppercase">Prévia</h2>
       <p className="mt-2 text-sm text-ink">
         Recebimento previsto: <span className="font-mono">{plan.receiptCode}</span>
@@ -327,7 +330,7 @@ function Preview({ plan, products }: { plan: ReceiptPlan; products: Product[] })
                 rolos por caixa · {formatMeters(item.totalLengthM)} por caixa
                 {item.manufacturerBatch ? ` · lote ${item.manufacturerBatch}` : ""}
               </p>
-              <ul className="mt-2 max-h-40 overflow-y-auto font-mono text-xs text-ink">
+              <ul className="mt-2 max-h-40 overflow-y-auto font-mono text-code text-ink">
                 {item.boxCodes.map((code) => (
                   <li key={code}>{code}</li>
                 ))}
