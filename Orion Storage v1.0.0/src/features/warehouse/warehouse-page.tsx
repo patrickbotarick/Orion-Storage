@@ -1,4 +1,6 @@
 import { Select } from "@/components/ui/controls";
+import { Button } from "@/components/ui/button";
+import { SpatialPanel } from "@/features/spatial/spatial-panel";
 import { Alert, LoadingState, EmptyState } from "@/components/ui/feedback";
 import { PageHeader } from "@/components/ui/surfaces";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -10,6 +12,7 @@ import {
   compareNatural,
   filterWarehouseLocations,
   normalizeForComparison,
+  occupancyOf,
   inventoryDivergenceLocations,
   searchWarehouse,
   type Box,
@@ -53,6 +56,8 @@ export function WarehousePage() {
   const [selected, setSelected] = useState<MapCell | null>(null);
   const [focusId, setFocusId] = useState<string | null>(null);
   const [focusToken, setFocusToken] = useState(0);
+  const [spatialMode, setSpatialMode] = useState(false);
+  const [spatialEditing, setSpatialEditing] = useState(false);
 
   const reload = useCallback(async () => {
     const [nextAreas, nextLocations, nextBoxes, nextProducts] = await Promise.all([
@@ -167,7 +172,7 @@ export function WarehousePage() {
         <PageHeader
           title="Mapa"
           eyebrow="Estoque físico"
-          description="Visualização do estoque. A ocupação vem da localização atual da caixa. Nada aqui é arrastado nem editado."
+          description="Consulte o estoque oficial e o layout físico. A edição espacial é separada e não movimenta caixas."
         />
 
         {error ? (
@@ -184,11 +189,28 @@ export function WarehousePage() {
 
         {!loading && areas && areas.length > 0 ? (
           <>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Button
+                selected={!spatialMode}
+                disabled={spatialEditing}
+                onClick={() => setSpatialMode(false)}
+              >
+                Mapa operacional
+              </Button>
+              <Button
+                selected={spatialMode}
+                disabled={spatialEditing}
+                onClick={() => setSpatialMode(true)}
+              >
+                Mapa espacial
+              </Button>
+            </div>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="flex flex-col gap-1 text-sm">
                 <span className="font-medium">Área</span>
                 <Select
                   aria-label="Área"
+                  disabled={spatialEditing}
 
                   value={areaId}
                   onChange={(event) => {
@@ -203,118 +225,126 @@ export function WarehousePage() {
                   ))}
                 </Select>
               </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-medium">Corredor</span>
-                <Select
-                  aria-label="Filtrar por corredor"
+              {!spatialMode ? (
+                <>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="font-medium">Corredor</span>
+                    <Select
+                      aria-label="Filtrar por corredor"
 
-                  value={filters.aisle ?? ""}
-                  onChange={(event) =>
-                    setFilters((current) => ({ ...current, aisle: event.target.value, rack: "" }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  {aisles.map((aisle) => (
-                    <option key={aisle} value={aisle}>
-                      {aisle}
-                    </option>
-                  ))}
-                </Select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-medium">Prateleira</span>
-                <Select
-                  aria-label="Filtrar por prateleira"
+                      value={filters.aisle ?? ""}
+                      onChange={(event) =>
+                        setFilters((current) => ({
+                          ...current,
+                          aisle: event.target.value,
+                          rack: "",
+                        }))
+                      }
+                    >
+                      <option value="">Todos</option>
+                      {aisles.map((aisle) => (
+                        <option key={aisle} value={aisle}>
+                          {aisle}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="font-medium">Prateleira</span>
+                    <Select
+                      aria-label="Filtrar por prateleira"
 
-                  value={filters.rack ?? ""}
-                  onChange={(event) =>
-                    setFilters((current) => ({ ...current, rack: event.target.value }))
-                  }
-                >
-                  <option value="">Todas</option>
-                  {racks.map((rack) => (
-                    <option key={rack} value={rack}>
-                      {rack}
-                    </option>
-                  ))}
-                </Select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-medium">Status</span>
-                <Select
-                  aria-label="Filtrar por status da posição"
+                      value={filters.rack ?? ""}
+                      onChange={(event) =>
+                        setFilters((current) => ({ ...current, rack: event.target.value }))
+                      }
+                    >
+                      <option value="">Todas</option>
+                      {racks.map((rack) => (
+                        <option key={rack} value={rack}>
+                          {rack}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="font-medium">Status</span>
+                    <Select
+                      aria-label="Filtrar por status da posição"
 
-                  value={filters.status ?? "ALL"}
-                  onChange={(event) =>
-                    setFilters((current) => ({
-                      ...current,
-                      status: event.target.value as WarehouseFilters["status"],
-                    }))
-                  }
-                >
-                  <option value="ALL">Todos</option>
-                  {LOCATION_STATUSES.map((status) => (
-                    <option key={status} value={status}>
-                      {LOCATION_STATUS_LABEL[status]}
-                    </option>
-                  ))}
-                </Select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-medium">Ocupação</span>
-                <Select
-                  aria-label="Filtrar por ocupação"
+                      value={filters.status ?? "ALL"}
+                      onChange={(event) =>
+                        setFilters((current) => ({
+                          ...current,
+                          status: event.target.value as WarehouseFilters["status"],
+                        }))
+                      }
+                    >
+                      <option value="ALL">Todos</option>
+                      {LOCATION_STATUSES.map((status) => (
+                        <option key={status} value={status}>
+                          {LOCATION_STATUS_LABEL[status]}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="font-medium">Ocupação</span>
+                    <Select
+                      aria-label="Filtrar por ocupação"
 
-                  value={filters.fill ?? "ALL"}
-                  onChange={(event) =>
-                    setFilters((current) => ({
-                      ...current,
-                      fill: event.target.value as WarehouseFilters["fill"],
-                    }))
-                  }
-                >
-                  <option value="ALL">Todas</option>
-                  <option value="EMPTY">Livre</option>
-                  <option value="OCCUPIED">Ocupada</option>
-                  <option value="FULL">Lotada</option>
-                </Select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-medium">Produto</span>
-                <Select
-                  aria-label="Filtrar por produto"
+                      value={filters.fill ?? "ALL"}
+                      onChange={(event) =>
+                        setFilters((current) => ({
+                          ...current,
+                          fill: event.target.value as WarehouseFilters["fill"],
+                        }))
+                      }
+                    >
+                      <option value="ALL">Todas</option>
+                      <option value="EMPTY">Livre</option>
+                      <option value="OCCUPIED">Ocupada</option>
+                      <option value="FULL">Lotada</option>
+                    </Select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="font-medium">Produto</span>
+                    <Select
+                      aria-label="Filtrar por produto"
 
-                  value={filters.productId ?? ""}
-                  onChange={(event) =>
-                    setFilters((current) => ({ ...current, productId: event.target.value }))
-                  }
-                >
-                  <option value="">Todos</option>
-                  {(products ?? []).map((product) => (
-                    <option key={product.id} value={product.id}>
-                      {product.name}
-                    </option>
-                  ))}
-                </Select>
-              </label>
-              <label className="flex flex-col gap-1 text-sm">
-                <span className="font-medium">Marca</span>
-                <Select
-                  aria-label="Filtrar por marca"
+                      value={filters.productId ?? ""}
+                      onChange={(event) =>
+                        setFilters((current) => ({ ...current, productId: event.target.value }))
+                      }
+                    >
+                      <option value="">Todos</option>
+                      {(products ?? []).map((product) => (
+                        <option key={product.id} value={product.id}>
+                          {product.name}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                  <label className="flex flex-col gap-1 text-sm">
+                    <span className="font-medium">Marca</span>
+                    <Select
+                      aria-label="Filtrar por marca"
 
-                  value={filters.brand ?? ""}
-                  onChange={(event) =>
-                    setFilters((current) => ({ ...current, brand: event.target.value }))
-                  }
-                >
-                  <option value="">Todas</option>
-                  {brands.map((brand) => (
-                    <option key={brand} value={brand}>
-                      {brand}
-                    </option>
-                  ))}
-                </Select>
-              </label>
+                      value={filters.brand ?? ""}
+                      onChange={(event) =>
+                        setFilters((current) => ({ ...current, brand: event.target.value }))
+                      }
+                    >
+                      <option value="">Todas</option>
+                      {brands.map((brand) => (
+                        <option key={brand} value={brand}>
+                          {brand}
+                        </option>
+                      ))}
+                    </Select>
+                  </label>
+                </>
+              ) : null}
             </div>
 
             <WarehouseSearch
@@ -324,9 +354,43 @@ export function WarehousePage() {
               onReveal={reveal}
             />
 
-            {area ? <AreaSummary area={area} summary={summary} /> : null}
+            {area ? (
+              spatialMode ? (
+                <details className="mt-4">
+                  <summary className="min-h-11 cursor-pointer rounded-control border border-line bg-surface px-4 py-3 text-sm font-semibold">
+                    Resumo de ocupação oficial
+                  </summary>
+                  <AreaSummary area={area} summary={summary} />
+                </details>
+              ) : (
+                <AreaSummary area={area} summary={summary} />
+              )
+            ) : null}
 
-            {areaLocations.length === 0 ? (
+            {spatialMode && area ? (
+              <SpatialPanel
+                area={area}
+                locations={locations ?? []}
+                boxes={boxes ?? []}
+                highlighted={highlighted}
+                focusId={focusId}
+                focusToken={focusToken}
+                onEditing={setSpatialEditing}
+                onSaved={reload}
+                onOpenLocation={(location) => {
+                  const stored = (boxes ?? []).filter(
+                    (box) => box.currentLocationId === location.id,
+                  );
+                  setSelected({
+                    location,
+                    boxes: stored,
+                    occupancy: occupancyOf(location, stored.length),
+                  });
+                }}
+              />
+            ) : null}
+
+            {spatialMode ? null : areaLocations.length === 0 ? (
               <EmptyState title="Esta área ainda não possui endereços." className="mt-4" />
             ) : view.aisles.length === 0 ? (
               <EmptyState title="Nenhuma posição corresponde aos filtros." className="mt-4" />

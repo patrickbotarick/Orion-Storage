@@ -73,3 +73,13 @@ Fallback 2D/lista e vista frontal permanecem utilizáveis sem WebGL e após perd
 Build: chunk espacial ~932kB minificado/~248kB gzip, carregado sob demanda; chunk da rota mapa ~52kB/~16kB gzip. O aviso de chunk >500kB permanece explícito; não foi ocultado. Não houve benchmark de hardware modesto real. `npm audit` aponta os mesmos três alertas anteriores (Vitest/mocker/tinypool); comparação com o lockfile inicial confirma que não são das novas bibliotecas. Atualização dessas ferramentas não foi feita indiscriminadamente nesta fase.
 
 QA Edge/Chromium com WebGL por software, desktop 1280 e mobile 390: perspectiva, superior e frontal B renderizadas e capturas inspecionadas; sem erros de console. Alternativa sem WebGL verificada. Verificação gráfica real em navegador, sem afirmar teste de GPU/celular físicos.
+
+### Checkpoint 4 — editor de layout
+
+Integração em `/mapa`, preservando o mapa operacional como modo inicial. `SpatialPanel` mantém rascunho separado e default 2D; área e troca de modo ficam bloqueadas durante edição. Seleção, arraste na planta, coordenadas, snap opcional, rotação de 90°/numérica, dimensões, duplicação sem vínculos e modulação de cada face/nível/compartimento. Cancelar restaura o layout persistido. Estado inválido é mostrado por texto e borda, impedindo salvar; posições ocupadas são recusadas pelo serviço mesmo após confirmação.
+
+Zonas têm identidade própria e nome/finalidade editável, sem pertencer ao código do endereço. View frontal usa a mesma configuração da geometria, em níveis de cima para baixo; posições da esquerda para a direita de quem observa aquela face. Lista/detalhe permanecem acessíveis e consultam caixas oficiais. Exemplo interativo não pode ser gravado nem gerar endereços; medidas precisam de levantamento físico. Configuração de novas áreas continua na funcionalidade existente Endereçamento → Nova área.
+
+No modo espacial, filtros de corredor/prateleira da hierarquia anterior não são mostrados; busca e área permanecem, e resumo de ocupação é expansível para priorizar consulta móvel. Nenhuma operação de movimentação é adicionada ao editor.
+
+QA desktop/mobile: exemplo sem gravação, vínculo explícito do endereço antigo ocupado, níveis 5/3/5, faces A 5/3/5 e B 4/2/5, criação de colmeia, rotação, zona, save/reload, cancelamento, limites inválidos e recusa de remoção ocupada passaram. Perfis descartáveis; estoque oficial permaneceu intacto até ações explícitas de scanner em QA posterior. Script reproduzível `scripts/spatial-map-qa.mjs`.
