@@ -10,7 +10,7 @@ Repositório local em `main`, HEAD inicial `5e68573`. Remoto `origin`: `https://
 
 A implementação visual 4C.1–4C.5 está registrada no Git e em `FASE_04C_IDENTIDADE_VISUAL.md`. Homologação física de câmera/impressora, leitor de tela e auditoria manual integral WCAG continuam pendentes em `CHECKLIST_HOMOLOGACAO_VISUAL.md`; não impedem a inspeção técnica da 5A e não são presumidas aprovadas.
 
-Referência local: diretório `Orion Storage v1.0.0`; o manifest não declara campo de versão. React 19, TypeScript, Vite, TanStack Start/Router, Tailwind 4 e Lucide, com domínio em `packages/domain`, serviços em `src/application`, adaptadores em `src/persistence` e interfaces em `src/features`. Não recriar o projeto nem adotar contratos Linux/Grok incompatíveis com este workspace Windows.
+Referência local: raiz do repositório; o manifest não declara campo de versão. React 19, TypeScript, Vite, TanStack Start/Router, Tailwind 4 e Lucide, com domínio em `packages/domain`, serviços em `src/application`, adaptadores em `src/persistence` e interfaces em `src/features`. Não recriar o projeto nem adotar contratos Linux/Grok incompatíveis com este workspace Windows.
 
 Havia alterações anteriores da auditoria/4B: inventários no domínio, serviço, persistência, testes, rota, tela e indicador do mapa; README e relatórios. Elas serão preservadas no commit inicial solicitado, junto deste registro. Evidências e ferramentas de auditoria instaladas em `screenshots/` ficam fora do commit. Nenhum dado do navegador do operador é acessado ou modificado pelo Git.
 

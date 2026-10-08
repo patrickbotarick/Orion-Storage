@@ -205,7 +205,7 @@ Candidatos mais seguros para futura limpeza são saídas/cache com aplicação p
 
 ## Git
 
-O repositório está na pasta pai `C:\Projetos_VS_code\Orion Storage`, e a aplicação é a subpasta `Orion Storage v1.0.0`. Não existe .git dentro da aplicação.
+O projeto fica diretamente na raiz do repositório. Não existe uma camada adicional de aplicação ou um segundo diretório `.git`.
 
 - Branch: main, acompanhando origin/main; nenhum ahead/behind informado no status local.
 - Último commit: 35d9a814f09a2e4304e35c9f8ef10f0fb5861c65 — feat: add read-only warehouse visual map.
