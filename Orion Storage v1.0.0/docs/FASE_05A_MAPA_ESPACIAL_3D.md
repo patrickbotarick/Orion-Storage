@@ -53,3 +53,11 @@ O serviço valida a configuração inteira, códigos/aliases globais, capacidade
 Gravação local usa journal de rollback antes das duas chaves. Falha reverte e uma interrupção é recuperada ao construir o repositório de endereços. Não é transação entre abas: comparação de snapshots/revisão detecta alterações observadas, sem garantia multiusuário. Corrupção do layout é recusada sem reset.
 
 Primeira validação: 149 testes/32 arquivos passaram, incluindo 15 novos testes de domínio/serviço, legado, QR, colisões, revisão, remoção e falha/recuperação. Gates deste checkpoint registrados antes do commit. Não há aceite de visualizador/editor neste checkpoint.
+
+### Checkpoint 2 — gerador modular
+
+`spatial-generator.ts` gera prateleiras SINGLE/DOUBLE, HONEYCOMB e FLOOR. Níveis têm quantidades independentes; cada slot mantém ID e vínculo quando sua linha é redimensionada. Dimensões de compartimentos podem ser individuais; validação impede exceder altura/largura/profundidade da estrutura. FLOOR tem suporte de domínio e geometria simples, sem fluxo avançado de pallets.
+
+Referencial: metros, +Y para cima, piso X/Z. Centro da estrutura em x/z; rotação positiva segue Y do Three.js. U/A acessam +Z local, B acessa -Z local. P01 fica à esquerda do observador frontal de cada face, portanto B inverte X. N01 começa no piso e cresce para cima. Rotação nunca troca o nome das faces. Gerador e vista frontal derivam a mesma configuração.
+
+Sete testes de geração/orientação/modulação passaram; suíte total 156 testes/33 arquivos, lint e typecheck aprovados. Valores iniciais são sugestões editáveis, nunca medições do estoque superior.

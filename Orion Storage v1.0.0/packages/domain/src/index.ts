@@ -1,5 +1,6 @@
 export { buildDuplicateInput } from "./duplicate";
 export * from "./spatial";
+export * from "./spatial-generator";
 export * from "./inventory";
 export type { InventoryRepository } from "./inventory-repository";
 export {
