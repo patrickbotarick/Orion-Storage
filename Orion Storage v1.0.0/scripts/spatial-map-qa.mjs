@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { chromium } from "playwright";
 const port = Number(process.argv[2] ?? 8091);
@@ -17,6 +17,28 @@ try {
     const context = await browser.newContext({ viewport: { width, height: 844 } });
     const page = await context.newPage();
     const errors = [];
+    const accessibility = [];
+    const audit = async (name) => {
+      const axePath = resolve("screenshots/fase4c5/tooling/node_modules/axe-core/axe.min.js");
+      if (!existsSync(axePath)) return;
+      if (!(await page.evaluate(() => Boolean(window.axe))))
+        await page.addScriptTag({ path: axePath });
+      const result = await page.evaluate(() =>
+        window.axe.run(document, {
+          runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"] },
+        }),
+      );
+      accessibility.push({
+        name,
+        violations: result.violations,
+        incomplete: result.incomplete.map((v) => v.id),
+      });
+      assert.deepEqual(
+        result.violations.map((v) => ({ id: v.id, nodes: v.nodes.map((n) => n.target) })),
+        [],
+        name,
+      );
+    };
     page.on("pageerror", (e) => errors.push(e.message));
     page.on("console", (m) => {
       if (m.type() === "error") errors.push(m.text());
@@ -47,6 +69,7 @@ try {
     await visit("/mapa");
     const before = await stock();
     await loadSpatial();
+    await audit("empty-spatial");
     assert.equal(
       await page.evaluate(() => localStorage.getItem("orion-storage.spatial-layouts.v1")),
       null,
@@ -65,6 +88,14 @@ try {
     await page.getByRole("button", { name: "Visualização frontal", exact: true }).click();
     await page.waitForTimeout(200);
     await shot("front-b-3d", page.locator(".orion-spatial-viewport"));
+    for (const name of [
+      "Aproximar câmera",
+      "Afastar câmera",
+      "Centralizar seleção",
+      "Restaurar vista",
+    ]) {
+      await page.getByRole("button", { name, exact: true }).click();
+    }
     await page.getByRole("button", { name: "Cancelar edição", exact: true }).click();
     assert.deepEqual(await stock(), before);
     assert.equal(
@@ -150,7 +181,26 @@ try {
       ],
     );
     await choose("E010");
+    const dragStructure = async () => {
+      await page.getByRole("button", { name: /^Estrutura E010 / }).scrollIntoViewIfNeeded();
+      const bounds = await page.getByRole("button", { name: /^Estrutura E010 / }).boundingBox();
+      await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(bounds.x + bounds.width / 2 + 20, bounds.y + bounds.height / 2 + 10, {
+        steps: 4,
+      });
+      await page.mouse.up();
+    };
+    await dragStructure();
+    assert.deepEqual(await getLayout(), stored, "read-only drag must not write geometry");
     await page.getByRole("button", { name: "Editar layout", exact: true }).click();
+    await dragStructure();
+    const draggedX = Number(
+      await page.getByLabel("Coordenada X (m)", { exact: true }).inputValue(),
+    );
+    assert.notEqual(draggedX, stored.structures[0].x);
+    assert.equal(draggedX % stored.grid, 0, "drag respects snap");
+    await audit("layout-editor");
     await field("Coordenada X (m)", 0);
     assert(await page.getByRole("button", { name: "Salvar layout", exact: true }).isDisabled());
     await page.getByText(/fora dos limites da área/).waitFor();
@@ -163,6 +213,7 @@ try {
     await page.getByRole("button", { name: "Salvar layout", exact: true }).click();
     const confirmation = page.getByRole("alertdialog");
     await confirmation.waitFor();
+    await audit("removal-confirmation");
     await confirmation
       .getByRole("button", { name: "Confirmar e salvar layout", exact: true })
       .click();
@@ -173,6 +224,7 @@ try {
     assert.deepEqual(await getLayout(), stored);
     assert.deepEqual(await stock(), before);
     await confirmation.getByRole("button", { name: "Voltar ao editor", exact: true }).click();
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "spatial-save-layout");
     await page.getByRole("button", { name: "Cancelar edição", exact: true }).click();
     await choose(double.code);
     await page.getByRole("button", { name: "Face B", exact: true }).click();
@@ -214,6 +266,7 @@ try {
     await shot("saved-3d", page.locator(".orion-spatial-viewport"));
     await page.getByRole("button", { name: "Vista 2D / lista", exact: true }).click();
     await shot("saved-2d");
+    await audit("saved-spatial");
     assert.equal(
       await page
         .getByText("Visualização gráfica indisponível. Use a alternativa 2D.", { exact: true })
@@ -267,6 +320,11 @@ try {
       "all product occurrences must remain visible",
     );
     await shot("product-located");
+    assert.deepEqual(errors, []);
+    writeFileSync(
+      resolve(out, `${width}-accessibility.json`),
+      JSON.stringify(accessibility, null, 2),
+    );
     results.push({
       width,
       ok: true,

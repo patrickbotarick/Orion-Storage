@@ -49,6 +49,10 @@ export function createSpatialService(
         spatial: store.getItem(SPATIAL_KEY),
         boxes: store.getItem("orion-storage.boxes.v1"),
       };
+      // Legacy repositories tolerate unreadable envelopes; editing must never interpret
+      // that fallback as an empty warehouse and overwrite or retire occupied addresses.
+      assertOfficialSnapshot(before.locations, "locations", official);
+      assertOfficialSnapshot(before.boxes, "boxes", stock);
       const next = cloneSpatial(input);
       const nextLocations = cloneSpatial(official);
       const oldIds = layoutSlots(current).flatMap((p) =>
@@ -80,6 +84,13 @@ export function createSpatialService(
           throw new SpatialError("Endereço pertence a outra área.");
         if (location?.spatial && !oldIds.includes(location.id))
           throw new SpatialError("Endereço já vinculado a outra estrutura ou posição desativada.");
+        const previousSlot = layoutSlots(current).find((c) => c.slot.id === slot.id)?.slot;
+        // A geometry-only save must not undo operational status/capacity changes.
+        if (location && previousSlot && previousSlot.locationId === location.id) {
+          if (slot.status === previousSlot.status) slot.status = location.status;
+          if (slot.capacityBoxes === previousSlot.capacityBoxes)
+            slot.capacityBoxes = location.capacityBoxes;
+        }
         const code = spatialCode(area.code, structure.code, face, level, position);
         if (!location) {
           const id = ids();
@@ -161,4 +172,36 @@ export function getBrowserSpatialService() {
     new LocalStorageStorageAreaRepository(store),
     new LocalStorageBoxRepository(store),
   );
+}
+
+function assertOfficialSnapshot(
+  raw: string | null,
+  key: "locations" | "boxes",
+  records: ReadonlyArray<{ id: string; code: string }>,
+) {
+  try {
+    const envelope = JSON.parse(raw ?? "null");
+    const values = envelope?.[key];
+    const identities = new Map(records.map((record) => [record.id, record.code]));
+    if (
+      envelope?.version !== 1 ||
+      !Array.isArray(values) ||
+      values.length !== records.length ||
+      new Set(values.map((v) => v?.id)).size !== values.length ||
+      values.some(
+        (v) =>
+          !v ||
+          typeof v.id !== "string" ||
+          !v.id ||
+          typeof v.code !== "string" ||
+          !v.code ||
+          identities.get(v.id) !== v.code,
+      )
+    )
+      throw new Error("Invalid snapshot");
+  } catch {
+    throw new SpatialError(
+      "Dados operacionais inválidos foram preservados. O layout não foi gravado.",
+    );
+  }
 }

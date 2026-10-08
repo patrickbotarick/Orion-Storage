@@ -758,14 +758,21 @@ function LocationForm({
   );
   const area = areas.find((item) => item.id === values.areaId);
   let preview = location?.code ?? "";
-  if (area && values.aisle && values.rack && values.level && values.position) {
+  if (
+    !location?.spatial &&
+    area &&
+    values.aisle &&
+    values.rack &&
+    values.level &&
+    values.position
+  ) {
     try {
       preview = buildLocationCode(area.code, values);
     } catch {
       preview = location?.code ?? "";
     }
   }
-  const lock = occupied || submitting;
+  const lock = occupied || submitting || Boolean(location?.spatial);
   return (
     <form
       className="flex flex-col gap-4"
@@ -780,6 +787,12 @@ function LocationForm({
       {occupied ? (
         <p className="text-sm text-muted">
           Há caixas neste endereço. Só capacidade e observação podem mudar.
+        </p>
+      ) : null}
+      {location?.spatial ? (
+        <p className="text-sm text-muted">
+          A hierarquia desta posição é gerenciada pelo editor espacial no Mapa. Capacidade e
+          observação continuam disponíveis aqui.
         </p>
       ) : null}
       <Field label="Área" htmlFor="loc-area" required>

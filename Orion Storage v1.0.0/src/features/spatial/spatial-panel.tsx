@@ -340,6 +340,7 @@ export function SpatialPanel({
                 </Button>
                 <Button
                   variant="primary"
+                  id="spatial-save-layout"
                   onClick={() => persist()}
                   disabled={!!errors.length || example}
                   loading={saving}
@@ -353,6 +354,7 @@ export function SpatialPanel({
                 <Button onClick={demo}>Exemplo interativo</Button>
                 <Button
                   variant="primary"
+                  id="spatial-edit-layout"
                   disabled={area.status !== "ACTIVE"}
                   onClick={() => {
                     setEditing(true);
@@ -580,6 +582,7 @@ export function SpatialPanel({
                 aspectRatio: `${Number.isFinite(layout.width) ? Math.max(1, layout.width) : 20} / ${Number.isFinite(layout.depth) ? Math.max(1, layout.depth) : 12}`,
               }}
               aria-label="Planta da área"
+              role="region"
             >
               {layout.structures.map((s) => (
                 <PlanStructure
@@ -846,7 +849,11 @@ export function SpatialPanel({
                 ) : null}
               </div>
             ) : null}
-            <div className="mt-5 overflow-x-auto" aria-label="Vista frontal de posições">
+            <div
+              className="mt-5 overflow-x-auto"
+              role="region"
+              aria-label="Vista frontal de posições"
+            >
               {activeFace?.levels
                 .map((l, i) => ({ l, i }))
                 .reverse()
@@ -1000,10 +1007,23 @@ export function SpatialPanel({
           </Card>
         ) : null}
       </fieldset>
-      <AlertDialog.Root open={confirm} onOpenChange={setConfirm}>
+      <AlertDialog.Root
+        open={confirm}
+        onOpenChange={(open) => {
+          if (!saving) setConfirm(open);
+        }}
+      >
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-40 bg-graphite-950/60" />
-          <ConfirmDialog>
+          <ConfirmDialog
+            onCloseAutoFocus={(event) => {
+              event.preventDefault();
+              (
+                document.getElementById("spatial-save-layout") ??
+                document.getElementById("spatial-edit-layout")
+              )?.focus();
+            }}
+          >
             <AlertDialog.Title className="text-heading-3 font-semibold">
               Desativar posições removidas?
             </AlertDialog.Title>

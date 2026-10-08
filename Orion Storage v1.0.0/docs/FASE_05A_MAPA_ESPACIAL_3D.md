@@ -40,7 +40,7 @@ O commit inicial deve anteceder o eventual pull e as mudanças da 5A. A execuç�
 
 ## Registro de implementação
 
-Todos os seis checkpoints estão pendentes. Bibliotecas, modelos finais, regras de orientação, migrações, fluxos, limitações e resultados de QA serão registrados aqui conforme forem implementados e verificados. Este documento é um plano inicial, não uma declaração de aceite da 5A.
+No início da execução os seis checkpoints estavam pendentes. Os registros abaixo descrevem a implementação e sua validação progressiva; a preparação acima permanece como histórico da situação encontrada.
 
 ### Checkpoint 1 — domínio espacial
 
@@ -83,3 +83,13 @@ Zonas têm identidade própria e nome/finalidade editável, sem pertencer ao có
 No modo espacial, filtros de corredor/prateleira da hierarquia anterior não são mostrados; busca e área permanecem, e resumo de ocupação é expansível para priorizar consulta móvel. Nenhuma operação de movimentação é adicionada ao editor.
 
 QA desktop/mobile: exemplo sem gravação, vínculo explícito do endereço antigo ocupado, níveis 5/3/5, faces A 5/3/5 e B 4/2/5, criação de colmeia, rotação, zona, save/reload, cancelamento, limites inválidos e recusa de remoção ocupada passaram. Perfis descartáveis; estoque oficial permaneceu intacto até ações explícitas de scanner em QA posterior. Script reproduzível `scripts/spatial-map-qa.mjs`.
+
+### Checkpoint 5 — integração operacional
+
+Busca existente continua consultando catálogo, caixas e endereços oficiais, incluindo várias ocorrências do mesmo produto. Selecionar resultado identifica área, estrutura, face, nível e posição, destaca o compartimento e enquadra a câmera quando ativa. Endereços legados sem geometria continuam consultáveis e não recebem coordenadas presumidas.
+
+Etiquetas de posições novas utilizam `orion://v1/location/LOC-ID`; códigos anteriores continuam resolvendo via código/aliases. QR antigo de endereço vinculado conserva compatibilidade. Navegador decodificou os pixels do QR com Html5Qrcode, identificou a caixa e esse destino no scanner existente, verificou ausência de gravação antes da confirmação e confirmou a movimentação. A busca subsequente encontrou a caixa na face B/P01 e conservou a outra ocorrência do produto.
+
+Formulário anterior conserva capacidade/notas/status, mas hierarquia espacial é editada pelo mapa. Save de geometria não desfaz mudanças operacionais de status/capacidade. Envelopes inválidos de endereços/caixas são recusados antes da escrita; testes demonstram preservação dos valores corrompidos, sem reset. Diálogo de remoção mantém foco no editor ao fechar e impede fechamento durante gravação.
+
+Lint/typecheck e 159 testes em 33 arquivos passaram. QA real em desenvolvimento: desktop/mobile, arraste com snap, consulta sem edição, câmeras, fallback, estoque, scanner, busca e QR passaram sem erros de console. Axe nos estados vazio/editor/confirmador/consulta não encontrou violações nas regras WCAG A/AA selecionadas; itens incompletos são registrados para revisão manual. Isso não certifica acessibilidade integral nem substitui hardware físico.

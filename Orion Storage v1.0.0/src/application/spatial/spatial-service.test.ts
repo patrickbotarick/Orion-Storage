@@ -50,6 +50,27 @@ function layout(): SpatialLayout {
   return l;
 }
 describe("SpatialService e persistência", () => {
+  it.each([LOCATION_KEY, "orion-storage.boxes.v1"])(
+    "recusa envelope operacional corrompido %s sem gravar",
+    async (key) => {
+      const f = fixture();
+      f.store.setItem(key, "broken");
+      await expect(f.service.save(layout())).rejects.toThrow(/preservados/);
+      expect(f.store.getItem(key)).toBe("broken");
+      expect(f.store.getItem(SPATIAL_KEY)).toBeNull();
+    },
+  );
+  it("salvar geometria preserva bloqueio/capacidade editados fora do mapa", async () => {
+    const f = fixture();
+    const saved = await f.service.save(layout());
+    const id = saved.structures[0]!.faces[0]!.levels[0]!.slots[0]!.locationId!;
+    const loc = (await f.locations.getById(id))!;
+    await f.locations.setStatus(id, "BLOCKED");
+    await f.locations.update(id, { ...loc, capacityBoxes: 8 });
+    saved.structures[0]!.x = 5;
+    await f.service.save(saved);
+    expect(await f.locations.getById(id)).toMatchObject({ status: "BLOCKED", capacityBoxes: 8 });
+  });
   it("leitura não migra nem cria layout automaticamente", async () => {
     const f = fixture();
     await f.locations.list();
