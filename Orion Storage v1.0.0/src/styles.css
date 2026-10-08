@@ -1,20 +1,82 @@
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Manrope:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+/* Industrial Precision: primitives, semantic roles and legacy utility aliases.
+   Keep print styles below independent from the operational color system. */
+@theme static {
+  --font-sans: "Manrope", "Segoe UI", sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
-  --color-bg: #f3f0e8;
-  --color-surface: #fffcf8;
-  --color-ink: #1c2430;
-  --color-muted: #5d6976;
-  --color-line: #e2dbd0;
-  --color-accent: #b8612f;
-  --color-accent-fg: #fffaf6;
-  --color-on-ink: #f6f3ec;
-  --color-on-ink-muted: #c5cdc6;
-  --color-danger: #8d2f2f;
-  --radius-md: 0.5rem;
+
+  --color-graphite-950: #0f141a;
+  --color-graphite-900: #161d24;
+  --color-steel-800: #27313a;
+  --color-steel-600: #51606d;
+  --color-mist-200: #d6dee5;
+  --color-mist-50: #f5f7f9;
+  --color-orion-teal: #1e8c8a;
+  --color-orion-teal-hover: #166c6a;
+  --color-signal-cyan: #2ea8c7;
+  --color-signal-success: #2e8b57;
+  --color-signal-warning: #c9921a;
+  --color-signal-danger: #c44949;
+  --color-signal-disabled: #8a98a6;
+
+  /* Semantic colors may be overridden by a future theme without changing JSX. */
+  --color-bg: var(--color-mist-50);
+  --color-surface: #ffffff;
+  --color-surface-subtle: var(--color-mist-50);
+  --color-ink: var(--color-graphite-950);
+  --color-muted: var(--color-steel-600);
+  --color-line: var(--color-mist-200);
+  --color-control-border: #7a8996;
+  --color-sidebar: var(--color-graphite-950);
+  --color-on-ink: var(--color-mist-50);
+  --color-on-ink-muted: var(--color-mist-200);
+  --color-accent: var(--color-orion-teal-hover);
+  --color-accent-hover: #115654;
+  --color-accent-fg: #ffffff;
+  --color-selected: #e8f4f3;
+  --color-selected-fg: var(--color-orion-teal-hover);
+  --color-focus: var(--color-orion-teal-hover);
+  --color-focus-on-dark: var(--color-mist-50);
+  --color-success: #226943;
+  --color-success-bg: #edf7f0;
+  --color-success-border: #2e8b57;
+  --color-warning: #79560e;
+  --color-warning-bg: #fff7e5;
+  --color-warning-border: #8b6512;
+  --color-danger: #a53636;
+  --color-danger-bg: #fceeee;
+  --color-danger-border: #c44949;
+  --color-info: #16677e;
+  --color-info-bg: #eaf6fa;
+  --color-info-border: #237f98;
+  --color-disabled: var(--color-steel-600);
+  --color-disabled-bg: #e9edf1;
+  --color-disabled-border: var(--color-signal-disabled);
+
+  --spacing: 0.25rem;
+  --radius-control: 0.625rem;
+  --radius-card: 0.875rem;
+  --radius-dialog: 1rem;
+  --radius-md: var(--radius-control);
+  --shadow-card: 0 1px 3px rgb(15 20 26 / 0.06);
+  --shadow-dialog: 0 8px 24px rgb(15 20 26 / 0.12);
+
+  --text-heading-1: 1.5rem;
+  --text-heading-1--line-height: 1.333;
+  --text-heading-2: 1.25rem;
+  --text-heading-2--line-height: 1.4;
+  --text-heading-3: 1.125rem;
+  --text-heading-3--line-height: 1.5;
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.5;
+  --text-metadata: 0.8125rem;
+  --text-metadata--line-height: 1.5;
+  --text-code: 0.875rem;
+  --text-code--line-height: 1.5;
+  --text-stat: 2rem;
+  --text-stat--line-height: 1.25;
 }
 
 @utility catalog-dialog {
@@ -32,12 +94,29 @@
     background: var(--color-bg);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-size: var(--text-body);
     line-height: 1.5;
   }
 
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+}
+
+/* Unlayered so legacy outline-none utilities cannot suppress keyboard focus.
+   A white separation ring keeps the teal outline legible on dark surfaces. */
+@media screen {
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 3px var(--color-focus-on-dark);
   }
 }
 
