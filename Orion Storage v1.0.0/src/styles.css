@@ -89,6 +89,36 @@
   overflow-wrap: anywhere;
 }
 
+.orion-spatial-viewport {
+  height: 28rem;
+  min-width: 0;
+  touch-action: none;
+}
+.orion-spatial-plan {
+  position: relative;
+  min-height: 14rem;
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-control);
+  background-color: var(--color-bg);
+  background-image:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+  background-size: 5% 8.333%;
+}
+.orion-spatial-structure {
+  position: absolute;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-width: 2px;
+  border-radius: var(--radius-control);
+  font-family: var(--font-mono);
+  font-size: var(--text-code);
+}
+
 .catalog-dialog :is(.grid, .flex) > * {
   min-width: 0;
 }

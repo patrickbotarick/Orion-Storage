@@ -61,3 +61,15 @@ Primeira validação: 149 testes/32 arquivos passaram, incluindo 15 novos testes
 Referencial: metros, +Y para cima, piso X/Z. Centro da estrutura em x/z; rotação positiva segue Y do Three.js. U/A acessam +Z local, B acessa -Z local. P01 fica à esquerda do observador frontal de cada face, portanto B inverte X. N01 começa no piso e cresce para cima. Rotação nunca troca o nome das faces. Gerador e vista frontal derivam a mesma configuração.
 
 Sete testes de geração/orientação/modulação passaram; suíte total 156 testes/33 arquivos, lint e typecheck aprovados. Valores iniciais são sugestões editáveis, nunca medições do estoque superior.
+
+### Checkpoint 3 — visualizador espacial
+
+Bibliotecas fixadas: Three.js 0.186.1, React Three Fiber 9.8.1, Drei 10.7.9 e tipos Three 0.186.0. Compatibilidade React 19 verificada no registry e na [documentação oficial de instalação do R3F](https://r3f.docs.pmnd.rs/getting-started/installation). Controles segundo [OrbitControls](https://threejs.org/docs/pages/OrbitControls.html). Sem física, modelos externos ou texturas de produtos.
+
+Cena sob demanda em `spatial-scene.tsx`: piso, grade, estruturas, slots e rótulos técnicos derivados da configuração; perspectiva, câmera ortográfica superior e enquadramento frontal da face. Frames/slots usam InstancedMesh; limite de 50 estruturas/2000 posições por área, DPR máximo 1,5 e frameloop demand. Rótulos são sprites locais com cores do design system; nenhum saldo paralelo. Limites de distância/zoom/ângulo e controles de aproximar/afastar, centralizar/restaurar.
+
+Fallback 2D/lista e vista frontal permanecem utilizáveis sem WebGL e após perda de contexto. Default é 2D; 3D só carrega ao ativar. Sprite substituiu o helper Html após QA encontrar erro de desmontagem de roots React aninhados. Listener de contexto é removido ao sair normalmente do 3D, evitando feedback falso de falha. Aviso de Clock obsoleto vem do R3F; a aplicação não utiliza Clock.
+
+Build: chunk espacial ~932kB minificado/~248kB gzip, carregado sob demanda; chunk da rota mapa ~52kB/~16kB gzip. O aviso de chunk >500kB permanece explícito; não foi ocultado. Não houve benchmark de hardware modesto real. `npm audit` aponta os mesmos três alertas anteriores (Vitest/mocker/tinypool); comparação com o lockfile inicial confirma que não são das novas bibliotecas. Atualização dessas ferramentas não foi feita indiscriminadamente nesta fase.
+
+QA Edge/Chromium com WebGL por software, desktop 1280 e mobile 390: perspectiva, superior e frontal B renderizadas e capturas inspecionadas; sem erros de console. Alternativa sem WebGL verificada. Verificação gráfica real em navegador, sem afirmar teste de GPU/celular físicos.
