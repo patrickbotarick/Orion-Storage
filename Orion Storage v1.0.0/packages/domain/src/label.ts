@@ -75,12 +75,12 @@ export function boxLabelOptionalFields(model: BoxLabelModel): string[] {
 }
 
 export function composeLocationLabel(
-  location: Pick<Location, "code" | "aisle" | "rack" | "level" | "position">,
+  location: Pick<Location, "code" | "aisle" | "rack" | "level" | "position" | "qrCode">,
   area: Pick<StorageArea, "name"> | null,
 ): LocationLabelModel {
   return {
     preset: LABEL_PRESETS.LOCATION_LABEL_MEDIUM,
-    payload: createLocationQrPayload(location.code),
+    payload: createLocationQrPayload(location.qrCode ?? location.code),
     code: location.code,
     areaName: area?.name.trim() || "Área não encontrada",
     aisle: location.aisle,

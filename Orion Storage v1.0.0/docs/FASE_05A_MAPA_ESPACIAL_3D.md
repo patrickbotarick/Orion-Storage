@@ -41,3 +41,15 @@ O commit inicial deve anteceder o eventual pull e as mudanças da 5A. A execuç�
 ## Registro de implementação
 
 Todos os seis checkpoints estão pendentes. Bibliotecas, modelos finais, regras de orientação, migrações, fluxos, limitações e resultados de QA serão registrados aqui conforme forem implementados e verificados. Este documento é um plano inicial, não uma declaração de aceite da 5A.
+
+### Checkpoint 1 — domínio espacial
+
+Pull `--ff-only` autorizado pelo usuário e executado em 08/10/2026: Already up to date. Implementação na branch `codex/phase-5a-spatial-map`, após commit de preservação `2e6c354`.
+
+Modelo adicional em `spatial.ts`: layout por área, zona, estrutura, faces, níveis e slots. Cada slot referencia Location oficial; geometria não contém saldo. Metadados opcionais em Location preservam registros legados sem migração automática. Layout novo utiliza chave `orion-storage.spatial-layouts.v1`; leitura não cria posições.
+
+O serviço valida a configuração inteira, códigos/aliases globais, capacidade, estoque vinculado e revisão antes de gravar. Remoção vazia exige confirmação e desativa o endereço, conservando registro/QR/histórico; remoção ocupada é recusada. Novas posições recebem QR estável LOC-ID dentro do protocolo v1; renomeação conserva aliases. Vinculação explícita de legado conserva seu código. Endereçamento antigo bloqueia alteração da hierarquia de posições espaciais pelo formulário anterior, mas conserva notas/capacidade/status.
+
+Gravação local usa journal de rollback antes das duas chaves. Falha reverte e uma interrupção é recuperada ao construir o repositório de endereços. Não é transação entre abas: comparação de snapshots/revisão detecta alterações observadas, sem garantia multiusuário. Corrupção do layout é recusada sem reset.
+
+Primeira validação: 149 testes/32 arquivos passaram, incluindo 15 novos testes de domínio/serviço, legado, QR, colisões, revisão, remoção e falha/recuperação. Gates deste checkpoint registrados antes do commit. Não há aceite de visualizador/editor neste checkpoint.

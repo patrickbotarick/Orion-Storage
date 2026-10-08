@@ -3,7 +3,7 @@ import { composeLocationLabel, type Location, type StorageArea } from "@orion/do
 import { QrCode } from "@/features/identification/qr-code";
 
 type LocationLabelProps = {
-  location: Pick<Location, "code" | "aisle" | "rack" | "level" | "position">;
+  location: Pick<Location, "code" | "aisle" | "rack" | "level" | "position" | "qrCode">;
   area: Pick<StorageArea, "name"> | null;
 };
 

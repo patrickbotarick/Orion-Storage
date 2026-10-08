@@ -9,6 +9,7 @@ import {
 } from "./errors";
 import { canonicalAreaCode } from "./storage-area";
 import { toCodeToken } from "./normalize";
+import { locationMatchesCode } from "./spatial";
 
 export const LOCATION_STATUSES = ["ACTIVE", "BLOCKED", "INACTIVE"] as const;
 
@@ -34,6 +35,10 @@ export type Location = {
   notes?: string;
   createdAt: string;
   updatedAt: string;
+  /** Optional 5A metadata. Legacy records remain valid without these fields. */
+  spatial?: import("./spatial").SpatialAddress;
+  qrCode?: string;
+  codeAliases?: string[];
 };
 
 export type LocationStructure = {
@@ -92,7 +97,10 @@ export function addressIdentity(structure: LocationStructure): string {
   return [parts.areaId, parts.aisle, parts.rack, parts.level, parts.position].join("\u0000");
 }
 
-export function sameLocationStructure(current: LocationStructure, next: LocationStructure): boolean {
+export function sameLocationStructure(
+  current: LocationStructure,
+  next: LocationStructure,
+): boolean {
   return addressIdentity(current) === addressIdentity(next);
 }
 
@@ -105,7 +113,7 @@ export function findLocationConflict(
   const code = candidate.code.toUpperCase();
   return locations.find((location) => {
     if (location.id === ignoreId) return false;
-    return location.code.toUpperCase() === code || addressIdentity(location) === identity;
+    return locationMatchesCode(location, code) || addressIdentity(location) === identity;
   });
 }
 
@@ -128,9 +136,8 @@ export function countBoxesAtLocation(
   locationId: string,
   ignoreBoxId?: string,
 ): number {
-  return boxes.filter(
-    (box) => box.currentLocationId === locationId && box.id !== ignoreBoxId,
-  ).length;
+  return boxes.filter((box) => box.currentLocationId === locationId && box.id !== ignoreBoxId)
+    .length;
 }
 
 export function assertLocationHasRoom(input: {
@@ -144,7 +151,10 @@ export function assertLocationHasRoom(input: {
   if (occupied >= input.capacityBoxes) throw new LocationCapacityError(input.capacityBoxes);
 }
 
-export function assertCapacityCoversOccupancy(capacityBoxes: number | undefined, occupied: number): void {
+export function assertCapacityCoversOccupancy(
+  capacityBoxes: number | undefined,
+  occupied: number,
+): void {
   if (capacityBoxes == null) return;
   if (capacityBoxes < occupied) throw new LocationCapacityTooSmallError(occupied);
 }

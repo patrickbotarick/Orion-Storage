@@ -65,7 +65,19 @@ export function createLocationService(
       if (!current) throw new LocationNotFoundError(id);
       const occupied = countBoxesAtLocation(await boxes.list(), id);
       const changed = !sameLocationStructure(current, input);
+      if (current.spatial && changed)
+        throw new Error("Edite a hierarquia desta posição pelo editor espacial.");
       assertStructureEditable(occupied, changed);
+      if (current.spatial) {
+        const valid = assertValidLocationForm(input);
+        assertCapacityCoversOccupancy(valid.capacityBoxes, occupied);
+        return locations.update(id, {
+          ...canonicalStructure(valid),
+          code: current.code,
+          ...(valid.capacityBoxes != null ? { capacityBoxes: valid.capacityBoxes } : {}),
+          ...(valid.notes ? { notes: valid.notes } : {}),
+        });
+      }
       const draft = await prepareDraft(areas, locations, input, id, changed);
       assertCapacityCoversOccupancy(draft.capacityBoxes, occupied);
       return locations.update(id, draft);

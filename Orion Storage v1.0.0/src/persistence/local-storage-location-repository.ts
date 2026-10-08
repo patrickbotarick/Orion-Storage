@@ -13,6 +13,8 @@ import {
 } from "@orion/domain";
 
 import type { KeyValueStore } from "./key-value-store";
+import { recoverSpatialWrite } from "./spatial-transaction";
+import { locationMatchesCode } from "@orion/domain";
 
 const STORAGE_KEY = "orion-storage.locations.v1";
 
@@ -27,7 +29,9 @@ export class LocalStorageLocationRepository implements LocationRepository {
     private readonly store: KeyValueStore,
     private readonly ids: IdFactory = () => crypto.randomUUID(),
     private readonly now: Clock = () => new Date().toISOString(),
-  ) {}
+  ) {
+    recoverSpatialWrite(store);
+  }
 
   async list(): Promise<Location[]> {
     return this.readAll()
@@ -41,7 +45,7 @@ export class LocalStorageLocationRepository implements LocationRepository {
 
   async getByCode(code: string): Promise<Location | null> {
     const key = code.trim().toUpperCase();
-    return this.readAll().find((location) => location.code.toUpperCase() === key) ?? null;
+    return this.readAll().find((location) => locationMatchesCode(location, key)) ?? null;
   }
 
   async listByAreaId(areaId: string): Promise<Location[]> {
@@ -142,7 +146,9 @@ function normalizeDraft(input: LocationDraft): LocationDraft {
     code: input.code.trim().toUpperCase(),
   };
   if (!draft.code) {
-    throw new LocationValidationError([{ path: "code", message: "O código do endereço é obrigatório." }]);
+    throw new LocationValidationError([
+      { path: "code", message: "O código do endereço é obrigatório." },
+    ]);
   }
   if (valid.capacityBoxes != null) draft.capacityBoxes = valid.capacityBoxes;
   if (valid.notes) draft.notes = valid.notes;

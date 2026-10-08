@@ -5,6 +5,7 @@ import {
 } from "./errors";
 import { canonicalBoxCode, parseBoxCode } from "./box-code";
 import { toCodeToken } from "./normalize";
+import { locationMatchesCode } from "./spatial";
 
 /** Printed labels use this version. A future reader can reject anything else. */
 export const QR_PROTOCOL = "orion";
@@ -21,7 +22,7 @@ export type QrIdentity = {
 
 export type IdentificationCatalog = {
   boxes: readonly { id: string; code: string }[];
-  locations: readonly { id: string; code: string }[];
+  locations: readonly { id: string; code: string; qrCode?: string; codeAliases?: string[] }[];
 };
 
 export type IdentificationHit = {
@@ -116,9 +117,7 @@ export function resolveIdentification(
     if (!box) throw new IdentificationNotFoundError("box", identity.code);
     return { type: "box", entityId: box.id, code: canonicalBoxCode(box.code) };
   }
-  const location = catalog.locations.find(
-    (item) => canonicalLocationCode(item.code) === identity.code,
-  );
+  const location = catalog.locations.find((item) => locationMatchesCode(item, identity.code));
   if (!location) throw new IdentificationNotFoundError("location", identity.code);
   return { type: "location", entityId: location.id, code: canonicalLocationCode(location.code) };
 }
@@ -138,7 +137,7 @@ export function resolveManualEntry(raw: string, catalog: IdentificationCatalog):
     ? catalog.boxes.find((item) => canonicalBoxCode(item.code) === boxCode)
     : undefined;
   const location = isLocationCode(locationCode)
-    ? catalog.locations.find((item) => canonicalLocationCode(item.code) === locationCode)
+    ? catalog.locations.find((item) => locationMatchesCode(item, locationCode))
     : undefined;
   if (box && location) throw new AmbiguousIdentificationError(value);
   if (box) return { type: "box", entityId: box.id, code: canonicalBoxCode(box.code) };
