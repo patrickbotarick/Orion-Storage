@@ -77,7 +77,7 @@ Unidade de espaçamento: `--spacing: 0.25rem` (4px na configuração padrão). P
 
 `rounded-control`: 10px; `rounded-card`: 14px; `rounded-dialog`: 16px. `rounded-md` permanece alias de controle para compatibilidade. Outros raios antigos não são migrados automaticamente. `shadow-card` e `shadow-dialog` são discretas; bordas e espaçamento devem separar as superfícies antes de adicionar sombra.
 
-O foco global em tela usa contorno teal de 3px, afastamento de 3px e separação clara de 3px para fundos escuros. Vale para links, botões, campos e elementos com tabindex, inclusive controles antigos com `outline-none`. Estados específicos de componentes ainda exigem revisão na 4C.3; não remova o foco. A preferência por movimento reduzido continua respeitada.
+O foco global em tela usa contorno teal de 3px, afastamento de 3px e separação clara de 3px para fundos escuros. Vale para links, botões, campos e elementos com tabindex, inclusive controles antigos com `outline-none`. Estados específicos dos componentes compartilhados são descritos abaixo; a homologação das composições finais continua na 4C.4/4C.5. Não remova o foco. A preferência por movimento reduzido continua respeitada.
 
 ## Exemplos de composição
 
@@ -99,6 +99,45 @@ O foco global em tela usa contorno teal de 3px, afastamento de 3px e separação
 Exemplos documentam os tokens, não substituem os componentes existentes nem acrescentam fluxos. Preferir componentes compartilhados depois da padronização 4C.3. Manter validação, disabled, loading, error e seleção explícitos no componente real.
 
 ## Contraste e manutenção
+
+### Biblioteca compartilhada — 4C.3
+
+Local: `src/components/ui`. `cn` combina clsx e tailwind-merge já instalados para evitar classes conflitantes. Não foi adicionada biblioteca, engine de tabela, estado global ou novo fluxo operacional. Cada elemento aceita os atributos HTML/Radix pertinentes; refs dos controles, botões e modais são encaminhadas.
+
+| Arquivo        | Componentes e propriedades principais                                                                                                                                                                                                         |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `button.tsx`   | `Button`: variant primary/secondary/ghost/danger, loading, selected e atributos nativos; `IconButton`: mesmos atributos, com aria-label obrigatório                                                                                           |
+| `field.tsx`    | `Field`: label, htmlFor, required, hint, error, children; `controlClass`: compatibilidade para controles nativos existentes                                                                                                                   |
+| `controls.tsx` | `Input`, `Select`, `Textarea`: atributos nativos; `SearchInput`: atributos de input, tipo search fixo e ícone decorativo                                                                                                                      |
+| `feedback.tsx` | `Badge`, `StatusIndicator`, `Alert`, `Toast`: tone neutral/success/warning/danger/info; `EmptyState`: title, description, action; `LoadingState`: label, className                                                                            |
+| `surfaces.tsx` | `Card`: atributos div; `StatCard`: label, value, description; `PageHeader`: title, eyebrow, description, actions; `DataTable`: label obrigatório e children nativos; `TableToolbar`: atributos div; `BoxCode`, `LocationCode`: atributos span |
+| `modal.tsx`    | `Modal`, `ModalOverlay`: primitivas Content/Overlay do Dialog; `ConfirmDialog`: Content do AlertDialog                                                                                                                                        |
+
+#### Estados e acessibilidade
+
+- Button: hover sem perder contraste, foco global, disabled com paleta própria (sem opacidade), selected com aria-pressed e loading com aria-busy, spinner decorativo e bloqueio de clique. O texto permanece visível. `type` padrão é button, impedindo submissão acidental; submit deve ser explícito. `IconButton` oferece alvo mínimo de 44px e nome acessível.
+- Input/Select/Textarea: borda de controle, hover, foco, disabled e erro via `aria-invalid="true"`. `aria-describedby` relaciona mensagens; não depender da borda vermelha. Selected em select e readonly seguem o comportamento nativo, preservando teclado e validação do chamador. Loading de leitura deve ser comunicado pelo LoadingState ou aria-busy e disabled conforme o fluxo existente.
+- Field: relaciona hint/error/required aos filhos diretos cujo id corresponde a htmlFor, sem alterar value, eventos ou validações. Mescla e deduplica aria-describedby; erro usa role alert e aria-invalid. required acrescenta indicação acessível, sem impor uma nova validação HTML. Em estruturas aninhadas, associe explicitamente o controle às mensagens.
+- StatusIndicator: ícone e texto; `Badge` permite composição com texto próprio. Os adaptadores preservam rótulos/status do domínio. Alert anuncia danger como alert e demais situações como status. Toast é a mesma apresentação acessível, sem timers, portal, fila ou exibição automática: a aplicação mantém o tempo de vida de suas mensagens.
+- DataTable: tabela HTML com caption e região rotulada focável para rolagem por teclado. Não cria ordenação, paginação, seleção ou colunas. Se o chamador fornecer aria-selected, a linha recebe fundo de seleção. Versões em cards para celular permanecem nos módulos. TableToolbar organiza filtros sem role toolbar, que exigiria um padrão diferente de navegação por teclado.
+- Modal: compor com Dialog.Root, Portal, Title, Description e Close existentes. Radix mantém foco contido e Escape; a apresentação devolve o foco ao elemento que abriu o modal, inclusive quando o Root é controlado sem Trigger. Callbacks de autoFocus e preventDefault do chamador são respeitados. ConfirmDialog requer AlertDialog.Root/Title/Description/Action/Cancel; a decisão de confirmar e a gravação continuam explícitas no módulo. Não foi inserido novo diálogo de confirmação em nenhum fluxo.
+- Card, StatCard, PageHeader e códigos: apresentação, sem formatar ou inventar dados. value aceita o valor já formatado; identificadores são exibidos literalmente. Geometria usa controle 10px, card 14px e modal 16px. Movimento reduzido continua desabilitando transições/spinners animados pelo CSS global.
+
+#### Exemplos com componentes
+
+```tsx
+<Field label="Código" htmlFor="code" required hint="Código da caixa" error={error}>
+  <Input id="code" value={code} onChange={onChange} />
+</Field>
+<Button type="submit" variant="primary" loading={submitting} disabled={submitting}>
+  Salvar
+</Button>
+<StatusIndicator tone="warning">Aberta</StatusIndicator>
+<BoxCode>{box.code}</BoxCode>
+<LocationCode>{location.code}</LocationCode>
+```
+
+A integração inicial substitui repetições em filtros, tabelas, badges, cabeçalhos, feedbacks e modais de Produtos/Caixas; os demais controles nativos continuam herdando `controlClass`. StatCard, ConfirmDialog e Toast ficam disponíveis para a migração posterior, sem adicionar indicadores, confirmações ou notificações a páginas existentes. Não criar novos componentes locais para as mesmas funções. A revisão completa das telas é a 4C.4.
 
 ### Navegação e identidade global — 4C.2
 

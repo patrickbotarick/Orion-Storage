@@ -1,8 +1,8 @@
 import type { ProductQuery, ProductStatusFilter } from "@orion/domain";
 import { STATUS_LABEL } from "@orion/shared";
-import { Search } from "lucide-react";
 
-import { controlClass } from "@/components/ui/field";
+import { SearchInput, Select } from "@/components/ui/controls";
+import { TableToolbar } from "@/components/ui/surfaces";
 
 type ProductFiltersProps = {
   query: ProductQuery;
@@ -20,22 +20,15 @@ export function ProductFilters({
   onChange,
 }: ProductFiltersProps) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
-          aria-hidden="true"
-        />
-        <input
-          id="product-search"
-          type="search"
-          value={query.text ?? ""}
-          onChange={(event) => onChange({ ...query, text: event.target.value })}
-          placeholder="Buscar por código, nome, marca ou cor"
-          aria-label="Buscar por código, nome, marca ou cor"
-          className={`${controlClass} pl-10`}
-        />
-      </div>
+    <TableToolbar>
+      <SearchInput
+        id="product-search"
+
+        value={query.text ?? ""}
+        onChange={(event) => onChange({ ...query, text: event.target.value })}
+        placeholder="Buscar por código, nome, marca ou cor"
+        aria-label="Buscar por código, nome, marca ou cor"
+      />
       <div className="grid gap-3 sm:grid-cols-3">
         <FilterSelect
           id="filter-category"
@@ -58,24 +51,23 @@ export function ProductFilters({
           >
             Status
           </label>
-          <select
+          <Select
             id="filter-status"
             value={query.status ?? "ALL"}
             onChange={(event) =>
               onChange({ ...query, status: event.target.value as ProductStatusFilter })
             }
-            className={controlClass}
           >
             <option value="ALL">Todos</option>
             <option value="ACTIVE">{STATUS_LABEL.ACTIVE}</option>
             <option value="INACTIVE">{STATUS_LABEL.INACTIVE}</option>
-          </select>
+          </Select>
         </div>
       </div>
       <p className="text-sm text-muted" aria-live="polite">
         {resultCount === 1 ? "1 produto" : `${resultCount} produtos`}
       </p>
-    </div>
+    </TableToolbar>
   );
 }
 
@@ -97,19 +89,14 @@ function FilterSelect({
       <label htmlFor={id} className="text-xs font-medium tracking-wide text-muted uppercase">
         {label}
       </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className={controlClass}
-      >
+      <Select id={id} value={value} onChange={(event) => onChange(event.target.value)}>
         <option value="">Todas</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }

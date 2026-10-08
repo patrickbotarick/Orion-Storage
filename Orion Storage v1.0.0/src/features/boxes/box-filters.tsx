@@ -6,9 +6,9 @@ import {
   type BoxStatusFilter,
   type Product,
 } from "@orion/domain";
-import { Search } from "lucide-react";
 
-import { controlClass } from "@/components/ui/field";
+import { SearchInput, Select } from "@/components/ui/controls";
+import { TableToolbar } from "@/components/ui/surfaces";
 
 type BoxFiltersProps = {
   query: BoxQuery;
@@ -20,22 +20,15 @@ type BoxFiltersProps = {
 
 export function BoxFilters({ query, products, brands, resultCount, onChange }: BoxFiltersProps) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="relative">
-        <Search
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted"
-          aria-hidden="true"
-        />
-        <input
-          id="box-search"
-          type="search"
-          value={query.text ?? ""}
-          onChange={(event) => onChange({ ...query, text: event.target.value })}
-          placeholder="Buscar por caixa, produto, marca, cor, lote ou localização"
-          aria-label="Buscar por caixa, produto, marca, cor, lote ou localização"
-          className={`${controlClass} pl-10`}
-        />
-      </div>
+    <TableToolbar>
+      <SearchInput
+        id="box-search"
+
+        value={query.text ?? ""}
+        onChange={(event) => onChange({ ...query, text: event.target.value })}
+        placeholder="Buscar por caixa, produto, marca, cor, lote ou localização"
+        aria-label="Buscar por caixa, produto, marca, cor, lote ou localização"
+      />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex flex-col gap-1">
           <label
@@ -44,11 +37,10 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
           >
             Produto
           </label>
-          <select
+          <Select
             id="filter-box-product"
             value={query.productId ?? ""}
             onChange={(event) => onChange({ ...query, productId: event.target.value })}
-            className={controlClass}
           >
             <option value="">Todos</option>
             {products.map((product) => (
@@ -56,7 +48,7 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
                 {product.name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <FilterSelect
           id="filter-box-brand"
@@ -72,13 +64,12 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
           >
             Status
           </label>
-          <select
+          <Select
             id="filter-box-status"
             value={query.status ?? "ALL"}
             onChange={(event) =>
               onChange({ ...query, status: event.target.value as BoxStatusFilter })
             }
-            className={controlClass}
           >
             <option value="ALL">Todos</option>
             {BOX_STATUSES.map((status) => (
@@ -86,7 +77,7 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
                 {BOX_STATUS_LABEL[status]}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div className="flex flex-col gap-1">
           <label
@@ -100,7 +91,6 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
             type="date"
             value={query.receivedAt ?? ""}
             onChange={(event) => onChange({ ...query, receivedAt: event.target.value })}
-            className={controlClass}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -110,24 +100,23 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
           >
             Localização
           </label>
-          <select
+          <Select
             id="filter-box-placement"
             value={query.placement ?? "ALL"}
             onChange={(event) =>
               onChange({ ...query, placement: event.target.value as BoxPlacementFilter })
             }
-            className={controlClass}
           >
             <option value="ALL">Todas</option>
             <option value="WITH_LOCATION">Com localização</option>
             <option value="WITHOUT_LOCATION">Sem localização</option>
-          </select>
+          </Select>
         </div>
       </div>
       <p className="text-sm text-muted" aria-live="polite">
         {resultCount === 1 ? "1 caixa" : `${resultCount} caixas`}
       </p>
-    </div>
+    </TableToolbar>
   );
 }
 
@@ -149,19 +138,14 @@ function FilterSelect({
       <label htmlFor={id} className="text-xs font-medium tracking-wide text-muted uppercase">
         {label}
       </label>
-      <select
-        id={id}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className={controlClass}
-      >
+      <Select id={id} value={value} onChange={(event) => onChange(event.target.value)}>
         <option value="">Todas</option>
         {options.map((option) => (
           <option key={option} value={option}>
             {option}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }

@@ -12,7 +12,10 @@ import {
 import { X } from "lucide-react";
 
 import { AppShell } from "@/components/app-shell";
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
+import { Modal, ModalOverlay } from "@/components/ui/modal";
+import { Alert, LoadingState } from "@/components/ui/feedback";
+import { PageHeader } from "@/components/ui/surfaces";
 import { BoxDetail } from "@/features/boxes/box-detail";
 import { BoxFilters } from "@/features/boxes/box-filters";
 import { BoxForm } from "@/features/boxes/box-form";
@@ -107,26 +110,22 @@ export function BoxesPage() {
   return (
     <>
       <AppShell section="boxes">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium tracking-wide text-muted uppercase">
-              Rastreabilidade
-            </p>
-            <h1 className="text-2xl font-semibold text-ink">Caixas</h1>
-            <p className="mt-1 max-w-2xl text-sm text-muted">
-              Cada caixa física tem código próprio, conteúdo e histórico. A localização é opcional.
-            </p>
-          </div>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setFormError(null);
-              setEditor({ mode: "create", values: emptyBoxForm() });
-            }}
-          >
-            Nova caixa
-          </Button>
-        </header>
+        <PageHeader
+          title="Caixas"
+          eyebrow="Rastreabilidade"
+          description="Cada caixa física tem código próprio, conteúdo e histórico. A localização é opcional."
+          actions={
+            <Button
+              variant="primary"
+              onClick={() => {
+                setFormError(null);
+                setEditor({ mode: "create", values: emptyBoxForm() });
+              }}
+            >
+              Nova caixa
+            </Button>
+          }
+        />
 
         <div className="mt-6">
           <BoxFilters
@@ -139,17 +138,14 @@ export function BoxesPage() {
         </div>
 
         {catalog.error ? (
-          <p
-            className="mt-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-            role="alert"
-          >
+          <Alert tone="danger" className="mt-4">
             {catalog.error}
-          </p>
+          </Alert>
         ) : null}
 
         <div className="mt-4">
           {catalog.loading ? (
-            <p className="text-sm text-muted">Carregando caixas…</p>
+            <LoadingState label="Carregando caixas…" />
           ) : (
             <BoxTable
               items={catalog.visible}
@@ -177,8 +173,8 @@ export function BoxesPage() {
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/50" />
-          <Dialog.Content className="catalog-dialog fixed top-4 right-4 left-4 z-50 mx-auto overflow-y-auto rounded-lg border border-line bg-surface p-5 shadow-xl md:top-10 md:max-w-3xl">
+          <ModalOverlay />
+          <Modal>
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <Dialog.Title className="text-xl font-semibold text-ink">
@@ -197,18 +193,15 @@ export function BoxesPage() {
                 </Dialog.Description>
               </div>
               <Dialog.Close asChild>
-                <Button variant="ghost" aria-label="Fechar" disabled={submitting}>
+                <IconButton variant="ghost" aria-label="Fechar" disabled={submitting}>
                   <X className="size-4" aria-hidden="true" />
-                </Button>
+                </IconButton>
               </Dialog.Close>
             </div>
             {formError ? (
-              <p
-                className="mb-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-                role="alert"
-              >
+              <Alert tone="danger" className="mb-4">
                 {formError}
-              </p>
+              </Alert>
             ) : null}
             {editor?.mode === "create" ? (
               <BoxForm
@@ -258,7 +251,7 @@ export function BoxesPage() {
                 onPrintLabel={() => setLabel({ box: editor.box, autoPrint: true })}
               />
             ) : null}
-          </Dialog.Content>
+          </Modal>
         </Dialog.Portal>
       </Dialog.Root>
       <PrintLabelDialog

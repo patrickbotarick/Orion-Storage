@@ -11,7 +11,10 @@ import {
 } from "@orion/domain";
 
 import { AppShell } from "@/components/app-shell";
-import { Button } from "@/components/ui/button";
+import { Button, IconButton } from "@/components/ui/button";
+import { Modal, ModalOverlay } from "@/components/ui/modal";
+import { Alert, LoadingState } from "@/components/ui/feedback";
+import { PageHeader } from "@/components/ui/surfaces";
 import { ProductFilters } from "@/features/products/product-filters";
 import { ProductForm } from "@/features/products/product-form";
 import { ProductTable } from "@/features/products/product-table";
@@ -54,25 +57,22 @@ export function ProductsPage() {
   return (
     <>
       <AppShell section="products">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium tracking-wide text-muted uppercase">Catálogo</p>
-            <h1 className="text-2xl font-semibold text-ink">Produtos</h1>
-            <p className="mt-1 max-w-2xl text-sm text-muted">
-              Cadastro padronizado do Orion Storage. Medidas de fita são opcionais e ficam em
-              milímetros e metros, sem unidade gravada no valor.
-            </p>
-          </div>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setFormError(null);
-              setEditor({ mode: "create" });
-            }}
-          >
-            Novo produto
-          </Button>
-        </header>
+        <PageHeader
+          title="Produtos"
+          eyebrow="Catálogo"
+          description="Cadastro padronizado do Orion Storage. Medidas de fita são opcionais e ficam em milímetros e metros, sem unidade gravada no valor."
+          actions={
+            <Button
+              variant="primary"
+              onClick={() => {
+                setFormError(null);
+                setEditor({ mode: "create" });
+              }}
+            >
+              Novo produto
+            </Button>
+          }
+        />
 
         <div className="mt-6">
           <ProductFilters
@@ -85,25 +85,19 @@ export function ProductsPage() {
         </div>
 
         {catalog.error ? (
-          <p
-            className="mt-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-            role="alert"
-          >
+          <Alert tone="danger" className="mt-4">
             {catalog.error}
-          </p>
+          </Alert>
         ) : null}
         {formError && !editor ? (
-          <p
-            className="mt-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-            role="alert"
-          >
+          <Alert tone="danger" className="mt-4">
             {formError}
-          </p>
+          </Alert>
         ) : null}
 
         <div className="mt-4">
           {catalog.loading ? (
-            <p className="text-sm text-muted">Carregando catálogo…</p>
+            <LoadingState label="Carregando catálogo…" />
           ) : (
             <ProductTable
               products={catalog.visible}
@@ -131,8 +125,8 @@ export function ProductsPage() {
         }}
       >
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-40 bg-ink/50" />
-          <Dialog.Content className="catalog-dialog fixed top-4 right-4 left-4 z-50 mx-auto overflow-y-auto rounded-lg border border-line bg-surface p-5 shadow-xl md:top-10 md:max-w-3xl">
+          <ModalOverlay />
+          <Modal>
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <Dialog.Title className="text-xl font-semibold text-ink">
@@ -147,18 +141,15 @@ export function ProductsPage() {
                 </Dialog.Description>
               </div>
               <Dialog.Close asChild>
-                <Button variant="ghost" aria-label="Fechar" disabled={submitting}>
+                <IconButton variant="ghost" aria-label="Fechar" disabled={submitting}>
                   <X className="size-4" aria-hidden="true" />
-                </Button>
+                </IconButton>
               </Dialog.Close>
             </div>
             {formError ? (
-              <p
-                className="mb-4 rounded-md border border-danger px-3 py-2 text-sm text-danger"
-                role="alert"
-              >
+              <Alert tone="danger" className="mb-4">
                 {formError}
-              </p>
+              </Alert>
             ) : null}
             {editor ? (
               <ProductForm
@@ -173,7 +164,7 @@ export function ProductsPage() {
                 }}
               />
             ) : null}
-          </Dialog.Content>
+          </Modal>
         </Dialog.Portal>
       </Dialog.Root>
     </>

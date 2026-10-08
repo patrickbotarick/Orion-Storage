@@ -18,6 +18,7 @@ export default defineConfig({
       "packages/**/*.test.ts",
       "src/persistence/**/*.test.ts",
       "src/application/**/*.test.ts",
+      "src/components/ui/**/*.test.tsx",
     ],
   },
 });

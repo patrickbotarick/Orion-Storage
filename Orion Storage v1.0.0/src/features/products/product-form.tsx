@@ -329,7 +329,7 @@ export function ProductForm({
         <Button variant="secondary" onClick={onCancel} disabled={submitting}>
           Cancelar
         </Button>
-        <Button variant="primary" type="submit" disabled={submitting}>
+        <Button variant="primary" type="submit" disabled={submitting} loading={submitting}>
           {submitting ? "Salvando…" : "Salvar produto"}
         </Button>
       </div>

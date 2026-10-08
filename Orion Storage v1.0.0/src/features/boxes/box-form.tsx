@@ -233,6 +233,7 @@ export function BoxForm({
           variant="primary"
           type="submit"
           disabled={submitting || (mode === "create" && products.length === 0)}
+          loading={submitting}
         >
           {submitting ? "Salvando…" : mode === "create" ? "Registrar caixa" : "Salvar caixa"}
         </Button>

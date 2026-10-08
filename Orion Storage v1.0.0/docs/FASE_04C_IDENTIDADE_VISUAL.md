@@ -14,7 +14,7 @@ O trabalho anterior permanece fora do commit 4C.1. A etapa visual não regulariz
 | -------- | -------------------------------------------------------------- | ------------------------------- |
 | 4C.1     | Tokens, fontes, base CSS, documentação e validação da fundação | Implementada; resultados abaixo |
 | 4C.2     | AppShell, sidebar, cabeçalhos e navegação responsiva           | Implementada; resultados abaixo |
-| 4C.3     | Componentes compartilhados e seus estados                      | Pendente                        |
+| 4C.3     | Componentes compartilhados e seus estados                      | Implementada; resultados abaixo |
 | 4C.4     | Migração das rotas reais e impressão                           | Pendente                        |
 | 4C.5     | Refinamento e homologação integral                             | Pendente                        |
 
@@ -82,10 +82,42 @@ Evidências em `screenshots/fase4c2/` fora do commit; QA reproduzível em `scrip
 - [x] Gates e regressão aprovados.
 - [x] Commit específico da 4C.2, sem incorporar a implementação da 4B (consultar hash no Git).
 
+### Biblioteca de componentes 4C.3 — 08/10/2026
+
+Partida em `main`, HEAD `0e4c52a`, índice vazio; alterações anteriores da auditoria/4B preservadas. Linha de base: 129 testes/29 arquivos passaram antes de editar. O inventário encontrou apenas Button e Field compartilhados; buscas, seleções, badges, tabelas, estados vazios, feedbacks e modais tinham estilos locais repetidos.
+
+Decisões: manter `src/components/ui`, Tailwind e Lucide; reutilizar clsx/tailwind-merge e Radix já instalados; composição nativa de tabelas/controles, sem novas dependências. ConfirmDialog é uma primitiva de apresentação, e Toast não cria timers/fila. Componentes não escrevem em serviços ou persistência. Contratos, exemplos, estados e responsabilidades estão em `DESIGN_SYSTEM.md`.
+
+Integração inicial em Produtos/Caixas: filtros reutilizam SearchInput/Select/TableToolbar; tabelas e cards reutilizam DataTable/Card/EmptyState; status usam texto/ícone sem mudar enum/rótulos; cabeçalhos, erros, loading e modais reutilizam componentes compartilhados. Os formulários recebem apenas loading no botão submit. Os controles nativos de outras telas herdam o novo controlClass; Field associa erros/hints aos controles diretos sem adicionar validação ou mudar handlers. Migração integral das demais telas continua na 4C.4.
+
+O QA detectou falta de retorno de foco nos modais controlados sem Trigger. Modal foi ajustado para preservar e restaurar o elemento de abertura, mantendo os callbacks existentes. A variante de erro utiliza o seletor explícito aria-[invalid=true] do Tailwind; a validação aguarda o término da transição antes de comparar a borda renderizada.
+
+Validação:
+
+- Lint, typecheck, build e 134 testes em 30 arquivos aprovados (129 existentes + cinco contratos de acessibilidade). Vitest passou a incluir os testes de UI em TSX. Cobertura nova: loading bloqueado, submit explícito, toggle true/false, nome de IconButton, controles nativos, vínculos de erro/hint/required, anúncios de feedback e tabela/identificadores.
+- `node scripts/shared-components-qa.mjs 8091` e `8081`: desktop/mobile em dev/produção aprovados. Busca/filtro e estado vazio; foco contido, Escape, Cancelar e retorno ao botão nos modais; formulários inválidos sem gravação; erro visual e associação acessível; prévia da etiqueta com QR SVG e superfície branca; leituras BOX/LOCATION chegam à confirmação do scanner sem alterar caixas/movimentos.
+- `node scripts/visual-foundation-qa.mjs 8091 fase4c3` e `8081 fase4c3`: oito rotas em desktop/mobile, 32 renderizações, fontes/foco/texto ampliado no scanner aprovados; sem erro de console ou overflow horizontal global.
+- Regressão de inventários passou em dev/produção e desktop/mobile, preservando bytes de caixas/movimentos.
+- 26 pares de contraste aprovados, sem mudança da paleta. Capturas desktop/mobile de produtos, caixas, erro de formulário e prévia de etiqueta inspecionadas. Evidências locais em `screenshots/fase4c3/`, fora do commit.
+- Nenhuma edição em domínio, aplicação, persistência, chaves, rotas, protocolos QR ou CSS de impressão. Dados do operador não foram acessados; QA utiliza perfis descartáveis. Câmera/impressão físicas e conformidade integral WCAG permanecem pendentes para homologação.
+
+Arquivos desta etapa:
+
+- `src/components/ui/`: Button e Field adaptados; class-names, controls, feedback, surfaces, modal e components.test adicionados.
+- `src/features/products/`: product-filters, product-table, products-page e product-form.
+- `src/features/boxes/`: box-filters, box-table, boxes-page, box-status-badge e box-form.
+- `scripts/shared-components-qa.mjs`, `vitest.config.ts`, `docs/DESIGN_SYSTEM.md` e este relatório.
+
+- [x] Inventário e reutilização da estrutura real.
+- [x] Componentes, variantes e estados documentados.
+- [x] Integração inicial e regressão em desktop/mobile e produção.
+- [x] Dados, validações, confirmação do scanner e impressão preservados.
+- [x] Commit exclusivo da 4C.3; sem push e sem avançar à 4C.4 (consultar hash no Git).
+
 ### Etapas seguintes — ainda não homologadas
 
 - [x] Navegação e identidade global; assinatura temporária substituível.
-- [ ] Estados default/hover/focus/disabled/selected/loading/error nos componentes.
+- [x] Estados default/hover/focus/disabled/selected/loading/error nos componentes compartilhados; composições finais ainda exigem revisão.
 - [ ] Migração de todas as rotas reais, incluindo inventários.
 - [ ] Teclado, zoom e contraste das composições finais segundo WCAG 2.2 AA.
 - [ ] Scanner móvel e confirmação operacional.
