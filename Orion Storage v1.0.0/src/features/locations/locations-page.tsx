@@ -538,7 +538,7 @@ function LocationTable({
             <td className="px-3 py-3 font-mono text-code">
               <button
                 type="button"
-                className="underline-offset-2 hover:underline"
+                className="inline-flex min-h-11 items-center underline-offset-2 hover:underline"
                 onClick={() => onOpen(item.location)}
               >
                 {item.location.code}

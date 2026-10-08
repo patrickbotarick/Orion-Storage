@@ -33,7 +33,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       ref={ref}
       type={type}
       className={cn(
-        "inline-flex min-h-11 items-center justify-center gap-2 rounded-control px-4 py-2 text-sm font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:border-disabled-border disabled:bg-disabled-bg disabled:text-disabled",
+        "inline-flex min-h-11 min-w-0 max-w-full items-center justify-center gap-2 rounded-control px-4 py-2 text-sm font-semibold transition-colors duration-150 disabled:cursor-not-allowed disabled:border-disabled-border disabled:bg-disabled-bg disabled:text-disabled",
         VARIANTS[variant],
         selected && "border-accent bg-selected text-selected-fg enabled:hover:bg-selected",
         className,

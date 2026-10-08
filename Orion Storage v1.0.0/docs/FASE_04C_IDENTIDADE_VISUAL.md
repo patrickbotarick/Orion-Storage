@@ -10,13 +10,13 @@ O trabalho anterior permanece fora do commit 4C.1. A etapa visual não regulariz
 
 ## Plano controlado
 
-| Subetapa | Escopo                                                         | Situação                        |
-| -------- | -------------------------------------------------------------- | ------------------------------- |
-| 4C.1     | Tokens, fontes, base CSS, documentação e validação da fundação | Implementada; resultados abaixo |
-| 4C.2     | AppShell, sidebar, cabeçalhos e navegação responsiva           | Implementada; resultados abaixo |
-| 4C.3     | Componentes compartilhados e seus estados                      | Implementada; resultados abaixo |
-| 4C.4     | Migração das rotas reais e impressão                           | Implementada; resultados abaixo |
-| 4C.5     | Refinamento e homologação integral                             | Pendente                        |
+| Subetapa | Escopo                                                         | Situação                                           |
+| -------- | -------------------------------------------------------------- | -------------------------------------------------- |
+| 4C.1     | Tokens, fontes, base CSS, documentação e validação da fundação | Implementada; resultados abaixo                    |
+| 4C.2     | AppShell, sidebar, cabeçalhos e navegação responsiva           | Implementada; resultados abaixo                    |
+| 4C.3     | Componentes compartilhados e seus estados                      | Implementada; resultados abaixo                    |
+| 4C.4     | Migração das rotas reais e impressão                           | Implementada; resultados abaixo                    |
+| 4C.5     | Refinamento e homologação integral                             | Verificada em navegador; hardware/manual pendentes |
 
 As rotas atuais são `/` (Produtos), `/caixas`, `/enderecamento`, `/movimentacoes`, `/mapa`, `/scanner`, `/recebimentos` e `/inventarios`. Não existe dashboard separado. Etiquetas integram caixas/endereçamento/recebimentos; não será criada página fictícia para elas. Inventários, acrescentado na 4B, recebeu compatibilidade visual na 4C.4.
 
@@ -163,3 +163,33 @@ O commit inclui exclusivamente a apresentação da 4C.4. Para AppShell e arquivo
 - [x] Etiquetas/QR e saída PDF preservados.
 - [x] Gates, QA em navegador e regressão aprovados.
 - [ ] Homologação abrangente 4C.5: revisão final WCAG, dispositivos/câmera e impressão físicas. Não iniciada nesta rodada.
+
+### Refinamento e homologação 4C.5 — 08/10/2026
+
+Partida em `main`, HEAD `66c54e0`, índice vazio. Auditoria e 4B registradas; alterações anteriores continuam preservadas. Linha de base: 134 testes/30 arquivos aprovados. Escopo mantido na apresentação e verificação, sem nova funcionalidade ou edição de domínio, persistência, rotas, chaves, validações, handlers do scanner ou protocolos QR.
+
+Correções encontradas pela revisão: filtro de data de caixas migrou para Input compartilhado; ação do código de endereço recebeu área de 44px; controles e botões respeitam largura disponível; cards móveis de caixas permitem quebra entre código e status; código interno de produto associa hint/erro e obrigatoriedade acessíveis; marca tipográfica remove aria-label indevido em elemento genérico. Foco de controles de data também acompanha a edição dos segmentos nativos.
+
+Container queries ajustam shell, cabeçalhos, grades e modais à largura realmente disponível com tipografia ampliada. Sidebar cede espaço ao menu móvel; textos longos quebram e formulários usam uma coluna quando necessário. Mapa e tabelas preservam leitura bidimensional e rolagem interna. Arte de etiquetas e CSS de impressão não foram alterados.
+
+Verificação final em desenvolvimento e produção:
+
+- Lint, typecheck, 134 testes/30 arquivos, 149 testes auxiliares e build aprovados. EPERM nos testes auxiliares do sandbox resolvido repetindo o comando com acesso autorizado, sem editar ferramentas. Avisos existentes de dependências do build permanecem.
+- Axe-core 4.11.4 isolado das dependências do app: 125 estados por ambiente, quatro larguras (1280/768/390/320), texto em 200%, espaçamento ampliado e estados de formulários/inventário, sem violações detectadas ou overflow global. Percursos de Tab verificam foco visível e desobstruído. Resultados inconclusivos são preservados; não se declara conformidade integral WCAG.
+- 28 pares de contraste, incluindo composição das hachuras do mapa, aprovados. Capturas desktop/mobile, fonte ampliada, etiquetas e scanner inspecionadas.
+- Regressões do shell, componentes, telas operacionais e inventários repetidas. Prévia e erros não gravam; recebimento e movimentações mantêm confirmação; histórico/mapa somente leitura; inventários preservam os bytes de caixas/movimentos oficiais.
+- QR renderizado decodificado pelo scanner existente em 1280/390/320px. PDF/print mantém caixa 90mm, endereço 100mm e branco de alto contraste.
+- Câmera negada/ausente, loading bloqueado e reduced motion verificados. Vídeo canvas passa pelo decoder real em 390/320px: BOX → LOCATION → confirmação; sem gravação antecipada, movimento SCAN após confirmar e câmera encerrada. Não representa ensaio físico de dispositivo.
+
+Checklist, comandos, referências e limites em `CHECKLIST_HOMOLOGACAO_VISUAL.md`. Evidências em `screenshots/fase4c5/`, fora do commit. Scripts novos: auditoria visual/acessibilidade, QR/print e câmera com vídeo. Scripts anteriores aceitam pasta de evidências da rodada, preservando defaults; contraste passa a verificar fundos compostos.
+
+A primeira captura de impressão em desenvolvimento foi interrompida pela recarga do Vite ao salvar SVG de evidência. O script passou a salvar esses arquivos após concluir as verificações; a repetição passou. Houve também uma captura excedendo o timeout sob QA concorrente; repetida com o ambiente estável, passou. Nenhuma dessas ocorrências exigiu mudar o fluxo de impressão do aplicativo.
+
+O commit inclui apenas a 4C.5. AppShell recebe staging seletivo a partir de HEAD: import/entrada Inventários da 4B continuam somente no workspace, junto aos demais arquivos anteriores. A verificação descreve esse workspace integrado. Sem push, merge, tag, reset ou limpeza de dados.
+
+- [x] Refinamentos, revisão em navegador e regressões concluídos.
+- [x] Documentação, gates e evidências atualizados.
+- [ ] Câmera/impressora reais, leitor de tela e auditoria manual integral WCAG.
+- [ ] Homologação visual pelo responsável do produto e aprovação do logotipo definitivo.
+
+A 4C.5 está implementada e verificada no escopo de navegador. A homologação integral permanece pendente dos ensaios listados, sem aprovação presumida.

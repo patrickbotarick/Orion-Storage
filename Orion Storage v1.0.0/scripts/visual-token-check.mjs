@@ -54,4 +54,41 @@ const results = pairs.map(([foreground, background, minimum]) => {
   assert(ratio >= minimum, `${foreground}/${background}: ${ratio.toFixed(2)} < ${minimum}`);
   return { foreground, background, ratio: Number(ratio.toFixed(2)), minimum };
 });
+// Axe cannot resolve stripe gradients; check their darkest composited backgrounds too.
+for (const [foreground, background] of [
+  ["danger", "danger-bg"],
+  ["muted", "surface"],
+]) {
+  const stripe = css.match(
+    new RegExp(`color-mix\\(in srgb, var\\(--color-${foreground}\\) ([\\d.]+)%, transparent\\)`),
+  );
+  assert(stripe, `Missing map stripe: ${foreground}`);
+  const alpha = Number(stripe[1]) / 100;
+  const channels = (hex) =>
+    hex
+      .slice(1)
+      .match(/../g)
+      .map((channel) => parseInt(channel, 16));
+  const overlay = channels(color(foreground));
+  const base = channels(color(background));
+  const mixed =
+    "#" +
+    base
+      .map((channel, i) =>
+        Math.round(channel * (1 - alpha) + overlay[i] * alpha)
+          .toString(16)
+          .padStart(2, "0"),
+      )
+      .join("");
+  const a = luminance(color(foreground));
+  const b = luminance(mixed);
+  const ratio = (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+  assert(ratio >= 4.5, `${foreground}/map stripe: ${ratio.toFixed(2)} < 4.5`);
+  results.push({
+    foreground,
+    background: `${background} stripe ${stripe[1]}%`,
+    ratio: Number(ratio.toFixed(2)),
+    minimum: 4.5,
+  });
+}
 console.log(JSON.stringify({ ok: true, pairs: results }, null, 2));

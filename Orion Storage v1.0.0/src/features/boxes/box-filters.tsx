@@ -7,7 +7,7 @@ import {
   type Product,
 } from "@orion/domain";
 
-import { SearchInput, Select } from "@/components/ui/controls";
+import { Input, SearchInput, Select } from "@/components/ui/controls";
 import { TableToolbar } from "@/components/ui/surfaces";
 
 type BoxFiltersProps = {
@@ -86,7 +86,7 @@ export function BoxFilters({ query, products, brands, resultCount, onChange }: B
           >
             Recebimento
           </label>
-          <input
+          <Input
             id="filter-box-date"
             type="date"
             value={query.receivedAt ?? ""}

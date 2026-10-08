@@ -155,7 +155,10 @@ export function ProductForm({
               }}
               className={`${controlClass} font-mono`}
               aria-invalid={Boolean(errors.internalCode)}
-              aria-describedby={errors.internalCode ? "internalCode-error" : undefined}
+              aria-required
+              aria-describedby={
+                errors.internalCode ? "internalCode-hint internalCode-error" : "internalCode-hint"
+              }
             />
             <Button
               variant="secondary"

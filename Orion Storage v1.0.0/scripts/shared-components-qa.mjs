@@ -5,7 +5,9 @@ import { chromium } from "playwright";
 
 const port = Number(process.argv[2] ?? 8091);
 assert(Number.isInteger(port) && port >= 1024 && port <= 65535);
-const out = resolve("screenshots", "fase4c3", String(port));
+const phase = process.argv[3] ?? "fase4c3";
+assert(/^[a-z0-9-]+$/.test(phase), "Invalid evidence folder");
+const out = resolve("screenshots", phase, String(port));
 mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({
   headless: true,

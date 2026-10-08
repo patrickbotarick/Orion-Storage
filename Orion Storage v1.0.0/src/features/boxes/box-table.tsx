@@ -93,7 +93,7 @@ export function BoxTable({ items, onOpen, onEdit, onLabel }: BoxTableProps) {
         {items.map((item) => (
           <li key={item.box.id}>
             <Card>
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="font-mono text-xs text-muted">
                     <BoxCode>{item.box.code}</BoxCode>

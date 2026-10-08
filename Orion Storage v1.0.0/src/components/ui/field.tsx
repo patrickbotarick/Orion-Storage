@@ -53,4 +53,4 @@ export function Field({ label, htmlFor, required, hint, error, children }: Field
 }
 
 export const controlClass =
-  "min-h-11 w-full rounded-control border border-control-border bg-surface px-3 py-2 text-sm text-ink transition-colors duration-150 placeholder:text-muted enabled:hover:border-accent focus-visible:border-accent disabled:cursor-not-allowed disabled:border-disabled-border disabled:bg-disabled-bg disabled:text-disabled aria-[invalid=true]:border-danger-border aria-[invalid=true]:bg-danger-bg";
+  "min-h-11 min-w-0 w-full max-w-full rounded-control border border-control-border bg-surface px-3 py-2 text-sm text-ink transition-colors duration-150 placeholder:text-muted enabled:hover:border-accent focus-visible:border-accent disabled:cursor-not-allowed disabled:border-disabled-border disabled:bg-disabled-bg disabled:text-disabled aria-[invalid=true]:border-danger-border aria-[invalid=true]:bg-danger-bg";

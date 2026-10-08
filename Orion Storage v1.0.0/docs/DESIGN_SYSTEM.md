@@ -164,3 +164,13 @@ Scanner: controles de 56px e entrada monoespaçada, resumo e confirmação desta
 Inventários é código pendente da 4B. A compatibilidade visual utiliza `data-section` no main e seletores de apresentação para códigos, totais e feedback; não reescreve nem inclui sua implementação no commit visual. Essa compatibilidade pode ser migrada às primitivas quando a 4B for regularizada.
 
 Etiquetas: apenas o diálogo de prévia usa Modal/Overlay/IconButton. Arte, fontes de impressão, dimensões, QR e CSS de impressão ficam independentes das cores operacionais. Não aplicar tokens decorativos dentro da etiqueta. `node scripts/operational-screens-qa.mjs PORT` verifica recebimento, prévia sem gravação, confirmação do scanner, histórico e impressão em perfis descartáveis.
+
+## Refinamentos da homologação 4C.5
+
+O shell, conteúdo de página e modais usam container queries. Compor grades/cabeçalhos segundo a largura disponível; breakpoints de viewport sozinhos não garantem espaço após sidebar ou preferência de fonte ampliada. Filhos flex/grid devem aceitar `min-width: 0`; controles recebem `min-w-0 max-w-full`; identificadores longos podem quebrar e status pode ocupar outra linha. Manter rolagem interna para mapa/tabelas, sem alterar sua representação ou dados.
+
+Controles e ações operacionais usam área de referência de 44px. Foco visível global tem 3px e offset de 3px; inputs de data também usam focus-within para segmentos nativos. Composições de Field com controles indiretos devem associar explicitamente `aria-describedby`, `aria-invalid` e `aria-required` quando o controle não é filho direto. Elementos genéricos de marca não recebem aria-label: o nome visível já participa da leitura.
+
+Contraste inclui fundos compostos: as hachuras de bloqueada/inativa são sinais adicionais ao texto; testar texto no trecho mais escuro da faixa. `visual-token-check.mjs` verifica 28 pares e as porcentagens reais do CSS. Reduced motion deve suprimir animação sem esconder loading ou desbloquear a ação.
+
+Resultados, limites e reprodução da auditoria estão em [CHECKLIST_HOMOLOGACAO_VISUAL.md](CHECKLIST_HOMOLOGACAO_VISUAL.md). Testes automatizados e vídeo simulado não certificam WCAG integral nem homologam câmera/impressora físicas.

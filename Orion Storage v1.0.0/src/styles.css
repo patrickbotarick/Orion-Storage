@@ -84,12 +84,74 @@
 
 @utility catalog-dialog {
   max-height: calc(100dvh - 2rem);
+  container-type: inline-size;
+  container-name: orion-dialog;
+  overflow-wrap: anywhere;
+}
+
+.catalog-dialog :is(.grid, .flex) > * {
+  min-width: 0;
+}
+
+@container orion-dialog (max-width: 32rem) {
+  .catalog-dialog .grid[class*="grid-cols"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .catalog-dialog .flex[class*="sm:flex-row"] {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .orion-page-content h1 {
   font-size: var(--text-heading-1);
   font-weight: 700;
   line-height: var(--text-heading-1--line-height);
+}
+
+.orion-page-content {
+  container-type: inline-size;
+  container-name: orion-page;
+  overflow-wrap: anywhere;
+}
+
+.orion-shell {
+  container-type: inline-size;
+  container-name: orion-shell;
+}
+
+/* Switch navigation before enlarged type leaves an unusably narrow work area. */
+@container orion-shell (width < 48rem) {
+  .orion-shell-layout {
+    display: block;
+  }
+
+  .orion-desktop-sidebar {
+    display: none;
+  }
+
+  .orion-mobile-header {
+    display: flex;
+  }
+}
+
+.orion-page-content :is(.grid, .flex) > * {
+  min-width: 0;
+}
+
+/* Form columns follow available content width, including enlarged text preferences. */
+@container orion-page (max-width: 32rem) {
+  .orion-page-header,
+  .orion-page-content[data-section="inventories"] > header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .orion-page-content .grid[class*="sm:grid-cols"],
+  .orion-page-content .grid[class*="lg:grid-cols"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .orion-page-content h2:not(.font-mono) {
@@ -153,7 +215,8 @@
 /* Unlayered so legacy outline-none utilities cannot suppress keyboard focus.
    A white separation ring keeps the teal outline legible on dark surfaces. */
 @media screen {
-  :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  :where(a, button, input, select, textarea, [tabindex]):focus-visible,
+  input[type="date"]:focus-within {
     outline: 3px solid var(--color-focus);
     outline-offset: 3px;
     box-shadow: 0 0 0 3px var(--color-focus-on-dark);

@@ -39,7 +39,7 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <header className="orion-page-header flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
         {eyebrow ? (
           <p className="text-xs font-medium tracking-wide text-muted uppercase">{eyebrow}</p>
@@ -47,7 +47,7 @@ export function PageHeader({
         <h1 className="text-heading-1 font-bold">{title}</h1>
         {description ? <p className="mt-2 max-w-2xl text-sm text-muted">{description}</p> : null}
       </div>
-      {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
+      {actions ? <div className="flex max-w-full shrink-0 flex-wrap gap-2">{actions}</div> : null}
     </header>
   );
 }

@@ -42,12 +42,12 @@ export function AppShell({ section, children }: AppShellProps) {
   const SectionIcon = current.icon;
 
   return (
-    <div className="min-h-screen bg-bg text-ink">
+    <div className="orion-shell min-h-screen bg-bg text-ink">
       <a href="#conteudo-principal" className="orion-skip-link">
         Pular para o conteúdo
       </a>
-      <div className="md:flex">
-        <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto bg-sidebar text-on-ink md:flex">
+      <div className="orion-shell-layout md:flex">
+        <aside className="orion-desktop-sidebar sticky top-0 hidden h-dvh w-64 shrink-0 flex-col overflow-y-auto bg-sidebar text-on-ink md:flex">
           <div className="border-b border-on-ink/15 px-6 py-8">
             <OrionSignature />
           </div>
@@ -55,7 +55,7 @@ export function AppShell({ section, children }: AppShellProps) {
           <SignatureFooter />
         </aside>
         <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-4 bg-sidebar px-4 py-4 text-on-ink md:hidden">
+          <div className="orion-mobile-header flex items-center justify-between gap-4 bg-sidebar px-4 py-4 text-on-ink md:hidden">
             <OrionSignature />
             <Dialog.Root open={menuOpen} onOpenChange={setMenuOpen}>
               <Dialog.Trigger asChild>
@@ -74,7 +74,9 @@ export function AppShell({ section, children }: AppShellProps) {
                   aria-describedby={undefined}
                 >
                   <div className="flex items-center justify-between gap-4 border-b border-on-ink/15 p-6">
-                    <Dialog.Title className="text-heading-3 font-semibold">Navegação</Dialog.Title>
+                    <Dialog.Title className="min-w-0 break-words text-heading-3 font-semibold">
+                      Navegação
+                    </Dialog.Title>
                     <Dialog.Close asChild>
                       <button
                         type="button"
@@ -101,7 +103,7 @@ export function AppShell({ section, children }: AppShellProps) {
               <span className="text-muted" aria-hidden="true">
                 /
               </span>
-              <span className="font-semibold">{current.label}</span>
+              <span className="min-w-0 break-words font-semibold">{current.label}</span>
             </p>
           </div>
           <main
@@ -121,7 +123,7 @@ export function AppShell({ section, children }: AppShellProps) {
 // Temporary typographic signature; replace here when the final logo is approved.
 function OrionSignature() {
   return (
-    <div aria-label="Orion Storage" className="min-w-0">
+    <div className="min-w-0">
       <p className="text-heading-2 font-bold tracking-tight">
         Orion <span className="font-medium">Storage</span>
       </p>
