@@ -3,5 +3,8 @@ dist/
 .output/
 .nitro/
 .vercel/
+.env
+.env.*
+!.env.example
 *.log
 .DS_Store
