@@ -1,4 +1,4 @@
-import { Ban, Circle, CircleDot, HelpCircle, Minus, Square } from "lucide-react";
+import { AlertTriangle, Ban, Circle, CircleDot, HelpCircle, Minus, Square } from "lucide-react";
 
 import {
   OCCUPANCY_LABEL,
@@ -29,24 +29,34 @@ const KIND_ICON = {
 type LocationCellProps = {
   cell: MapCell;
   highlighted: boolean;
+  divergent: boolean;
   onOpen: (cell: MapCell) => void;
 };
 
-export function LocationCell({ cell, highlighted, onOpen }: LocationCellProps) {
+export function LocationCell({ cell, highlighted, divergent, onOpen }: LocationCellProps) {
   const Icon = KIND_ICON[cell.occupancy.kind];
   return (
     <button
       id={`map-loc-${cell.location.id}`}
       type="button"
       draggable={false}
-      title={cell.location.code}
-      aria-label={spokenLocation(cell.location, cell.occupancy)}
+      title={`${cell.location.code}${divergent ? " · Divergência encontrada no último inventário concluído" : ""}`}
+      aria-label={`${spokenLocation(cell.location, cell.occupancy)}${divergent ? " Divergência encontrada no último inventário concluído." : ""}`}
       onClick={() => onOpen(cell)}
       className={`orion-map-cell ${KIND_CLASS[cell.occupancy.kind]} ${
         highlighted ? "orion-cell-highlight" : ""
       }`}
     >
       <span className="font-mono text-xs font-medium">{shortPosition(cell.location.position)}</span>
+      {divergent ? (
+        <span
+          className="inline-flex items-center gap-1 text-xs text-accent"
+          aria-label="Divergência encontrada"
+        >
+          <AlertTriangle className="size-3" aria-hidden="true" />
+          Inventário
+        </span>
+      ) : null}
       <span className="text-sm font-semibold tabular-nums">
         {formatOccupancyCount(cell.occupancy)}
       </span>

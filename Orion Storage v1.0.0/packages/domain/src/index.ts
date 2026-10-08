@@ -1,4 +1,6 @@
 export { buildDuplicateInput } from "./duplicate";
+export * from "./inventory";
+export type { InventoryRepository } from "./inventory-repository";
 export {
   AmbiguousIdentificationError,
   BoxCodeCapacityError,

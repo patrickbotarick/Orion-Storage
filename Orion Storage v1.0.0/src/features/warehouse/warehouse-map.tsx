@@ -5,14 +5,21 @@ import { AisleSection } from "@/features/warehouse/aisle-section";
 type WarehouseMapProps = {
   view: WarehouseView;
   highlighted: ReadonlySet<string>;
+  divergent: ReadonlySet<string>;
   onOpen: (cell: MapCell) => void;
 };
 
-export function WarehouseMap({ view, highlighted, onOpen }: WarehouseMapProps) {
+export function WarehouseMap({ view, highlighted, divergent, onOpen }: WarehouseMapProps) {
   return (
     <div>
       {view.aisles.map((aisle) => (
-        <AisleSection key={aisle.aisle} aisle={aisle} highlighted={highlighted} onOpen={onOpen} />
+        <AisleSection
+          key={aisle.aisle}
+          aisle={aisle}
+          highlighted={highlighted}
+          divergent={divergent}
+          onOpen={onOpen}
+        />
       ))}
       <ul className="mt-6 flex flex-wrap gap-2" aria-label="Legenda do mapa">
         {OCCUPANCY_KINDS.map((kind) => (

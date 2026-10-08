@@ -7,10 +7,11 @@ import { LocationCell } from "@/features/warehouse/location-cell";
 type RackGridProps = {
   rack: RackView;
   highlighted: ReadonlySet<string>;
+  divergent: ReadonlySet<string>;
   onOpen: (cell: MapCell) => void;
 };
 
-export function RackGrid({ rack, highlighted, onOpen }: RackGridProps) {
+export function RackGrid({ rack, highlighted, divergent, onOpen }: RackGridProps) {
   return (
     <section
       id={`map-rack-${rack.aisle}-${rack.rack}`}
@@ -55,6 +56,7 @@ export function RackGrid({ rack, highlighted, onOpen }: RackGridProps) {
                     key={cell.location.id}
                     cell={cell}
                     highlighted={highlighted.has(cell.location.id)}
+                    divergent={divergent.has(cell.location.id)}
                     onOpen={onOpen}
                   />
                 );

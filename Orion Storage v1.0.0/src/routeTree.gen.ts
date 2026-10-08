@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CaixasRouteImport } from './routes/caixas'
 import { Route as EnderecamentoRouteImport } from './routes/enderecamento'
+import { Route as InventariosRouteImport } from './routes/inventarios'
 import { Route as MapaRouteImport } from './routes/mapa'
 import { Route as MovimentacoesRouteImport } from './routes/movimentacoes'
 import { Route as RecebimentosRouteImport } from './routes/recebimentos'
@@ -30,6 +31,11 @@ const CaixasRoute = CaixasRouteImport.update({
 const EnderecamentoRoute = EnderecamentoRouteImport.update({
   id: '/enderecamento',
   path: '/enderecamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InventariosRoute = InventariosRouteImport.update({
+  id: '/inventarios',
+  path: '/inventarios',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MapaRoute = MapaRouteImport.update({
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/inventarios': typeof InventariosRoute
   '/mapa': typeof MapaRoute
   '/movimentacoes': typeof MovimentacoesRoute
   '/recebimentos': typeof RecebimentosRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/inventarios': typeof InventariosRoute
   '/mapa': typeof MapaRoute
   '/movimentacoes': typeof MovimentacoesRoute
   '/recebimentos': typeof RecebimentosRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/caixas': typeof CaixasRoute
   '/enderecamento': typeof EnderecamentoRoute
+  '/inventarios': typeof InventariosRoute
   '/mapa': typeof MapaRoute
   '/movimentacoes': typeof MovimentacoesRoute
   '/recebimentos': typeof RecebimentosRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/caixas'
     | '/enderecamento'
+    | '/inventarios'
     | '/mapa'
     | '/movimentacoes'
     | '/recebimentos'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/caixas'
     | '/enderecamento'
+    | '/inventarios'
     | '/mapa'
     | '/movimentacoes'
     | '/recebimentos'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/caixas'
     | '/enderecamento'
+    | '/inventarios'
     | '/mapa'
     | '/movimentacoes'
     | '/recebimentos'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CaixasRoute: typeof CaixasRoute
   EnderecamentoRoute: typeof EnderecamentoRoute
+  InventariosRoute: typeof InventariosRoute
   MapaRoute: typeof MapaRoute
   MovimentacoesRoute: typeof MovimentacoesRoute
   RecebimentosRoute: typeof RecebimentosRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/enderecamento'
       fullPath: '/enderecamento'
       preLoaderRoute: typeof EnderecamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inventarios': {
+      id: '/inventarios'
+      path: '/inventarios'
+      fullPath: '/inventarios'
+      preLoaderRoute: typeof InventariosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mapa': {
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CaixasRoute: CaixasRoute,
   EnderecamentoRoute: EnderecamentoRoute,
+  InventariosRoute: InventariosRoute,
   MapaRoute: MapaRoute,
   MovimentacoesRoute: MovimentacoesRoute,
   RecebimentosRoute: RecebimentosRoute,

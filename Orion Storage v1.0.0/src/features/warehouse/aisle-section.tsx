@@ -5,10 +5,11 @@ import { RackGrid } from "@/features/warehouse/rack-grid";
 type AisleSectionProps = {
   aisle: WarehouseView["aisles"][number];
   highlighted: ReadonlySet<string>;
+  divergent: ReadonlySet<string>;
   onOpen: (cell: MapCell) => void;
 };
 
-export function AisleSection({ aisle, highlighted, onOpen }: AisleSectionProps) {
+export function AisleSection({ aisle, highlighted, divergent, onOpen }: AisleSectionProps) {
   const headingId = `map-aisle-${aisle.aisle}`;
   return (
     <section className="mt-8" aria-labelledby={headingId}>
@@ -21,6 +22,7 @@ export function AisleSection({ aisle, highlighted, onOpen }: AisleSectionProps) 
             key={`${aisle.aisle}-${rack.rack}`}
             rack={rack}
             highlighted={highlighted}
+            divergent={divergent}
             onOpen={onOpen}
           />
         ))}

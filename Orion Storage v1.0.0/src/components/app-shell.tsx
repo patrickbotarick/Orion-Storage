@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import {
   ArrowLeftRight,
   Boxes,
+  ClipboardCheck,
   Map,
   MapPin,
   Menu,
@@ -21,6 +22,7 @@ const NAV_ITEMS = [
   { section: "movements", to: "/movimentacoes", label: "Movimentações", icon: ArrowLeftRight },
   { section: "receipts", to: "/recebimentos", label: "Recebimentos", icon: Truck },
   { section: "map", to: "/mapa", label: "Mapa", icon: Map },
+  { section: "inventories", to: "/inventarios", label: "Inventários", icon: ClipboardCheck },
 ] as const;
 
 type AppShellProps = {

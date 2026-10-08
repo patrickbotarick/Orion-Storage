@@ -10,18 +10,21 @@ import {
   compareNatural,
   filterWarehouseLocations,
   normalizeForComparison,
+  inventoryDivergenceLocations,
   searchWarehouse,
   type Box,
   type Location,
   type MapCell,
   type Product,
   type StorageArea,
+  type InventorySession,
   type WarehouseFilters,
 } from "@orion/domain";
 
 import { getBrowserBoxService } from "@/application/boxes/box-service";
 import { getBrowserLocationService } from "@/application/locations/location-service";
 import { getBrowserProductService } from "@/application/products/product-service";
+import { getBrowserInventoryService } from "@/application/inventories/inventory-service";
 import { AppShell } from "@/components/app-shell";
 import { AreaSummary } from "@/features/warehouse/area-summary";
 import { LocationDetail } from "@/features/warehouse/location-detail";
@@ -43,6 +46,7 @@ export function WarehousePage() {
   const [boxes, setBoxes] = useState<Box[] | null>(null);
   const [products, setProducts] = useState<Product[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [inventories, setInventories] = useState<InventorySession[]>([]);
   const [areaId, setAreaId] = useState("");
   const [filters, setFilters] = useState<WarehouseFilters>(EMPTY_FILTERS);
   const [query, setQuery] = useState("");
@@ -61,6 +65,12 @@ export function WarehousePage() {
     setLocations(nextLocations);
     setBoxes(nextBoxes);
     setProducts(nextProducts);
+    try {
+      setInventories(await getBrowserInventoryService().list());
+    } catch {
+      // Inventory annotations must not prevent the official occupancy map from loading.
+      setInventories([]);
+    }
     setError(null);
   }, []);
 
@@ -98,6 +108,7 @@ export function WarehousePage() {
     [query, locations, boxes, products],
   );
   const highlighted = useMemo(() => new Set(searchResult.locationIds), [searchResult]);
+  const divergent = useMemo(() => inventoryDivergenceLocations(inventories), [inventories]);
   const visibleLocations = useMemo(
     () => filterWarehouseLocations(areaLocations, boxes ?? [], products ?? [], filters),
     [areaLocations, boxes, products, filters],
@@ -320,7 +331,18 @@ export function WarehousePage() {
             ) : view.aisles.length === 0 ? (
               <EmptyState title="Nenhuma posição corresponde aos filtros." className="mt-4" />
             ) : (
-              <WarehouseMap view={view} highlighted={highlighted} onOpen={setSelected} />
+              <>
+                <p className="mb-3 text-xs text-muted">
+                  O indicador Inventário sinaliza divergência no último inventário concluído da
+                  posição. A ocupação continua sendo a localização oficial das caixas.
+                </p>
+                <WarehouseMap
+                  view={view}
+                  highlighted={highlighted}
+                  divergent={divergent}
+                  onOpen={setSelected}
+                />
+              </>
             )}
           </>
         ) : null}

@@ -2,7 +2,7 @@
 
 Sistema independente de controle de estoque físico.
 
-A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física. A Fase 2B entrega o endereço. A Fase 3A entrega o QR e a etiqueta básica. A Fase 3B entrega o scanner e a movimentação. A Fase 3C entrega o recebimento em lote e a impressão de várias etiquetas. A Fase 4A entrega o mapa somente leitura. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
+A Fase 1 entrega o catálogo de produtos. A Fase 2A entrega a caixa física. A Fase 2B entrega o endereço. A Fase 3A entrega o QR e a etiqueta básica. A Fase 3B entrega o scanner e a movimentação. A Fase 3C entrega o recebimento em lote e a impressão de várias etiquetas. A Fase 4A entrega o mapa somente leitura. A Fase 4B entrega inventário físico e divergências, sem corrigir automaticamente o estoque. O produto não é específico de fita de borda. Medidas de fita existem como atributos opcionais para o primeiro cenário de uso.
 
 ## Objetivo
 
@@ -35,14 +35,14 @@ npm install
 
 ## Comandos
 
-| Comando             | Função                                                                               |
-| ------------------- | ------------------------------------------------------------------------------------ |
-| `npm run dev`       | Sobe o aplicativo na porta 8080. Outra porta: `npm run dev -- --port 8091`           |
-| `npm run typecheck` | TypeScript sem emitir arquivos                                                       |
-| `npm run lint`      | ESLint                                                                               |
-| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A, 2B, 3A, 3B, 3C e 4A) |
-| `npm run build`     | Build de produção                                                                    |
-| `npm run format`    | Prettier                                                                             |
+| Comando             | Função                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------- |
+| `npm run dev`       | Sobe o aplicativo na porta 8080. Outra porta: `npm run dev -- --port 8091`               |
+| `npm run typecheck` | TypeScript sem emitir arquivos                                                           |
+| `npm run lint`      | ESLint                                                                                   |
+| `npm test`          | Vitest do domínio, da aplicação e da persistência (Fases 1, 2A, 2B, 3A, 3B, 3C, 4A e 4B) |
+| `npm run build`     | Build de produção                                                                        |
+| `npm run format`    | Prettier                                                                                 |
 
 O servidor de desenvolvimento escuta em **0.0.0.0** e, sem argumento, usa a porta **8080** (`http://127.0.0.1:8080`). Para escolher outra porta: `npm run dev -- --port 8091`. Os scripts `dev`, `build` e `preview` chamam o Vite pelo `npm`, que resolve o binário local (`vite` no Linux e macOS, `vite.cmd` no Windows). Não há wrapper que faça `spawn("vite")`.
 
@@ -51,11 +51,11 @@ Não há banco, autenticação nem serviços externos. Os dados ficam no `localS
 ## Estrutura
 
 ```text
-packages/domain/     produtos, caixas, áreas, endereços, QR, etiquetas, movimentação, recebimento e mapa
+packages/domain/     produtos, caixas, áreas, endereços, QR, etiquetas, movimentação, recebimento, mapa e inventário
 packages/shared/     formatação e rótulos
-src/application/     ProductService, BoxService, endereçamento, MovementService e ReceiptService
+src/application/     ProductService, BoxService, endereçamento, MovementService, ReceiptService e InventoryService
 src/persistence/     repositórios em localStorage
-src/features/        telas de produtos, caixas, endereçamento, scanner, movimentações, recebimentos e mapa
+src/features/        telas de produtos, caixas, endereçamento, scanner, movimentações, recebimentos, mapa e inventários
 src/routes/          entrada da aplicação web
 docs/                documentação das fases
 ```
@@ -69,7 +69,7 @@ npm install
 npm run dev
 ```
 
-Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos**, **Caixas**, **Endereçamento**, **Scanner**, **Movimentações**, **Recebimentos** e **Mapa**. Os cadastros já abrem com dados de demonstração. A chave de movimentações começa vazia: localização antiga não vira movimento retroativo. A chave de recebimentos também começa vazia: caixa antiga não ganha `receiptId`. Novos endereços de demonstração só entram se a chave de endereços ainda não existir.
+Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegação tem **Produtos**, **Caixas**, **Endereçamento**, **Scanner**, **Movimentações**, **Recebimentos**, **Mapa** e **Inventários**. Os cadastros já abrem com dados de demonstração. A chave de movimentações começa vazia: localização antiga não vira movimento retroativo. A chave de recebimentos também começa vazia: caixa antiga não ganha `receiptId`. Novos endereços de demonstração só entram se a chave de endereços ainda não existir.
 
 ### Início rápido no Windows
 
@@ -90,7 +90,7 @@ Abra a aplicação na porta 8080, ou na porta passada com `--port`. A navegaçã
 npm test
 ```
 
-Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B, o QR e as etiquetas da Fase 3A, a movimentação e a sessão do scanner da Fase 3B, o recebimento em lote da Fase 3C e o mapa da Fase 4A. Não há teste da câmera física.
+Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B, o QR e as etiquetas da Fase 3A, a movimentação e a sessão do scanner da Fase 3B, o recebimento em lote da Fase 3C, o mapa da Fase 4A e o inventário físico da Fase 4B. São 129 testes em 29 arquivos. Não há teste da câmera física.
 
 ## Status atual
 
@@ -101,7 +101,8 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B,
 - Fase 3B concluída: scanner e movimentação operacional.
 - Fase 3C concluída: recebimento em lote e impressão múltipla de etiquetas.
 - Fase 4A concluída: mapa visual somente leitura.
-- Inventário, expedição, usuários e banco remoto não foram iniciados.
+- Fase 4B concluída: inventário físico por escopo e registro de divergências.
+- Correções de inventário, expedição, usuários e banco remoto não foram iniciados.
 
 ## Funcionalidades da Fase 1
 
@@ -128,7 +129,21 @@ Cobrem o catálogo da Fase 1, as caixas da Fase 2A, o endereçamento da Fase 2B,
 
 ## Próximos passos
 
-O mapa mostra a ocupação sem editá-la. O próximo passo natural é o inventário físico, comparando a contagem com a localização atual. Expedição continua fora.
+O mapa mostra a ocupação sem editá-la e sinaliza divergências da última conferência concluída. A Fase 4B compara a contagem com um snapshot fixo do início. Uma fase futura poderá tratar correções explícitas e auditáveis; nenhum ajuste automático é feito hoje. Expedição continua fora.
+
+## Funcionalidades da Fase 4B
+
+- Inventários em `/inventarios`: área, corredor, prateleira, nível ou posição
+- Snapshot persistido e estável diante de movimentações posteriores
+- Câmera e identificação da Fase 3B reutilizadas, com leitura manual e QR de posição
+- Observações MATCH, MISSING, UNEXPECTED e WRONG_LOCATION, sem alterar caixas ou criar Movement
+- Leitura duplicada e caixa inexistente recusadas
+- Revisão antes de finalizar; sessões concluídas/canceladas imutáveis
+- Histórico, busca, filtros e detalhe agrupado por classificação
+- Indicador no mapa baseado na última sessão concluída de cada posição, preservando a ocupação oficial
+- Persistência `orion-storage.inventories.v1`, sem seeds
+
+Detalhes e limites: [FASE_04B_INVENTARIO.md](docs/FASE_04B_INVENTARIO.md). Entrada para futuras sessões: [ESTADO_ATUAL_PROJETO.md](docs/ESTADO_ATUAL_PROJETO.md).
 
 ## Funcionalidades da Fase 4A
 
